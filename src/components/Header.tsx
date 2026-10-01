@@ -95,15 +95,25 @@ export const Header: React.FC<HeaderProps> = ({
       : { text: 'text-cyan-400', border: 'border-cyan-500/30', bg: 'bg-cyan-500/10', activeTab: 'bg-cyan-500 text-slate-950' };
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-slate-800 bg-slate-950/95 backdrop-blur-md shadow-md">
-      {/* ========================================================================= */}
-      {/* ROW 1: BRAND, SUBJECT & CHAPTER SELECTOR, PRESENTATION TOOLS              */}
-      {/* ========================================================================= */}
-      <div className="mx-auto flex flex-wrap items-center justify-between gap-3 px-4 py-2.5 sm:px-6 border-b border-slate-800/60">
+    <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md shadow-md text-slate-900">
+  {/* টপ গ্রেডিয়েন্ট বর্ডার লাইন */}
+  <div className="h-1 w-full bg-gradient-to-r from-blue-500 via-indigo-500 to-cyan-500"></div>
+
+  {/* ========================================================================= */}
+  {/* ROW 1: BRAND, SUBJECT & CHAPTER SELECTOR, PRESENTATION TOOLS              */}
+  {/* ========================================================================= */}
+  <div className="mx-auto flex flex-wrap items-center justify-between gap-3 px-4 py-2.5 sm:px-6 bg-slate-50 border-b border-slate-200">
         
-        {/* Left: Subject / Chapter Switcher */}
-        <div className="flex items-center gap-2.5 min-w-0">
-          <span className={`flex h-9 w-9 items-center justify-center rounded-lg ${subjectTheme.bg} ${subjectTheme.text} ring-1 ${subjectTheme.border} shrink-0`}>
+        {/* Left: Logo & Subject / Chapter Switcher */}
+        <div className="flex items-center gap-3 min-w-0">
+          {/* Logo GIF Section */}
+          <img 
+            src="/logo.gif" 
+            alt="প্রেজেন্টেশন ও ল্যাব" 
+            className="h-16 w-auto object-contain cursor-pointer transition-transform hover:scale-105 shrink-0"
+          />
+
+          <span className={`flex h-9 w-9 items-center justify-center rounded-lg ${subjectTheme.bg} ${subjectTheme.text} ring-1 ${subjectTheme.border} shrink-0 hidden sm:flex`}>
             {activeSubject === 'biology' ? (
               <Dna className="h-5 w-5 animate-pulse" />
             ) : activeSubject === 'physics' ? (
@@ -236,7 +246,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* 7. Fullscreen */}
           <button
             onClick={toggleFullscreen}
-            title={isFullscreen ? 'ফুলস্ক্রিন বন্ধ করুন' : 'পূর্ণপর্দায় উপস্থাপন'}
+            title={isFullscreen ? 'ফুলস্ক্রিন বন্ধ করুন' : 'পূর্ণপর্দায় উপস্থাপন'}
             className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-700 bg-slate-900 text-slate-200 transition hover:border-slate-600 hover:bg-slate-800 hover:text-white"
           >
             {isFullscreen ? <Minimize2 className="h-4 w-4 text-cyan-400" /> : <Maximize2 className="h-4 w-4 text-slate-300" />}
@@ -245,9 +255,9 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* ========================================================================= */}
-      {/* ROW 2: SUB-NAVIGATION TABS (CLEAN, RESPONSIVE WRAP, NEVER CLIPPED)        */}
+      {/* ROW 2: SUB-NAVIGATION TABS (DEEP BLUE THEME)                              */}
       {/* ========================================================================= */}
-      <div className="mx-auto flex flex-wrap items-center justify-start gap-1.5 px-4 py-2 sm:px-6 bg-slate-950/70">
+      <div className="mx-auto flex flex-wrap items-center justify-start gap-1.5 px-4 py-2 sm:px-6 bg-blue-950 border-t border-blue-900 shadow-inner">
         
         {/* Core Slide Tab */}
         <button
@@ -255,7 +265,7 @@ export const Header: React.FC<HeaderProps> = ({
           className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
             activeTab === 'slides'
               ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm'
-              : 'text-slate-300 hover:text-white hover:bg-slate-900 border border-transparent hover:border-slate-800'
+              : 'text-blue-200 hover:text-white hover:bg-blue-900/80 border border-transparent hover:border-blue-700'
           }`}
         >
           <Layers className="h-3.5 w-3.5" />
@@ -269,7 +279,7 @@ export const Header: React.FC<HeaderProps> = ({
             className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
               activeTab === 'safety'
                 ? 'bg-emerald-500 text-slate-950 font-bold shadow-sm'
-                : 'text-slate-300 hover:text-white hover:bg-slate-900 border border-transparent hover:border-slate-800'
+                : 'text-blue-200 hover:text-white hover:bg-blue-900/80 border border-transparent hover:border-blue-700'
             }`}
           >
             <ShieldAlert className="h-3.5 w-3.5 text-emerald-400" />
@@ -285,7 +295,7 @@ export const Header: React.FC<HeaderProps> = ({
               className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
                 activeTab === 'kinetic'
                   ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-900 border border-transparent hover:border-slate-800'
+                  : 'text-blue-200 hover:text-white hover:bg-blue-900/80 border border-transparent hover:border-blue-700'
               }`}
             >
               <Compass className="h-3.5 w-3.5 text-cyan-400" />
@@ -297,7 +307,7 @@ export const Header: React.FC<HeaderProps> = ({
               className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
                 activeTab === 'diffusion'
                   ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-900 border border-transparent hover:border-slate-800'
+                  : 'text-blue-200 hover:text-white hover:bg-blue-900/80 border border-transparent hover:border-blue-700'
               }`}
             >
               <Beaker className="h-3.5 w-3.5 text-cyan-400" />
@@ -309,7 +319,7 @@ export const Header: React.FC<HeaderProps> = ({
               className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
                 activeTab === 'heating'
                   ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-900 border border-transparent hover:border-slate-800'
+                  : 'text-blue-200 hover:text-white hover:bg-blue-900/80 border border-transparent hover:border-blue-700'
               }`}
             >
               <TrendingUp className="h-3.5 w-3.5 text-cyan-400" />
@@ -326,10 +336,10 @@ export const Header: React.FC<HeaderProps> = ({
               className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
                 activeTab === 'simulator'
                   ? 'bg-indigo-500 text-white font-bold shadow-sm'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-900 border border-transparent hover:border-slate-800'
+                  : 'text-blue-200 hover:text-white hover:bg-blue-900/80 border border-transparent hover:border-blue-700'
               }`}
             >
-              <Atom className="h-3.5 w-3.5 text-indigo-400" />
+              <Atom className="h-3.5 w-3.5 text-indigo-300" />
               <span>বোর সিমুলেটর</span>
             </button>
 
@@ -338,10 +348,10 @@ export const Header: React.FC<HeaderProps> = ({
               className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
                 activeTab === 'aufbau'
                   ? 'bg-indigo-500 text-white font-bold shadow-sm'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-900 border border-transparent hover:border-slate-800'
+                  : 'text-blue-200 hover:text-white hover:bg-blue-900/80 border border-transparent hover:border-blue-700'
               }`}
             >
-              <Cpu className="h-3.5 w-3.5 text-indigo-400" />
+              <Cpu className="h-3.5 w-3.5 text-indigo-300" />
               <span>আউফবাউ ল্যাব</span>
             </button>
 
@@ -350,10 +360,10 @@ export const Header: React.FC<HeaderProps> = ({
               className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
                 activeTab === 'isotope'
                   ? 'bg-indigo-500 text-white font-bold shadow-sm'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-900 border border-transparent hover:border-slate-800'
+                  : 'text-blue-200 hover:text-white hover:bg-blue-900/80 border border-transparent hover:border-blue-700'
               }`}
             >
-              <Scale className="h-3.5 w-3.5 text-indigo-400" />
+              <Scale className="h-3.5 w-3.5 text-indigo-300" />
               <span>ভর ক্যালকুলেটর</span>
             </button>
           </>
@@ -367,7 +377,7 @@ export const Header: React.FC<HeaderProps> = ({
               className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
                 activeTab === 'ptable'
                   ? 'bg-amber-500 text-slate-950 font-bold shadow-sm'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-900 border border-transparent hover:border-slate-800'
+                  : 'text-blue-200 hover:text-white hover:bg-blue-900/80 border border-transparent hover:border-blue-700'
               }`}
             >
               <Grid className="h-3.5 w-3.5 text-amber-400" />
@@ -379,7 +389,7 @@ export const Header: React.FC<HeaderProps> = ({
               className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
                 activeTab === 'positionFinder'
                   ? 'bg-amber-500 text-slate-950 font-bold shadow-sm'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-900 border border-transparent hover:border-slate-800'
+                  : 'text-blue-200 hover:text-white hover:bg-blue-900/80 border border-transparent hover:border-blue-700'
               }`}
             >
               <Search className="h-3.5 w-3.5 text-amber-400" />
@@ -391,7 +401,7 @@ export const Header: React.FC<HeaderProps> = ({
               className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
                 activeTab === 'trends'
                   ? 'bg-amber-500 text-slate-950 font-bold shadow-sm'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-900 border border-transparent hover:border-slate-800'
+                  : 'text-blue-200 hover:text-white hover:bg-blue-900/80 border border-transparent hover:border-blue-700'
               }`}
             >
               <Activity className="h-3.5 w-3.5 text-amber-400" />
@@ -408,7 +418,7 @@ export const Header: React.FC<HeaderProps> = ({
               className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
                 activeTab === 'bondingLab'
                   ? 'bg-rose-500 text-white font-bold shadow-sm'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-900 border border-transparent hover:border-slate-800'
+                  : 'text-blue-200 hover:text-white hover:bg-blue-900/80 border border-transparent hover:border-blue-700'
               }`}
             >
               <Link2 className="h-3.5 w-3.5 text-rose-400" />
@@ -420,7 +430,7 @@ export const Header: React.FC<HeaderProps> = ({
               className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
                 activeTab === 'formulaBuilder'
                   ? 'bg-rose-500 text-white font-bold shadow-sm'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-900 border border-transparent hover:border-slate-800'
+                  : 'text-blue-200 hover:text-white hover:bg-blue-900/80 border border-transparent hover:border-blue-700'
               }`}
             >
               <Sparkles className="h-3.5 w-3.5 text-rose-400" />
@@ -432,7 +442,7 @@ export const Header: React.FC<HeaderProps> = ({
               className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
                 activeTab === 'compoundProps'
                   ? 'bg-rose-500 text-white font-bold shadow-sm'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-900 border border-transparent hover:border-slate-800'
+                  : 'text-blue-200 hover:text-white hover:bg-blue-900/80 border border-transparent hover:border-blue-700'
               }`}
             >
               <Droplets className="h-3.5 w-3.5 text-rose-400" />
@@ -448,7 +458,7 @@ export const Header: React.FC<HeaderProps> = ({
             className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
               activeTab === 'workEnergyLab'
                 ? 'bg-amber-500 text-slate-950 font-bold shadow-sm'
-                : 'text-slate-300 hover:text-white hover:bg-slate-900 border border-transparent hover:border-slate-800'
+                : 'text-blue-200 hover:text-white hover:bg-blue-900/80 border border-transparent hover:border-blue-700'
             }`}
           >
             <Zap className="h-3.5 w-3.5 text-amber-400" />
@@ -463,7 +473,7 @@ export const Header: React.FC<HeaderProps> = ({
             className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
               activeTab === 'pressureLab'
                 ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm'
-                : 'text-slate-300 hover:text-white hover:bg-slate-900 border border-transparent hover:border-slate-800'
+                : 'text-blue-200 hover:text-white hover:bg-blue-900/80 border border-transparent hover:border-blue-700'
             }`}
           >
             <Droplets className="h-3.5 w-3.5 text-cyan-400" />
@@ -478,7 +488,7 @@ export const Header: React.FC<HeaderProps> = ({
             className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
               activeTab === 'cellDivisionLab'
                 ? 'bg-emerald-500 text-slate-950 font-bold shadow-sm'
-                : 'text-slate-300 hover:text-white hover:bg-slate-900 border border-transparent hover:border-slate-800'
+                : 'text-blue-200 hover:text-white hover:bg-blue-900/80 border border-transparent hover:border-blue-700'
             }`}
           >
             <Dna className="h-3.5 w-3.5 text-emerald-400" />
@@ -492,7 +502,7 @@ export const Header: React.FC<HeaderProps> = ({
           className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
             activeTab === 'quiz'
               ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm'
-              : 'text-slate-300 hover:text-white hover:bg-slate-900 border border-transparent hover:border-slate-800'
+              : 'text-blue-200 hover:text-white hover:bg-blue-900/80 border border-transparent hover:border-blue-700'
           }`}
         >
           <CheckCircle2 className="h-3.5 w-3.5 text-cyan-400" />
