@@ -47,7 +47,8 @@ export type AppTab =
   | 'compoundProps'
   | 'workEnergyLab'
   | 'pressureLab'
-  | 'cellDivisionLab';
+  | 'cellDivisionLab'
+  | 'cellExplorerLab';
 
 interface HeaderProps {
   activeChapter: 1 | 2 | 3 | 4 | 5;
@@ -158,6 +159,7 @@ export const Header: React.FC<HeaderProps> = ({
                 <option value="physics-5">পদার্থবিজ্ঞান অধ্যায় ৫: পদার্থের অবস্থা ও চাপ</option>
               </optgroup>
               <optgroup label="জীববিজ্ঞান (Biology)">
+                <option value="biology-2">জীববিজ্ঞান অধ্যায় ২: জীবকোষ ও টিস্যু</option>
                 <option value="biology-3">জীববিজ্ঞান অধ্যায় ৩: কোষ বিভাজন</option>
               </optgroup>
             </select>
@@ -478,6 +480,21 @@ export const Header: React.FC<HeaderProps> = ({
           >
             <Droplets className="h-3.5 w-3.5 text-cyan-400" />
             <span>চাপ ও প্লবতা ল্যাব</span>
+          </button>
+        )}
+
+        {/* Biology Chapter 2 Labs */}
+        {activeSubject === 'biology' && activeChapter === 2 && (
+          <button
+            onClick={() => setActiveTab('cellExplorerLab')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+              activeTab === 'cellExplorerLab'
+                ? 'bg-emerald-500 text-slate-950 font-bold shadow-sm'
+                : 'text-blue-200 hover:text-white hover:bg-blue-900/80 border border-transparent hover:border-blue-700'
+            }`}
+          >
+            <Dna className="h-3.5 w-3.5 text-emerald-400" />
+            <span>কোষ অন্বেষণ ল্যাব</span>
           </button>
         )}
 

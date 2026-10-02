@@ -1,6 +1,7 @@
 import React from 'react';
 import { Slide } from '../types/presentation';
 import { Layers, Image as ImageIcon, Table as TableIcon, Sparkles, BookOpen } from 'lucide-react';
+import { FormulaBadge } from './FormulaBadge';
 
 export type PowerPointAnimStyle = 'flyIn' | 'fadeZoom' | 'wipeLeft' | 'glowPop';
 
@@ -191,8 +192,8 @@ export const PptxDirectSlideRenderer: React.FC<PptxDirectSlideRendererProps> = (
                       </div>
                     )}
                     {point.formula && (
-                      <div className="inline-block mt-1 ml-1.5 px-2.5 py-0.5 rounded bg-amber-950 text-amber-300 text-[11px] font-mono font-bold border border-amber-800">
-                        {point.formula}
+                      <div className="inline-block mt-1.5 ml-1.5">
+                        <FormulaBadge formula={point.formula} size="sm" />
                       </div>
                     )}
                   </div>

@@ -26,8 +26,11 @@ import {
   LayoutGrid,
   Square,
   Box,
-  Compass
+  Compass,
+  Edit3
 } from 'lucide-react';
+import { SlideEditModal } from './SlideEditModal';
+import { FormulaBadge } from './FormulaBadge';
 
 interface SlideViewerProps {
   slides: Slide[];
@@ -36,6 +39,9 @@ interface SlideViewerProps {
   onOpenSlideIndex: () => void;
   onNavigateToTab: (tab: 'simulator' | 'aufbau' | 'isotope' | 'kinetic' | 'diffusion' | 'heating' | 'safety' | 'ptable' | 'positionFinder' | 'trends' | 'bondingLab' | 'formulaBuilder' | 'compoundProps' | 'workEnergyLab' | 'pressureLab' | 'cellDivisionLab') => void;
   openPowerPointShow?: () => void;
+  onUpdateSlide?: (updatedSlide: Slide, slideIndex: number) => void;
+  onResetSlide?: (slideIndex: number) => void;
+  isSlideEdited?: (slideIndex: number) => boolean;
 }
 
 export const SlideViewer: React.FC<SlideViewerProps> = ({
@@ -44,9 +50,13 @@ export const SlideViewer: React.FC<SlideViewerProps> = ({
   setCurrentSlideIndex,
   onOpenSlideIndex,
   onNavigateToTab,
-  openPowerPointShow
+  openPowerPointShow,
+  onUpdateSlide,
+  onResetSlide,
+  isSlideEdited
 }) => {
   const currentSlide = slides[currentSlideIndex];
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [autoPlayInterval, setAutoPlayInterval] = useState(8); // seconds
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -683,6 +693,18 @@ export const SlideViewer: React.FC<SlideViewerProps> = ({
                 <p className="text-xs md:text-sm text-slate-300 leading-relaxed whitespace-pre-line">
                   {point.description}
                 </p>
+                {(point.highlight || point.formula) && (
+                  <div className="flex flex-wrap items-center gap-2 mt-3 pt-2 border-t border-slate-800/60">
+                    {point.highlight && (
+                      <span className="inline-block px-2.5 py-0.5 rounded-lg bg-cyan-950/60 text-cyan-300 text-[11px] font-semibold border border-cyan-800/80">
+                        {point.highlight}
+                      </span>
+                    )}
+                    {point.formula && (
+                      <FormulaBadge formula={point.formula} size="sm" />
+                    )}
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -798,6 +820,24 @@ export const SlideViewer: React.FC<SlideViewerProps> = ({
                 <span>পাওয়ারপয়েন্ট শো</span>
               </button>
             )}
+
+            {onUpdateSlide && (
+              <button
+                onClick={() => setIsEditModalOpen(true)}
+                title="এই স্লাইডটি সম্পাদনা / এডিট করুন"
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-bold transition shadow-sm ${
+                  isSlideEdited?.(currentSlideIndex)
+                    ? 'border-amber-500/50 bg-amber-950/40 text-amber-300 hover:bg-amber-900/60'
+                    : 'border-slate-700 bg-slate-900 text-slate-300 hover:text-white hover:bg-slate-800'
+                }`}
+              >
+                <Edit3 className="h-3 w-3" />
+                <span>এডিট</span>
+                {isSlideEdited?.(currentSlideIndex) && (
+                  <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
+                )}
+              </button>
+            )}
           </div>
 
           {/* Center: Slide Step Controller */}
@@ -907,6 +947,20 @@ export const SlideViewer: React.FC<SlideViewerProps> = ({
             )}
           </div>
         </div>
+      )}
+
+      {/* In-Viewer Slide Edit Modal */}
+      {onUpdateSlide && (
+        <SlideEditModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          slide={currentSlide}
+          slideIndex={currentSlideIndex}
+          totalSlides={slides.length}
+          onSave={(updated) => onUpdateSlide(updated, currentSlideIndex)}
+          onResetOriginal={onResetSlide ? () => onResetSlide(currentSlideIndex) : undefined}
+          isEdited={isSlideEdited ? isSlideEdited(currentSlideIndex) : false}
+        />
       )}
     </div>
   );

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { chapter1Slides } from './data/chapter1SlidesData';
 import { chapter2Slides } from './data/chapter2SlidesData';
 import { slides as chapter3Slides } from './data/slidesData';
@@ -11,8 +11,10 @@ import { chapter4Slides } from './data/chapter4SlidesData';
 import { chapter5Slides } from './data/chapter5SlidesData';
 import { physicsChapter4Slides } from './data/physicsChapter4SlidesData';
 import { physicsChapter5Slides } from './data/physicsChapter5SlidesData';
+import { biologyChapter2Slides } from './data/biologyChapter2SlidesData';
 import { biologyChapter3Slides } from './data/biologyChapter3SlidesData';
 import { Header, AppTab } from './components/Header';
+import { CellExplorerLab } from './components/CellExplorerLab';
 import { Slide } from './types/presentation';
 import { SlideViewer } from './components/SlideViewer';
 import { PresenterModal } from './components/PresenterModal';
@@ -53,13 +55,23 @@ export default function App() {
   const [uploadedSlidesMap, setUploadedSlidesMap] = useState<Record<string, Slide[]>>({});
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
 
+  // User-edited slides stored per chapter key and persisted in localStorage
+  const [editedSlidesMap, setEditedSlidesMap] = useState<Record<string, Record<number, Slide>>>(() => {
+    try {
+      const saved = localStorage.getItem('science_master_edited_slides');
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+
   const currentChapterKey = `${activeSubject}-${activeChapter}`;
   const customUploadedSlides = uploadedSlidesMap[currentChapterKey];
 
   // Current slides according to active subject and chapter (or custom uploaded PPTX)
   const defaultChapterSlides = 
     activeSubject === 'biology'
-      ? biologyChapter3Slides
+      ? (activeChapter === 2 ? biologyChapter2Slides : biologyChapter3Slides)
       : activeSubject === 'physics'
       ? (activeChapter === 4 ? physicsChapter4Slides : physicsChapter5Slides)
       : (
@@ -70,7 +82,50 @@ export default function App() {
         chapter5Slides
       );
 
-  const currentSlides = customUploadedSlides || defaultChapterSlides;
+  const baseSlides = customUploadedSlides || defaultChapterSlides;
+  const chapterEdits = editedSlidesMap[currentChapterKey];
+
+  // Merge base slides with any edited slides for this chapter
+  const currentSlides = useMemo(() => {
+    if (!chapterEdits || Object.keys(chapterEdits).length === 0) {
+      return baseSlides;
+    }
+    return baseSlides.map((s, idx) => chapterEdits[idx] || s);
+  }, [baseSlides, chapterEdits]);
+
+  // Handler to update a specific slide
+  const handleUpdateSlide = (updatedSlide: Slide, slideIndex: number) => {
+    setEditedSlidesMap(prev => {
+      const chapterObj = { ...(prev[currentChapterKey] || {}), [slideIndex]: updatedSlide };
+      const next = { ...prev, [currentChapterKey]: chapterObj };
+      try {
+        localStorage.setItem('science_master_edited_slides', JSON.stringify(next));
+      } catch (e) {
+        console.error('Error saving edited slide:', e);
+      }
+      return next;
+    });
+  };
+
+  // Handler to reset a specific slide to its original unedited state
+  const handleResetSlide = (slideIndex: number) => {
+    setEditedSlidesMap(prev => {
+      const chapterObj = { ...(prev[currentChapterKey] || {}) };
+      delete chapterObj[slideIndex];
+      const next = { ...prev, [currentChapterKey]: chapterObj };
+      try {
+        localStorage.setItem('science_master_edited_slides', JSON.stringify(next));
+      } catch (e) {
+        console.error('Error resetting slide edit:', e);
+      }
+      return next;
+    });
+  };
+
+  // Check if a specific slide has been edited
+  const isSlideEdited = (slideIndex: number) => {
+    return Boolean(editedSlidesMap[currentChapterKey]?.[slideIndex]);
+  };
 
   // Chapter titles and subject names for PPTX metadata
   const chapterTitlesMap: Record<string, string> = {
@@ -81,6 +136,7 @@ export default function App() {
     'chemistry-5': 'রাসায়নিক বন্ধন',
     'physics-4': 'কাজ, ক্ষমতা ও শক্তি',
     'physics-5': 'পদার্থের অবস্থা ও চাপ',
+    'biology-2': 'জীবকোষ ও টিস্যু',
     'biology-3': 'কোষ বিভাজন',
   };
   const subjectLabelsMap: Record<string, string> = {
@@ -113,6 +169,15 @@ export default function App() {
       ...prev,
       [currentChapterKey]: newSlides
     }));
+    // Clear user edits for this chapter so uploaded slides display cleanly
+    setEditedSlidesMap(prev => {
+      const next = { ...prev };
+      delete next[currentChapterKey];
+      try {
+        localStorage.setItem('science_master_edited_slides', JSON.stringify(next));
+      } catch (e) {}
+      return next;
+    });
     setCurrentSlideIndex(0);
   };
 
@@ -121,6 +186,15 @@ export default function App() {
       const copy = { ...prev };
       delete copy[currentChapterKey];
       return copy;
+    });
+    // Also clear edits when resetting to original
+    setEditedSlidesMap(prev => {
+      const next = { ...prev };
+      delete next[currentChapterKey];
+      try {
+        localStorage.setItem('science_master_edited_slides', JSON.stringify(next));
+      } catch (e) {}
+      return next;
     });
     setCurrentSlideIndex(0);
   };
@@ -193,6 +267,9 @@ export default function App() {
             onOpenSlideIndex={() => setIsSlideIndexModalOpen(true)}
             onNavigateToTab={(tab) => setActiveTab(tab as AppTab)}
             openPowerPointShow={() => setIsPowerPointShowOpen(true)}
+            onUpdateSlide={handleUpdateSlide}
+            onResetSlide={handleResetSlide}
+            isSlideEdited={isSlideEdited}
           />
         )}
 
@@ -229,8 +306,13 @@ export default function App() {
         {/* Physics Chapter 5 Interactive Labs */}
         {activeTab === 'pressureLab' && <PressureFluidsLab />}
 
+        {/* Biology Chapter 2 Interactive Labs */}
+        {activeTab === 'cellExplorerLab' && <CellExplorerLab />}
+
         {/* Biology Chapter 3 Interactive Labs */}
-        {activeTab === 'cellDivisionLab' && <CellDivisionLab />}
+        {activeTab === 'cellDivisionLab' && (
+          activeChapter === 2 ? <CellExplorerLab /> : <CellDivisionLab />
+        )}
 
         {/* Assessment Quiz (Chemistry, Physics & Biology Chapters Supported) */}
         {activeTab === 'quiz' && (
@@ -275,6 +357,9 @@ export default function App() {
         setCurrentSlideIndex={setCurrentSlideIndex}
         subjectName={subjectLabelsMap[activeSubject] || 'বিজ্ঞান'}
         chapterNumber={activeChapter}
+        onUpdateSlide={handleUpdateSlide}
+        onResetSlide={handleResetSlide}
+        isSlideEdited={isSlideEdited}
       />
 
       <PptxUploadModal

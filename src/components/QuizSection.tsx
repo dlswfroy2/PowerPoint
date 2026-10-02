@@ -7,6 +7,7 @@ import { chapter5QuizQuestions } from '../data/chapter5QuizData';
 import { physicsChapter4QuizQuestions } from '../data/physicsChapter4QuizData';
 import { physicsChapter5QuizQuestions } from '../data/physicsChapter5QuizData';
 import { biologyChapter3QuizQuestions } from '../data/biologyChapter3QuizData';
+import { biologyChapter2QuizQuestions } from '../data/biologyChapter2QuizData';
 import { CheckCircle2, XCircle, RotateCcw, Award, ChevronRight, HelpCircle, BookOpen } from 'lucide-react';
 
 interface QuizSectionProps {
@@ -20,7 +21,7 @@ export const QuizSection: React.FC<QuizSectionProps> = ({
 }) => {
   const questions = 
     activeSubject === 'biology'
-      ? biologyChapter3QuizQuestions
+      ? (activeChapter === 2 ? biologyChapter2QuizQuestions : biologyChapter3QuizQuestions)
       : activeSubject === 'physics'
       ? (activeChapter === 4 ? physicsChapter4QuizQuestions : physicsChapter5QuizQuestions)
       : (
@@ -91,6 +92,7 @@ export const QuizSection: React.FC<QuizSectionProps> = ({
   const chapterNames: Record<number, string> = 
     activeSubject === 'biology'
       ? {
+          2: 'জীবকোষ ও টিস্যু',
           3: 'কোষ বিভাজন'
         }
       : activeSubject === 'physics'
