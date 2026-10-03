@@ -44,6 +44,133 @@ interface SlideViewerProps {
   isSlideEdited?: (slideIndex: number) => boolean;
 }
 
+function ensureSlideVisuals(slide: Slide): Slide {
+  if (!slide) return slide;
+  
+  const defaultImg = 
+    slide.subject === 'physics'
+      ? (slide.chapter === 4 
+          ? '/src/assets/images/work_energy_physics_1791027317460.jpg' 
+          : '/src/assets/images/fluid_pressure_physics_1791027332942.jpg')
+      : slide.subject === 'biology'
+      ? (slide.chapter === 2 
+          ? '/src/assets/images/cell_tissue_biology_1791027347161.jpg' 
+          : '/src/assets/images/mitosis_cell_division_1791027361813.jpg')
+      : '/src/assets/images/hero_chemistry_atom_1790749681138.jpg';
+
+  const enriched = { ...slide };
+
+  if (!enriched.image) {
+    enriched.image = defaultImg;
+  }
+
+  if (!enriched.gallery || enriched.gallery.length === 0) {
+    if (slide.subject === 'physics') {
+      if (slide.chapter === 4) {
+        enriched.gallery = [
+          {
+            id: `p4-g1-${slide.id}`,
+            url: '/src/assets/images/work_energy_physics_1791027317460.jpg',
+            titleBn: 'কাজ ও বল ভেক্টর চিত্র',
+            titleEn: 'Work & Force Vector Illustration',
+            captionBn: 'বল প্রয়োগে সরণ ঘটলে কৃতকাজ W = Fs cosθ। কোণের পরিবর্তনে কাজের মান পরিবর্তিত হয়।',
+            captionEn: 'Mechanical work done by force vector F causing displacement s.',
+            type: 'diagram',
+            customDiagramType: 'workAngleVectors'
+          },
+          {
+            id: `p4-g2-${slide.id}`,
+            url: '/src/assets/images/work_energy_physics_1791027317460.jpg',
+            titleBn: 'শক্তির রূপান্তর ও সংরক্ষণশীলতা',
+            titleEn: 'Energy Transformation & Conservation',
+            captionBn: 'যান্ত্রিক শক্তির নিত্যতা: মুক্ত পতনে বা রোলার কোস্টারে মোট যান্ত্রিক শক্তি ধ্রুব থাকে।',
+            captionEn: 'Conservation of mechanical energy: Ep + Ek = Constant.',
+            type: 'diagram',
+            customDiagramType: 'energyConservation'
+          }
+        ];
+      } else {
+        enriched.gallery = [
+          {
+            id: `p5-g1-${slide.id}`,
+            url: '/src/assets/images/fluid_pressure_physics_1791027332942.jpg',
+            titleBn: 'প্যাসকেলের সূত্র ও হাইড্রোলিক প্রেস',
+            titleEn: 'Pascal Principle & Hydraulic Press',
+            captionBn: 'আবদ্ধ পাত্রে তরলে বল প্রয়োগ করলে চাপ সবদিকে সমানভাবে সঞ্চালিত হয়: F2 = F1 × (A2/A1)।',
+            captionEn: 'Equal pressure transmission P1 = P2 leading to force amplification.',
+            type: 'diagram',
+            customDiagramType: 'hydraulicPressSvg'
+          },
+          {
+            id: `p5-g2-${slide.id}`,
+            url: '/src/assets/images/fluid_pressure_physics_1791027332942.jpg',
+            titleBn: 'আর্কিমিডিসের নীতি ও প্লবতা',
+            titleEn: 'Archimedes Principle & Buoyancy',
+            captionBn: 'তরলে নিমজ্জিত বস্তু তার আয়তনের সমান তরল অপসারিত করে; উর্ধ্বমুখী প্লবতা FB = Vρg।',
+            captionEn: 'Upward buoyant force equals weight of displaced fluid.',
+            type: 'diagram',
+            customDiagramType: 'archimedesBeaker'
+          }
+        ];
+      }
+    } else if (slide.subject === 'biology') {
+      if (slide.chapter === 2) {
+        enriched.gallery = [
+          {
+            id: `b2-g1-${slide.id}`,
+            url: '/src/assets/images/cell_tissue_biology_1791027347161.jpg',
+            titleBn: 'উদ্ভিদকোষ বনাম প্রাণীকোষ',
+            titleEn: 'Plant vs Animal Cell Architecture',
+            captionBn: 'উদ্ভিদকোষের জড় সেলুলোজ প্রাচীর ও প্লাস্টিড এবং প্রাণীকোষের সেন্ট্রোসোম গঠন।',
+            captionEn: 'Comparative structural features of plant and animal cells.',
+            type: 'diagram',
+            customDiagramType: 'plantVsAnimalCellSvg'
+          },
+          {
+            id: `b2-g2-${slide.id}`,
+            url: '/src/assets/images/cell_tissue_biology_1791027347161.jpg',
+            titleBn: 'কোষীয় সূক্ষ্ম অঙ্গাণুর ত্রিমাত্রিক রূপ',
+            titleEn: '3D Organelle Microscopic Visualization',
+            captionBn: 'মাইটোকন্ড্রিয়া, ক্লোরোপ্লাস্ট, নিউক্লিয়াস ও কোষঝিল্লির সমন্বিত কার্যক্রম।',
+            captionEn: 'Mitochondria, chloroplast and nucleus cellular machinery.',
+            type: 'photo'
+          }
+        ];
+      } else {
+        enriched.gallery = [
+          {
+            id: `b3-g1-${slide.id}`,
+            url: '/src/assets/images/mitosis_cell_division_1791027361813.jpg',
+            titleBn: 'মাইটোসিস কোষ বিভাজনের ধাপসমূহ',
+            titleEn: 'Mitosis 5 Stages Sequence',
+            captionBn: 'প্রোফেজ থেকে টেলোফেজ পর্যন্ত ক্রোমোজোম ও স্পিন্ডল যন্ত্রের ধারাবাহিক রূপান্তর।',
+            captionEn: 'Five continuous stages of somatic mitotic cell division.',
+            type: 'diagram',
+            customDiagramType: 'mitosisStages'
+          },
+          {
+            id: `b3-g2-${slide.id}`,
+            url: '/src/assets/images/mitosis_cell_division_1791027361813.jpg',
+            titleBn: 'ফ্লুরোসেন্ট অণুবীক্ষণে ক্রোমোজোম পৃথকীকরণ',
+            titleEn: 'Fluorescent Microscopy of Anaphase',
+            captionBn: 'মেরুমুখী চলনকালে অপত্য ক্রোমোজোমের সেন্ট্রোমিয়ারের অবস্থান অনুযায়ী V, L, J, I রূপ।',
+            captionEn: 'Chromosome segregation with fluorescent microtubule spindle fibers.',
+            type: 'photo'
+          }
+        ];
+      }
+    }
+  } else {
+    // If gallery exists but any item has no url, fallback to defaultImg
+    enriched.gallery = enriched.gallery.map(item => ({
+      ...item,
+      url: item.url || defaultImg
+    }));
+  }
+
+  return enriched;
+}
+
 export const SlideViewer: React.FC<SlideViewerProps> = ({
   slides,
   currentSlideIndex,
@@ -55,7 +182,7 @@ export const SlideViewer: React.FC<SlideViewerProps> = ({
   onResetSlide,
   isSlideEdited
 }) => {
-  const currentSlide = slides[currentSlideIndex];
+  const currentSlide = ensureSlideVisuals(slides[currentSlideIndex]);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [autoPlayInterval, setAutoPlayInterval] = useState(8); // seconds
@@ -400,16 +527,17 @@ export const SlideViewer: React.FC<SlideViewerProps> = ({
 
                             <div 
                               onClick={() => {
-                                if (item.url) setZoomedImage({ url: item.url, caption: item.captionBn });
+                                const targetUrl = item.url || currentSlide.image;
+                                if (targetUrl) setZoomedImage({ url: targetUrl, caption: item.captionBn });
                               }}
                               className="relative aspect-video w-full bg-slate-950 flex items-center justify-center overflow-hidden cursor-zoom-in group"
                             >
                               {item.customDiagramType ? (
                                 <CustomDiagramViewer type={item.customDiagramType} />
-                              ) : item.url ? (
+                              ) : (
                                 <>
                                   <img
-                                    src={item.url}
+                                    src={item.url || currentSlide.image}
                                     alt={item.titleBn}
                                     referrerPolicy="no-referrer"
                                     className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
@@ -418,7 +546,7 @@ export const SlideViewer: React.FC<SlideViewerProps> = ({
                                     <Maximize2 className="h-5 w-5 text-white drop-shadow" />
                                   </div>
                                 </>
-                              ) : null}
+                              )}
                             </div>
 
                             <div className="p-2.5 text-[11px] text-slate-300 bg-slate-950/90 border-t border-slate-800/80">
@@ -440,17 +568,17 @@ export const SlideViewer: React.FC<SlideViewerProps> = ({
                       <div className="p-4 bg-slate-950">
                         <CustomDiagramViewer type={activeItem.customDiagramType} />
                       </div>
-                    ) : activeItem.url ? (
+                    ) : (
                       <div 
                         className="group relative aspect-video max-h-80 w-full overflow-hidden bg-slate-950 flex items-center justify-center select-none"
                       >
                         <img
-                          src={activeItem.url}
+                          src={activeItem.url || currentSlide.image}
                           alt={activeItem.titleBn}
                           referrerPolicy="no-referrer"
                           className="h-full w-full object-cover object-center transition-transform duration-500"
                           onError={(e) => {
-                            e.currentTarget.style.display = 'none';
+                            e.currentTarget.src = currentSlide.image || '/src/assets/images/hero_chemistry_atom_1790749681138.jpg';
                           }}
                         />
                         
@@ -555,7 +683,7 @@ export const SlideViewer: React.FC<SlideViewerProps> = ({
                           </button>
                         </div>
                       </div>
-                    ) : null}
+                    )}
 
                     {/* Image Caption */}
                     <div className="px-4 py-2.5 text-xs text-slate-300 bg-slate-950/90 border-t border-slate-800/80 flex items-center justify-between gap-2">

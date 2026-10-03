@@ -645,7 +645,7 @@ function buildSlide3DScene(
   // CHAPTER 1: CONCEPTS OF CHEMISTRY 3D SCENES
   // ----------------------------------------------------
   if (chapter === 1) {
-    if (slideId >= 1 && slideId <= 6) {
+    if (slideId === 1) {
       // 3D Chemistry Research Lab Flask & Molecular Structure
       const flaskGeo = new THREE.CylinderGeometry(0.5, 1.8, 2.8, 32, 1, true);
       const flaskMat = new THREE.MeshPhysicalMaterial({ color: 0x64748b, transparent: true, opacity: 0.35, roughness: 0.1 });
@@ -666,53 +666,252 @@ function buildSlide3DScene(
       molGroup.position.set(0, 1.8, 0);
       group.add(molGroup);
 
-      // Oxygen atom
       const oGeo = new THREE.SphereGeometry(0.4, 24, 24);
       const oMat = new THREE.MeshStandardMaterial({ color: 0xef4444, emissive: 0xb91c1c, emissiveIntensity: 0.4 });
       const oMesh = new THREE.Mesh(oGeo, oMat);
       molGroup.add(oMesh);
       addAnchor(oMesh, 'অক্সিজেন পরমাণু', 'Oxygen Atom (O)', 'O', '#ef4444');
 
-      // Hydrogen 1
       const hGeo = new THREE.SphereGeometry(0.22, 16, 16);
       const hMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x0284c7, emissiveIntensity: 0.4 });
       const h1Mesh = new THREE.Mesh(hGeo, hMat);
       h1Mesh.position.set(-0.6, -0.4, 0);
       molGroup.add(h1Mesh);
-      addAnchor(h1Mesh, 'হাইড্রোজেন পরমাণু ১', 'Hydrogen 1 (H)', 'H', '#38bdf8');
+      addAnchor(h1Mesh, 'হাইড্রোজেন ১', 'Hydrogen 1 (H)', 'H', '#38bdf8');
 
-      // Hydrogen 2
       const h2Mesh = new THREE.Mesh(hGeo, hMat);
       h2Mesh.position.set(0.6, -0.4, 0);
       molGroup.add(h2Mesh);
-      addAnchor(h2Mesh, 'হাইড্রোজেন পরমাণু ২', 'Hydrogen 2 (H)', 'H', '#38bdf8');
-
+      addAnchor(h2Mesh, 'হাইড্রোজেন ২', 'Hydrogen 2 (H)', 'H', '#38bdf8');
       return;
     }
 
-    // Slide 7 - 12: Hazard & Safety 3D Scene
-    const shieldGeo = new THREE.CylinderGeometry(1.8, 1.4, 0.3, 6);
-    shieldGeo.rotateX(Math.PI / 2);
-    const shieldMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.3, metalness: 0.4, emissive: 0xd97706, emissiveIntensity: 0.3 });
-    const shieldMesh = new THREE.Mesh(shieldGeo, shieldMat);
-    group.add(shieldMesh);
-    addAnchor(shieldMesh, 'হ্যাজার্ড সুরক্ষা শিল্ড', 'Safety Hazard Shield', 'GHS', '#f59e0b');
+    if (slideId === 2) {
+      // Ancient Alchemy Distillation Retort & Alembic
+      const retortGeo = new THREE.SphereGeometry(1.2, 24, 24);
+      const retortMat = new THREE.MeshPhysicalMaterial({ color: 0xd97706, transparent: true, opacity: 0.6, roughness: 0.2 });
+      const retort = new THREE.Mesh(retortGeo, retortMat);
+      retort.position.set(-0.6, -0.2, 0);
+      group.add(retort);
+      addAnchor(retort, 'প্রাচীন আলকেমি রিটর্ট (Alembic)', 'Alchemy Distillation Vessel', 'Alchemy', '#f59e0b');
 
-    // Warning Trefoil / Core Emblem
-    const coreGeo = new THREE.SphereGeometry(0.6, 24, 24);
-    const coreMat = new THREE.MeshStandardMaterial({ color: 0xef4444, emissive: 0xdc2626, emissiveIntensity: 0.8 });
-    const coreMesh = new THREE.Mesh(coreGeo, coreMat);
-    coreMesh.position.set(0, 0, 0.4);
-    group.add(coreMesh);
-    addAnchor(coreMesh, 'সতর্কতা কেন্দ্র', 'Hazard Warning Core', '⚠️', '#ef4444');
+      // Condenser Neck curving outward
+      const neckGeo = new THREE.CylinderGeometry(0.2, 0.1, 2.2, 16);
+      neckGeo.rotateZ(Math.PI / 3);
+      const neck = new THREE.Mesh(neckGeo, retortMat);
+      neck.position.set(0.6, 0.6, 0);
+      group.add(neck);
 
-    // Safety Ring / Boundary
-    const ringGeo = new THREE.TorusGeometry(2.3, 0.1, 16, 48);
-    const ringMat = new THREE.MeshStandardMaterial({ color: 0x10b981, emissive: 0x059669, emissiveIntensity: 0.6 });
-    const ringMesh = new THREE.Mesh(ringGeo, ringMat);
-    group.add(ringMesh);
-    addAnchor(ringMesh, 'নিরাপত্তা বেষ্টনী (PPE)', 'Personal Protective Equipment', 'PPE', '#10b981');
-    return;
+      // Philosopher Stone Gold Orb
+      const goldOrb = new THREE.Mesh(
+        new THREE.SphereGeometry(0.45, 20, 20),
+        new THREE.MeshStandardMaterial({ color: 0xfacc15, metalness: 0.8, roughness: 0.2, emissive: 0xeab308, emissiveIntensity: 0.6 })
+      );
+      goldOrb.position.set(1.6, -0.8, 0);
+      group.add(goldOrb);
+      addAnchor(goldOrb, 'পরশপাথর ও স্বর্ণ রূপান্তর (Gold Synthesis)', 'Philosopher Stone Transmutation', 'Au', '#facc15');
+      return;
+    }
+
+    if (slideId === 3) {
+      // Central Science Interconnected Node Sphere
+      const centerCore = new THREE.Mesh(
+        new THREE.SphereGeometry(0.7, 24, 24),
+        new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x0284c7, emissiveIntensity: 0.6 })
+      );
+      group.add(centerCore);
+      addAnchor(centerCore, 'কেন্দ্রীয় বিজ্ঞান: রসায়ন', 'Central Science: Chemistry', 'Chem', '#38bdf8');
+
+      // Interconnected branch satellites
+      const branches = [
+        { nameBn: 'পদার্থবিজ্ঞান', nameEn: 'Physics', color: 0xf59e0b, pos: [-1.8, 1.2, 0], sym: 'Phy' },
+        { nameBn: 'জীববিজ্ঞান', nameEn: 'Biology', color: 0x10b981, pos: [1.8, 1.2, 0], sym: 'Bio' },
+        { nameBn: 'চিকিৎসাবিজ্ঞান', nameEn: 'Medicine', color: 0xec4899, pos: [-1.8, -1.2, 0], sym: 'Med' },
+        { nameBn: 'পরিবেশবিজ্ঞান', nameEn: 'Ecology', color: 0x8b5cf6, pos: [1.8, -1.2, 0], sym: 'Env' },
+      ];
+      branches.forEach(b => {
+        const bMesh = new THREE.Mesh(
+          new THREE.SphereGeometry(0.38, 16, 16),
+          new THREE.MeshStandardMaterial({ color: b.color, emissive: b.color, emissiveIntensity: 0.6 })
+        );
+        bMesh.position.set(b.pos[0], b.pos[1], b.pos[2]);
+        group.add(bMesh);
+
+        // Connecting laser line
+        const lineGeo = new THREE.BufferGeometry().setFromPoints([
+          new THREE.Vector3(0, 0, 0),
+          new THREE.Vector3(b.pos[0], b.pos[1], b.pos[2])
+        ]);
+        const lineMat = new THREE.LineBasicMaterial({ color: b.color, transparent: true, opacity: 0.6 });
+        group.add(new THREE.Line(lineGeo, lineMat));
+        addAnchor(bMesh, b.nameBn, b.nameEn, b.sym, `#${b.color.toString(16)}`);
+      });
+      return;
+    }
+
+    if (slideId === 4) {
+      // Scientific Research Process: 6-Step Helical Pathway
+      const helixGroup = new THREE.Group();
+      group.add(helixGroup);
+      refs.helixGroup = helixGroup;
+
+      const steps = [
+        '১. বিষয়বস্তু নির্ধারণ', '২. পটভূমি তথ্য সংগ্রহ', '৩. পরীক্ষণের পরিকল্পনা',
+        '৪. তথ্য সংগ্রহ ও উপাত্ত', '৫. ফলাফল বিশ্লেষণ', '৬. সিদ্ধান্ত ও প্রকাশ'
+      ];
+      steps.forEach((st, idx) => {
+        const angle = (idx / 6) * Math.PI * 2;
+        const y = idx * 0.5 - 1.2;
+        const node = new THREE.Mesh(
+          new THREE.SphereGeometry(0.24, 16, 16),
+          new THREE.MeshStandardMaterial({ color: 0x06b6d4, emissive: 0x0891b2, emissiveIntensity: 0.7 })
+        );
+        node.position.set(Math.cos(angle) * 1.5, y, Math.sin(angle) * 1.5);
+        helixGroup.add(node);
+        addAnchor(node, st, `Research Step ${idx + 1}`, `${idx + 1}`, '#06b6d4');
+      });
+      return;
+    }
+
+    if (slideId === 5) {
+      // Laboratory Bunsen Burner with glowing blue flame
+      const baseMesh = new THREE.Mesh(
+        new THREE.CylinderGeometry(1.0, 1.2, 0.25, 24),
+        new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.7, roughness: 0.3 })
+      );
+      baseMesh.position.set(0, -1.4, 0);
+      group.add(baseMesh);
+
+      // Burner Barrel
+      const barrelMesh = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.22, 0.22, 1.4, 16),
+        new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.9, roughness: 0.2 })
+      );
+      barrelMesh.position.set(0, -0.6, 0);
+      group.add(barrelMesh);
+
+      // Blue Flame Cone
+      const flameGeo = new THREE.ConeGeometry(0.35, 1.2, 16);
+      const flameMat = new THREE.MeshStandardMaterial({
+        color: 0x38bdf8, emissive: 0x0284c7, emissiveIntensity: 1.2, transparent: true, opacity: 0.85
+      });
+      const flameMesh = new THREE.Mesh(flameGeo, flameMat);
+      flameMesh.position.set(0, 0.7, 0);
+      group.add(flameMesh);
+      refs.flameMesh = flameMesh;
+      addAnchor(flameMesh, 'বুনসেন শিখা (দহন তাপমাত্রা)', 'Bunsen Burner Flame', 'Flame', '#38bdf8');
+      return;
+    }
+
+    if (slideId === 6) {
+      // Chemistry in Daily Life: NaCl Cubic Crystal Lattice
+      const latticeGroup = new THREE.Group();
+      group.add(latticeGroup);
+      refs.latticeGroup = latticeGroup;
+
+      for (let x = -1; x <= 1; x++) {
+        for (let y = -1; y <= 1; y++) {
+          for (let z = -1; z <= 1; z++) {
+            const isNa = (x + y + z) % 2 === 0;
+            const ion = new THREE.Mesh(
+              new THREE.SphereGeometry(isNa ? 0.18 : 0.26, 12, 12),
+              new THREE.MeshStandardMaterial({
+                color: isNa ? 0x9333ea : 0x22c55e,
+                emissive: isNa ? 0x7e22ce : 0x16a34a,
+                emissiveIntensity: 0.6
+              })
+            );
+            ion.position.set(x * 0.9, y * 0.9, z * 0.9);
+            latticeGroup.add(ion);
+          }
+        }
+      }
+      addAnchor(latticeGroup, 'খাবার লবণ (NaCl) কেলাস কাঠামো', 'Sodium Chloride Lattice', 'NaCl', '#22c55e');
+      return;
+    }
+
+    if (slideId === 7) {
+      // 3D Hazard Diamond (NFPA 704 / GHS Matrix)
+      const diamondMesh = new THREE.Mesh(
+        new THREE.BoxGeometry(1.6, 1.6, 0.4),
+        new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.5, roughness: 0.3 })
+      );
+      diamondMesh.rotation.z = Math.PI / 4;
+      group.add(diamondMesh);
+      addAnchor(diamondMesh, 'জিএইচএস হ্যাজার্ড প্রতীক ডায়মন্ড', 'GHS Hazard Diamond', 'GHS', '#f59e0b');
+      return;
+    }
+
+    if (slideId === 8) {
+      // Toxic Hazard Warning Cylinder
+      const toxicMesh = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.9, 0.9, 2.0, 24),
+        new THREE.MeshStandardMaterial({ color: 0x991b1b, emissive: 0x7f1d1d, emissiveIntensity: 0.6 })
+      );
+      group.add(toxicMesh);
+      addAnchor(toxicMesh, 'বিষাক্ত ও তীব্র ক্ষতিকর পদার্থ (Toxic)', 'Toxic Poison Warning', 'Toxic ☠️', '#ef4444');
+      return;
+    }
+
+    if (slideId === 9) {
+      // Radioactive Radiation Trefoil
+      const nucCore = new THREE.Mesh(
+        new THREE.SphereGeometry(0.5, 24, 24),
+        new THREE.MeshStandardMaterial({ color: 0xfacc15, emissive: 0xeab308, emissiveIntensity: 1 })
+      );
+      group.add(nucCore);
+
+      const radRing = new THREE.Mesh(
+        new THREE.TorusGeometry(1.6, 0.15, 16, 32),
+        new THREE.MeshStandardMaterial({ color: 0xfacc15, emissive: 0xca8a04, emissiveIntensity: 0.8 })
+      );
+      group.add(radRing);
+      addAnchor(nucCore, 'তেজস্ক্রিয় বিকিরণ হ্যাজার্ড (Radioactive)', 'Radioactive Hazard', 'Radioactive ☢️', '#facc15');
+      return;
+    }
+
+    if (slideId === 10) {
+      // Flammable & Eco Hazard
+      const fireMesh = new THREE.Mesh(
+        new THREE.ConeGeometry(0.8, 2.0, 16),
+        new THREE.MeshStandardMaterial({ color: 0xf97316, emissive: 0xea580c, emissiveIntensity: 1.0 })
+      );
+      group.add(fireMesh);
+      addAnchor(fireMesh, 'দাহ্য পদার্থ (Flammable Hazard)', 'Flammable Fire Hazard', 'Fire 🔥', '#f97316');
+      return;
+    }
+
+    if (slideId === 11) {
+      // Safety Goggles & Chemical Shield PPE
+      const shieldMesh = new THREE.Mesh(
+        new THREE.CylinderGeometry(1.6, 1.3, 0.3, 6),
+        new THREE.MeshStandardMaterial({ color: 0x0284c7, metalness: 0.4, roughness: 0.2, emissive: 0x0369a1, emissiveIntensity: 0.5 })
+      );
+      shieldMesh.rotateX(Math.PI / 2);
+      group.add(shieldMesh);
+      addAnchor(shieldMesh, 'ব্যক্তিগত সুরক্ষা সামগ্রী (PPE & Goggles)', 'Personal Protective Equipment', 'PPE 🥽', '#38bdf8');
+      return;
+    }
+
+    if (slideId === 12) {
+      // Chemical Waste Disposal Barrels
+      const barrel1 = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.6, 0.6, 1.6, 20),
+        new THREE.MeshStandardMaterial({ color: 0x059669, emissive: 0x047857, emissiveIntensity: 0.5 })
+      );
+      barrel1.position.set(-0.9, -0.3, 0);
+      group.add(barrel1);
+
+      const barrel2 = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.6, 0.6, 1.6, 20),
+        new THREE.MeshStandardMaterial({ color: 0xd97706, emissive: 0xb45309, emissiveIntensity: 0.5 })
+      );
+      barrel2.position.set(0.9, -0.3, 0);
+      group.add(barrel2);
+      addAnchor(barrel1, 'জৈব বর্জ্য সংরক্ষণ ড্রাম', 'Organic Waste Disposal', 'Waste', '#10b981');
+      addAnchor(barrel2, 'ভারী ধাতু ও অ্যাসিড প্রসমক', 'Acid & Heavy Metal Neutralization', 'Neutralize', '#f59e0b');
+      return;
+    }
   }
 
   // ----------------------------------------------------

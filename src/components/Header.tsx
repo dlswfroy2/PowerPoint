@@ -46,8 +46,15 @@ export type AppTab =
   | 'formulaBuilder' 
   | 'compoundProps'
   | 'workEnergyLab'
+  | 'energyConservationLab'
+  | 'efficiencyLab'
   | 'pressureLab'
+  | 'hydraulicLab'
+  | 'archimedesLab'
+  | 'depthPressureLab'
   | 'cellDivisionLab'
+  | 'crossingOverLab'
+  | 'cellCycleLab'
   | 'cellExplorerLab';
 
 interface HeaderProps {
@@ -455,34 +462,86 @@ export const Header: React.FC<HeaderProps> = ({
           </>
         )}
 
-        {/* Physics Chapter 4 Labs */}
+        {/* Physics Chapter 4 Labs (3 Interactive Simulators) */}
         {activeSubject === 'physics' && activeChapter === 4 && (
-          <button
-            onClick={() => setActiveTab('workEnergyLab')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
-              activeTab === 'workEnergyLab'
-                ? 'bg-amber-500 text-slate-950 font-bold shadow-sm'
-                : 'text-blue-200 hover:text-white hover:bg-blue-900/80 border border-transparent hover:border-blue-700'
-            }`}
-          >
-            <Zap className="h-3.5 w-3.5 text-amber-400" />
-            <span>কাজ ও শক্তি ল্যাব</span>
-          </button>
+          <>
+            <button
+              onClick={() => setActiveTab('workEnergyLab')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+                activeTab === 'workEnergyLab'
+                  ? 'bg-amber-500 text-slate-950 font-bold shadow-sm'
+                  : 'text-blue-200 hover:text-white hover:bg-blue-900/80 border border-transparent hover:border-blue-700'
+              }`}
+            >
+              <Compass className="h-3.5 w-3.5 text-amber-400" />
+              <span>কাজ ও বল ভেক্টর ল্যাব</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('energyConservationLab')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+                activeTab === 'energyConservationLab'
+                  ? 'bg-amber-500 text-slate-950 font-bold shadow-sm'
+                  : 'text-blue-200 hover:text-white hover:bg-blue-900/80 border border-transparent hover:border-blue-700'
+              }`}
+            >
+              <Zap className="h-3.5 w-3.5 text-amber-400" />
+              <span>শক্তির নিত্যতা ও রোলারকোস্টার</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('efficiencyLab')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+                activeTab === 'efficiencyLab'
+                  ? 'bg-amber-500 text-slate-950 font-bold shadow-sm'
+                  : 'text-blue-200 hover:text-white hover:bg-blue-900/80 border border-transparent hover:border-blue-700'
+              }`}
+            >
+              <TrendingUp className="h-3.5 w-3.5 text-amber-400" />
+              <span>ক্ষমতা ও কর্মদক্ষতা</span>
+            </button>
+          </>
         )}
 
-        {/* Physics Chapter 5 Labs */}
+        {/* Physics Chapter 5 Labs (3 Interactive Simulators) */}
         {activeSubject === 'physics' && activeChapter === 5 && (
-          <button
-            onClick={() => setActiveTab('pressureLab')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
-              activeTab === 'pressureLab'
-                ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm'
-                : 'text-blue-200 hover:text-white hover:bg-blue-900/80 border border-transparent hover:border-blue-700'
-            }`}
-          >
-            <Droplets className="h-3.5 w-3.5 text-cyan-400" />
-            <span>চাপ ও প্লবতা ল্যাব</span>
-          </button>
+          <>
+            <button
+              onClick={() => setActiveTab('hydraulicLab')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+                activeTab === 'hydraulicLab' || activeTab === 'pressureLab'
+                  ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm'
+                  : 'text-blue-200 hover:text-white hover:bg-blue-900/80 border border-transparent hover:border-blue-700'
+              }`}
+            >
+              <Scale className="h-3.5 w-3.5 text-cyan-400" />
+              <span>প্যাসকেলের হাইড্রোলিক প্রেস</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('archimedesLab')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+                activeTab === 'archimedesLab'
+                  ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm'
+                  : 'text-blue-200 hover:text-white hover:bg-blue-900/80 border border-transparent hover:border-blue-700'
+              }`}
+            >
+              <Droplets className="h-3.5 w-3.5 text-cyan-400" />
+              <span>আর্কিমিডিস ও প্লবতা ল্যাব</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('depthPressureLab')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+                activeTab === 'depthPressureLab'
+                  ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm'
+                  : 'text-blue-200 hover:text-white hover:bg-blue-900/80 border border-transparent hover:border-blue-700'
+              }`}
+            >
+              <Activity className="h-3.5 w-3.5 text-cyan-400" />
+              <span>তরলের গভীরতায় চাপ (hρg)</span>
+            </button>
+          </>
         )}
 
         {/* Biology Chapter 2 Labs */}
@@ -496,23 +555,49 @@ export const Header: React.FC<HeaderProps> = ({
             }`}
           >
             <Dna className="h-3.5 w-3.5 text-emerald-400" />
-            <span>কোষ অন্বেষণ ল্যাব</span>
+            <span>কোষ অন্বেষণ ও টিস্যু ল্যাব (২.১-২.৫)</span>
           </button>
         )}
 
-        {/* Biology Chapter 3 Labs */}
+        {/* Biology Chapter 3 Labs (3 Interactive Simulators) */}
         {activeSubject === 'biology' && activeChapter === 3 && (
-          <button
-            onClick={() => setActiveTab('cellDivisionLab')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
-              activeTab === 'cellDivisionLab'
-                ? 'bg-emerald-500 text-slate-950 font-bold shadow-sm'
-                : 'text-blue-200 hover:text-white hover:bg-blue-900/80 border border-transparent hover:border-blue-700'
-            }`}
-          >
-            <Dna className="h-3.5 w-3.5 text-emerald-400" />
-            <span>কোষ বিভাজন ল্যাব</span>
-          </button>
+          <>
+            <button
+              onClick={() => setActiveTab('cellDivisionLab')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+                activeTab === 'cellDivisionLab'
+                  ? 'bg-emerald-500 text-slate-950 font-bold shadow-sm'
+                  : 'text-blue-200 hover:text-white hover:bg-blue-900/80 border border-transparent hover:border-blue-700'
+              }`}
+            >
+              <Dna className="h-3.5 w-3.5 text-emerald-400" />
+              <span>মাইটোসিস ৫ পর্যায় স্টুডিও</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('crossingOverLab')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+                activeTab === 'crossingOverLab'
+                  ? 'bg-emerald-500 text-slate-950 font-bold shadow-sm'
+                  : 'text-blue-200 hover:text-white hover:bg-blue-900/80 border border-transparent hover:border-blue-700'
+              }`}
+            >
+              <Activity className="h-3.5 w-3.5 text-emerald-400" />
+              <span>ক্রসিং ওভার ও রিকম্বিনেশন</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('cellCycleLab')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+                activeTab === 'cellCycleLab'
+                  ? 'bg-emerald-500 text-slate-950 font-bold shadow-sm'
+                  : 'text-blue-200 hover:text-white hover:bg-blue-900/80 border border-transparent hover:border-blue-700'
+              }`}
+            >
+              <ShieldAlert className="h-3.5 w-3.5 text-emerald-400" />
+              <span>কোষচক্র ও ক্যান্সার সিমুলেটর</span>
+            </button>
+          </>
         )}
 
         {/* Quiz Assessment Tab */}

@@ -17,8 +17,12 @@ import {
   Sliders
 } from 'lucide-react';
 
-export function PressureFluidsLab() {
-  const [activeTab, setActiveTab] = useState<'hydraulic' | 'archimedes' | 'depthPressure'>('hydraulic');
+export function PressureFluidsLab({ defaultTab = 'hydraulic' }: { defaultTab?: 'hydraulic' | 'archimedes' | 'depthPressure' } = {}) {
+  const [activeTab, setActiveTab] = useState<'hydraulic' | 'archimedes' | 'depthPressure'>(defaultTab);
+
+  React.useEffect(() => {
+    setActiveTab(defaultTab);
+  }, [defaultTab]);
 
   // --- Tab 1: Hydraulic Press State ---
   const [piston1Radius, setPiston1Radius] = useState<number>(2); // cm

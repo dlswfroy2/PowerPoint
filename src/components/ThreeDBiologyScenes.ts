@@ -17,6 +17,471 @@ export function buildBiology3DScene(
   refs.biologySlide = slideId;
   refs.biologyChapter = chapter;
 
+  // =========================================================================
+  // CHAPTER 2: জীবকোষ ও টিস্যু (CELL & TISSUE 3D SCENES)
+  // =========================================================================
+  if (chapter === 2) {
+    // Slide 1: উদ্ভিদ ও প্রাণীকোষের সামগ্রিক রূপরেখা (Plant vs Animal Cell)
+    if (slideId === 1) {
+      // Plant Cell Body (Hexagonal/Pill form with thick green cell wall)
+      const wallGeo = new THREE.BoxGeometry(3.6, 2.6, 2.0);
+      const wallMat = new THREE.MeshStandardMaterial({
+        color: 0x059669, wireframe: true, transparent: true, opacity: 0.6
+      });
+      const wallMesh = new THREE.Mesh(wallGeo, wallMat);
+      group.add(wallMesh);
+
+      // Cytoplasm inside
+      const cytoGeo = new THREE.BoxGeometry(3.3, 2.3, 1.8);
+      const cytoMat = new THREE.MeshPhysicalMaterial({
+        color: 0x10b981, transparent: true, opacity: 0.35, roughness: 0.2
+      });
+      const cytoMesh = new THREE.Mesh(cytoGeo, cytoMat);
+      group.add(cytoMesh);
+      refs.cytoMesh = cytoMesh;
+      addAnchor(wallMesh, 'সেলুলোজ নির্মিত কোষপ্রাচীর', 'Plant Cell Wall', 'Wall', '#10b981');
+
+      // Large Central Vacuole
+      const vacGeo = new THREE.SphereGeometry(0.85, 24, 24);
+      const vacMat = new THREE.MeshPhysicalMaterial({
+        color: 0x38bdf8, transparent: true, opacity: 0.55, roughness: 0.1
+      });
+      const vacMesh = new THREE.Mesh(vacGeo, vacMat);
+      vacMesh.position.set(-0.6, 0, 0);
+      group.add(vacMesh);
+      refs.vacMesh = vacMesh;
+      addAnchor(vacMesh, 'বৃহৎ কোষগহ্বর (কোষরসপূর্ণ)', 'Central Vacuole', 'Vacuole', '#38bdf8');
+
+      // Chloroplast discs
+      for (let i = 0; i < 4; i++) {
+        const chlGeo = new THREE.CylinderGeometry(0.3, 0.3, 0.1, 16);
+        const chlMat = new THREE.MeshStandardMaterial({ color: 0x22c55e, emissive: 0x15803d, emissiveIntensity: 0.5 });
+        const chlMesh = new THREE.Mesh(chlGeo, chlMat);
+        chlMesh.position.set(0.8, -0.6 + i * 0.4, (i % 2 === 0 ? 0.4 : -0.4));
+        group.add(chlMesh);
+      }
+
+      // Nucleus
+      const nucMesh = new THREE.Mesh(
+        new THREE.SphereGeometry(0.55, 24, 24),
+        new THREE.MeshStandardMaterial({ color: 0x8b5cf6, emissive: 0x6d28d9, emissiveIntensity: 0.6 })
+      );
+      nucMesh.position.set(0.9, 0.5, 0);
+      group.add(nucMesh);
+      refs.nucMesh = nucMesh;
+      addAnchor(nucMesh, 'সুগঠিত প্রকৃত নিউক্লিয়াস', 'Eukaryotic Nucleus', 'Nucleus', '#8b5cf6');
+      return;
+    }
+
+    // Slide 2: প্লাজমা মেমব্রেন ও ফ্লুইড মোজাইক মডেল (Fluid Mosaic Bilayer)
+    if (slideId === 2) {
+      const lipidGroup = new THREE.Group();
+      group.add(lipidGroup);
+      refs.lipidGroup = lipidGroup;
+
+      // Two layers of phospholipid heads
+      const headGeo = new THREE.SphereGeometry(0.16, 12, 12);
+      const topHeadMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x0284c7, emissiveIntensity: 0.4 });
+      const botHeadMat = new THREE.MeshStandardMaterial({ color: 0x0ea5e9, emissive: 0x0369a1, emissiveIntensity: 0.4 });
+
+      for (let x = -2.2; x <= 2.2; x += 0.42) {
+        for (let z = -1.2; z <= 1.2; z += 0.42) {
+          // Top layer (hydrophilic head)
+          const th = new THREE.Mesh(headGeo, topHeadMat);
+          th.position.set(x, 0.8, z);
+          lipidGroup.add(th);
+
+          // Bottom layer (hydrophilic head)
+          const bh = new THREE.Mesh(headGeo, botHeadMat);
+          bh.position.set(x, -0.8, z);
+          lipidGroup.add(bh);
+        }
+      }
+
+      // Protein Channel spanning bilayer
+      const protGeo = new THREE.CylinderGeometry(0.45, 0.45, 1.8, 20);
+      const protMat = new THREE.MeshStandardMaterial({
+        color: 0xec4899, emissive: 0xbe185d, emissiveIntensity: 0.5, roughness: 0.3
+      });
+      const channelMesh = new THREE.Mesh(protGeo, protMat);
+      channelMesh.position.set(0, 0, 0);
+      group.add(channelMesh);
+      refs.channelMesh = channelMesh;
+      addAnchor(channelMesh, 'ইনটিগ্রাল চ্যানেল প্রোটিন', 'Integral Transport Channel', 'Protein', '#ec4899');
+
+      // Carbohydrate branch (Glycocalyx)
+      const carbGeo = new THREE.SphereGeometry(0.12, 8, 8);
+      const carbMat = new THREE.MeshStandardMaterial({ color: 0xfacc15, emissive: 0xeab308, emissiveIntensity: 0.6 });
+      for (let c = 0; c < 3; c++) {
+        const cm = new THREE.Mesh(carbGeo, carbMat);
+        cm.position.set(c * 0.2 - 0.2, 1.1 + c * 0.2, 0);
+        group.add(cm);
+      }
+      addAnchor(lipidGroup, 'ফসফোলিপিড দ্বিস্তর (Bilayer)', 'Phospholipid Bilayer', 'Lipid', '#38bdf8');
+      return;
+    }
+
+    // Slide 3: মাইটোকন্ড্রিয়া (Mitochondria - Powerhouse)
+    if (slideId === 3) {
+      // Outer membrane capsule
+      const mitoGeo = new THREE.CapsuleGeometry(1.0, 2.2, 24, 24);
+      mitoGeo.rotateZ(Math.PI / 3);
+      const mitoMat = new THREE.MeshPhysicalMaterial({
+        color: 0xd97706, transparent: true, opacity: 0.4, roughness: 0.2
+      });
+      const mitoMesh = new THREE.Mesh(mitoGeo, mitoMat);
+      group.add(mitoMesh);
+      refs.mitoMesh = mitoMesh;
+      addAnchor(mitoMesh, 'বহিঃআবরণী (Outer Membrane)', 'Outer Membrane', 'Mito', '#f59e0b');
+
+      // Inner folded cristae shelves
+      const cristaeGroup = new THREE.Group();
+      group.add(cristaeGroup);
+      refs.cristaeGroup = cristaeGroup;
+
+      for (let i = -1.2; i <= 1.2; i += 0.45) {
+        const shelfGeo = new THREE.BoxGeometry(0.12, 1.2, 0.9);
+        const shelfMat = new THREE.MeshStandardMaterial({
+          color: 0xef4444, emissive: 0xb91c1c, emissiveIntensity: 0.6
+        });
+        const shelf = new THREE.Mesh(shelfGeo, shelfMat);
+        shelf.position.set(i * 0.7, i * 0.35, 0);
+        shelf.rotation.z = Math.PI / 4;
+        cristaeGroup.add(shelf);
+      }
+      addAnchor(cristaeGroup, 'ভাঁজযুক্ত ক্রিস্টি ও ম্যাট্রিক্স', 'Folded Inner Cristae', 'Cristae', '#ef4444');
+
+      // Glowing ATP synthesis particles
+      const atpGroup = new THREE.Group();
+      group.add(atpGroup);
+      refs.atpGroup = atpGroup;
+      for (let a = 0; a < 16; a++) {
+        const atpMesh = new THREE.Mesh(
+          new THREE.SphereGeometry(0.08, 8, 8),
+          new THREE.MeshStandardMaterial({ color: 0xfef08a, emissive: 0xfacc15, emissiveIntensity: 1 })
+        );
+        atpMesh.position.set((Math.random() - 0.5) * 2, (Math.random() - 0.5) * 1.5, (Math.random() - 0.5) * 1.2);
+        atpGroup.add(atpMesh);
+      }
+      return;
+    }
+
+    // Slide 4: ক্লোরোপ্লাস্ট ও প্লাস্টিড (Chloroplast & Grana Thylakoids)
+    if (slideId === 4) {
+      // Outer chloroplast disc envelope
+      const chloGeo = new THREE.CylinderGeometry(1.8, 1.8, 0.8, 32);
+      const chloMat = new THREE.MeshPhysicalMaterial({
+        color: 0x15803d, transparent: true, opacity: 0.45, roughness: 0.2
+      });
+      const chloMesh = new THREE.Mesh(chloGeo, chloMat);
+      chloMesh.rotation.x = Math.PI / 6;
+      group.add(chloMesh);
+      addAnchor(chloMesh, 'দ্বিস্তর ক্লোরোপ্লাস্ট ঝিল্লি', 'Double Chloroplast Membrane', 'Chloroplast', '#22c55e');
+
+      // Grana stacks (coins)
+      const granaGroup = new THREE.Group();
+      group.add(granaGroup);
+      refs.granaGroup = granaGroup;
+
+      const stackPositions = [
+        [-0.8, -0.5], [0.6, -0.6], [-0.5, 0.6], [0.7, 0.4], [0, 0]
+      ];
+      stackPositions.forEach(([gx, gz]) => {
+        for (let coin = 0; coin < 5; coin++) {
+          const coinMesh = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.3, 0.3, 0.06, 16),
+            new THREE.MeshStandardMaterial({ color: 0x4ade80, emissive: 0x16a34a, emissiveIntensity: 0.7 })
+          );
+          coinMesh.position.set(gx, coin * 0.1 - 0.2, gz);
+          granaGroup.add(coinMesh);
+        }
+      });
+      addAnchor(granaGroup, 'গ্রানা ও থাইলাকয়েড থলি (সালোকসংশ্লেষণ)', 'Grana Thylakoid Stacks', 'Grana', '#4ade80');
+      return;
+    }
+
+    // Slide 5: এন্ডোপ্লাজমিক রেটিকুলাম ও গলগি বস্তু (ER & Golgi)
+    if (slideId === 5) {
+      const golgiGroup = new THREE.Group();
+      group.add(golgiGroup);
+      refs.golgiGroup = golgiGroup;
+
+      // Curved cisternae sheets
+      for (let s = 0; s < 5; s++) {
+        const cistGeo = new THREE.TorusGeometry(1.2 + s * 0.25, 0.12, 12, 32, Math.PI * 0.9);
+        const cistMat = new THREE.MeshStandardMaterial({
+          color: 0xa855f7, emissive: 0x7e22ce, emissiveIntensity: 0.5
+        });
+        const cistMesh = new THREE.Mesh(cistGeo, cistMat);
+        cistMesh.rotation.z = Math.PI * 0.55;
+        cistMesh.position.set(s * 0.25 - 0.5, 0, 0);
+        golgiGroup.add(cistMesh);
+      }
+      addAnchor(golgiGroup, 'গলগি সিস্টার্নি (Cisternae)', 'Golgi Cisternae', 'Golgi', '#c084fc');
+
+      // Transport vesicles budding off
+      const vesicleGroup = new THREE.Group();
+      group.add(vesicleGroup);
+      refs.vesicleGroup = vesicleGroup;
+      for (let v = 0; v < 8; v++) {
+        const vm = new THREE.Mesh(
+          new THREE.SphereGeometry(0.18, 12, 12),
+          new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x0284c7, emissiveIntensity: 0.7 })
+        );
+        vm.position.set(0.8 + Math.random() * 0.8, (Math.random() - 0.5) * 1.5, (Math.random() - 0.5) * 1.2);
+        vesicleGroup.add(vm);
+      }
+      addAnchor(vesicleGroup, 'ক্ষরণকারী ভেসিকল (Vesicles)', 'Secretory Vesicles', 'Vesicle', '#38bdf8');
+      return;
+    }
+
+    // Slide 6: লাইসোজোম, রাইবোসোম ও সেন্ট্রোসোম (Lysosome & Centrosome)
+    if (slideId === 6) {
+      // Lysosome sphere
+      const lysoMesh = new THREE.Mesh(
+        new THREE.SphereGeometry(1.1, 24, 24),
+        new THREE.MeshPhysicalMaterial({ color: 0xf43f5e, transparent: true, opacity: 0.6, roughness: 0.2 })
+      );
+      group.add(lysoMesh);
+      refs.lysoMesh = lysoMesh;
+      addAnchor(lysoMesh, 'লাইসোজোম (হাইড্রোলাইটিক এনজাইমপূর্ণ)', 'Lysosome with Enzymes', 'Lyso', '#f43f5e');
+
+      // Centrosome with 2 perpendicular centrioles
+      const centGroup = new THREE.Group();
+      centGroup.position.set(1.8, 0.8, 0);
+      group.add(centGroup);
+      refs.centGroup = centGroup;
+
+      const c1 = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.15, 0.15, 0.8, 16),
+        new THREE.MeshStandardMaterial({ color: 0xf59e0b, emissive: 0xd97706, emissiveIntensity: 0.7 })
+      );
+      const c2 = c1.clone();
+      c2.rotation.x = Math.PI / 2;
+      centGroup.add(c1);
+      centGroup.add(c2);
+      addAnchor(centGroup, 'সেন্ট্রিওল জোড়া (Centrosome)', 'Centriole Pair', 'Centriole', '#f59e0b');
+      return;
+    }
+
+    // Slide 7: নিউক্লিয়াস: কেন্দ্রিকা ও ক্রোমাটিন জালিকা (Nucleus & Chromatin)
+    if (slideId === 7) {
+      // Outer nuclear envelope with pores
+      const nucMesh = new THREE.Mesh(
+        new THREE.SphereGeometry(1.6, 32, 32),
+        new THREE.MeshPhysicalMaterial({ color: 0x7c3aed, transparent: true, opacity: 0.45, roughness: 0.2 })
+      );
+      group.add(nucMesh);
+      refs.nucMesh = nucMesh;
+      addAnchor(nucMesh, 'দ্বিস্তর নিউক্লিয়ার মেমব্রেন ও রন্ধ্র', 'Nuclear Envelope & Pores', 'Envelope', '#a78bfa');
+
+      // Dense Nucleolus in center
+      const nucleolus = new THREE.Mesh(
+        new THREE.SphereGeometry(0.55, 20, 20),
+        new THREE.MeshStandardMaterial({ color: 0xec4899, emissive: 0xdb2777, emissiveIntensity: 0.8 })
+      );
+      group.add(nucleolus);
+      refs.nucleolus = nucleolus;
+      addAnchor(nucleolus, 'নিউক্লিওলাস (আরএনএ ও প্রোটিন সংশ্লেষণ)', 'Dense Nucleolus', 'Nucleolus', '#ec4899');
+
+      // Chromatin network (intertwined torus rings)
+      const chromGroup = new THREE.Group();
+      group.add(chromGroup);
+      refs.chromGroup = chromGroup;
+      for (let k = 0; k < 6; k++) {
+        const ring = new THREE.Mesh(
+          new THREE.TorusGeometry(0.9, 0.04, 8, 24),
+          new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x0284c7, emissiveIntensity: 0.5 })
+        );
+        ring.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
+        chromGroup.add(ring);
+      }
+      addAnchor(chromGroup, 'ক্রোমাটিন তন্তু (ডিএনএ ও হিস্টোন প্রোটিন)', 'Chromatin Network', 'Chromatin', '#38bdf8');
+      return;
+    }
+
+    // Slide 8: ভাজক টিস্যু (Meristematic Dividing Tissue)
+    if (slideId === 8) {
+      const meristemGroup = new THREE.Group();
+      group.add(meristemGroup);
+      refs.meristemGroup = meristemGroup;
+
+      // Cluster of dense, cubical, actively dividing cells
+      for (let ix = -1; ix <= 1; ix++) {
+        for (let iy = -1; iy <= 1; iy++) {
+          const cellMesh = new THREE.Mesh(
+            new THREE.BoxGeometry(0.8, 0.8, 0.8),
+            new THREE.MeshStandardMaterial({
+              color: 0x10b981, emissive: 0x059669, emissiveIntensity: 0.4, roughness: 0.3
+            })
+          );
+          cellMesh.position.set(ix * 0.9, iy * 0.9, 0);
+          meristemGroup.add(cellMesh);
+
+          // Prominent large nucleus in each
+          const nucl = new THREE.Mesh(
+            new THREE.SphereGeometry(0.22, 12, 12),
+            new THREE.MeshStandardMaterial({ color: 0x8b5cf6, emissive: 0x6d28d9, emissiveIntensity: 0.8 })
+          );
+          nucl.position.set(ix * 0.9, iy * 0.9, 0.2);
+          meristemGroup.add(nucl);
+        }
+      }
+      addAnchor(meristemGroup, 'ঘন সন্নিবিষ্ট ভাজক টিস্যু (বড় নিউক্লিয়াসযুক্ত)', 'Meristematic Plant Tissue', 'Meristem', '#10b981');
+      return;
+    }
+
+    // Slide 9: জটিল টিস্যু: জাইলেম ও ফ্লোয়েম (Xylem & Phloem Vascular Bundle)
+    if (slideId === 9) {
+      const vascGroup = new THREE.Group();
+      group.add(vascGroup);
+      refs.vascGroup = vascGroup;
+
+      // Xylem Vessel (Thick lignified water conduit)
+      const xylGeo = new THREE.CylinderGeometry(0.6, 0.6, 3.2, 24, 1, true);
+      const xylMat = new THREE.MeshStandardMaterial({
+        color: 0x0284c7, wireframe: false, roughness: 0.3, emissive: 0x0369a1, emissiveIntensity: 0.4
+      });
+      const xylMesh = new THREE.Mesh(xylGeo, xylMat);
+      xylMesh.position.set(-0.9, 0, 0);
+      vascGroup.add(xylMesh);
+      addAnchor(xylMesh, 'জাইলেম বাহিকা (পানি ও খনিজ ঊর্ধ্বমুখী পরিবহন)', 'Xylem Vessel (Water)', 'Xylem', '#38bdf8');
+
+      // Phloem Sieve Tube (Food conduit with companion cells)
+      const phlGeo = new THREE.CylinderGeometry(0.5, 0.5, 3.2, 24, 1, true);
+      const phlMat = new THREE.MeshStandardMaterial({
+        color: 0x16a34a, roughness: 0.3, emissive: 0x15803d, emissiveIntensity: 0.4
+      });
+      const phlMesh = new THREE.Mesh(phlGeo, phlMat);
+      phlMesh.position.set(0.9, 0, 0);
+      vascGroup.add(phlMesh);
+      addAnchor(phlMesh, 'ফ্লোয়েম সিভনল ও সঙ্গীকোষ (জৈব খাদ্য পরিবহন)', 'Phloem Sieve Tube (Food)', 'Phloem', '#22c55e');
+      return;
+    }
+
+    // Slide 10: রক্ত ও যোজক কলা (Blood & Connective Tissue)
+    if (slideId === 10) {
+      const bloodGroup = new THREE.Group();
+      group.add(bloodGroup);
+      refs.bloodGroup = bloodGroup;
+
+      // Biconcave Red Blood Cells (RBCs / Erythrocytes)
+      for (let r = 0; r < 7; r++) {
+        const rbcGeo = new THREE.CylinderGeometry(0.45, 0.45, 0.16, 20);
+        const rbcMat = new THREE.MeshStandardMaterial({
+          color: 0xdc2626, emissive: 0x991b1b, emissiveIntensity: 0.5, roughness: 0.3
+        });
+        const rbc = new THREE.Mesh(rbcGeo, rbcMat);
+        rbc.position.set((Math.random() - 0.5) * 2.8, (Math.random() - 0.5) * 2.2, (Math.random() - 0.5) * 1.5);
+        rbc.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, 0);
+        bloodGroup.add(rbc);
+      }
+      addAnchor(bloodGroup, 'লোহিত রক্তকণিকা (অক্সিজেন বাহী আরবিসি)', 'Red Blood Cells (RBCs)', 'RBC', '#ef4444');
+
+      // White Blood Cell (WBC / Leukocyte) with irregular lobes
+      const wbcMesh = new THREE.Mesh(
+        new THREE.SphereGeometry(0.65, 20, 20),
+        new THREE.MeshStandardMaterial({ color: 0xf8fafc, emissive: 0x94a3b8, emissiveIntensity: 0.5 })
+      );
+      wbcMesh.position.set(0, 0, 0);
+      group.add(wbcMesh);
+      refs.wbcMesh = wbcMesh;
+      addAnchor(wbcMesh, 'শ্বেত রক্তকণিকা (রোগ প্রতিরোধকারী ডব্লিউবিসি)', 'White Blood Cell (WBC)', 'WBC', '#38bdf8');
+      return;
+    }
+
+    // Slide 11: পেশি টিস্যু (Muscular Tissue - Striated Myofibrils)
+    if (slideId === 11) {
+      const muscleGroup = new THREE.Group();
+      group.add(muscleGroup);
+      refs.muscleGroup = muscleGroup;
+
+      // Muscle Fiber Cylinders
+      for (let m = -1; m <= 1; m++) {
+        const fiber = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.35, 0.35, 3.2, 20),
+          new THREE.MeshStandardMaterial({ color: 0xe11d48, emissive: 0x9f1239, emissiveIntensity: 0.5 })
+        );
+        fiber.position.set(m * 0.85, 0, 0);
+        muscleGroup.add(fiber);
+
+        // Striation bands along fiber
+        for (let b = -1.2; b <= 1.2; b += 0.3) {
+          const band = new THREE.Mesh(
+            new THREE.RingGeometry(0.36, 0.40, 16),
+            new THREE.MeshBasicMaterial({ color: 0xfecdd3, side: THREE.DoubleSide })
+          );
+          band.rotation.x = Math.PI / 2;
+          band.position.set(m * 0.85, b, 0);
+          muscleGroup.add(band);
+        }
+      }
+      addAnchor(muscleGroup, 'ডোরাকাটা ঐচ্ছিক পেশিতন্তু ও সারকোমিয়ার', 'Striated Muscle Fiber', 'Muscle', '#f43f5e');
+      return;
+    }
+
+    // Slide 12: স্নায়ু টিস্যু ও নিউরনের গঠন (Nervous Tissue & 3D Neuron)
+    if (slideId === 12) {
+      const neuronGroup = new THREE.Group();
+      group.add(neuronGroup);
+      refs.neuronGroup = neuronGroup;
+
+      // Soma / Cell Body
+      const somaMesh = new THREE.Mesh(
+        new THREE.SphereGeometry(0.7, 24, 24),
+        new THREE.MeshStandardMaterial({ color: 0x0284c7, emissive: 0x0369a1, emissiveIntensity: 0.6 })
+      );
+      somaMesh.position.set(0, 1.2, 0);
+      neuronGroup.add(somaMesh);
+      addAnchor(somaMesh, 'নিউরন কোষদেহ (Cyton/Soma)', 'Neuron Soma / Cell Body', 'Soma', '#38bdf8');
+
+      // Dendrite branches
+      for (let d = 0; d < 6; d++) {
+        const angle = (d / 6) * Math.PI * 2;
+        const den = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.04, 0.12, 0.7, 8),
+          new THREE.MeshStandardMaterial({ color: 0x38bdf8 })
+        );
+        den.position.set(Math.cos(angle) * 0.8, 1.2 + Math.sin(angle) * 0.6, 0);
+        den.rotation.z = angle;
+        neuronGroup.add(den);
+      }
+
+      // Long Axon Cable
+      const axon = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.08, 0.08, 2.0, 12),
+        new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x0284c7, emissiveIntensity: 0.4 })
+      );
+      axon.position.set(0, -0.2, 0);
+      neuronGroup.add(axon);
+
+      // Myelin Sheath Beads
+      for (let my = 0; my < 3; my++) {
+        const sheath = new THREE.Mesh(
+          new THREE.CapsuleGeometry(0.2, 0.4, 12, 12),
+          new THREE.MeshStandardMaterial({ color: 0xfacc15, emissive: 0xca8a04, emissiveIntensity: 0.5 })
+        );
+        sheath.position.set(0, 0.4 - my * 0.6, 0);
+        neuronGroup.add(sheath);
+      }
+      addAnchor(axon, 'মায়োলিন শিথযুক্ত অ্যাক্সন ও র‍্যানভিয়ারের পর্ব', 'Myelinated Axon', 'Axon', '#facc15');
+
+      // Synapse terminal bulb
+      const syn = new THREE.Mesh(
+        new THREE.SphereGeometry(0.25, 16, 16),
+        new THREE.MeshStandardMaterial({ color: 0xec4899, emissive: 0xdb2777, emissiveIntensity: 0.9 })
+      );
+      syn.position.set(0, -1.3, 0);
+      neuronGroup.add(syn);
+      refs.synMesh = syn;
+      addAnchor(syn, 'সাইন্যাপস ও নিউরোট্রান্সমিটার নিঃসরণ', 'Synaptic Terminal', 'Synapse', '#ec4899');
+      return;
+    }
+  }
+
+  // =========================================================================
+  // CHAPTER 3: CELL DIVISION 3D SCENES
+  // =========================================================================
   if (chapter === 3) {
 
     // =========================================================================
@@ -1088,5 +1553,16 @@ export function updateBiology3DPhysics(
     }
     if (refs.mitCompGroup) refs.mitCompGroup.rotation.y = Math.sin(time * 0.3) * 0.08;
     if (refs.meiCompGroup) refs.meiCompGroup.rotation.y = Math.sin(time * 0.3 + Math.PI) * 0.08;
+  }
+
+  // Biology Chapter 2 real-time physics & motion
+  if (refs.biologyChapter === 2) {
+    if (refs.cytoMesh) refs.cytoMesh.scale.setScalar(0.98 + Math.sin(time * 1.5) * 0.03);
+    if (refs.vacMesh) refs.vacMesh.scale.setScalar(0.95 + Math.cos(time * 2.0) * 0.05);
+    if (refs.atpGroup) refs.atpGroup.rotation.y = time * 0.5;
+    if (refs.granaGroup) refs.granaGroup.rotation.y = time * 0.2;
+    if (refs.vesicleGroup) refs.vesicleGroup.position.x = 0.5 + Math.sin(time * 2) * 0.3;
+    if (refs.synMesh) refs.synMesh.scale.setScalar(0.9 + Math.sin(time * 4) * 0.15);
+    if (refs.bloodGroup) refs.bloodGroup.rotation.y = time * 0.3;
   }
 }

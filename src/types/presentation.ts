@@ -16,7 +16,7 @@ export interface SlideImage {
   captionBn: string;
   captionEn: string;
   type?: 'photo' | 'diagram' | 'chart';
-  customDiagramType?: 'notation' | 'aufbauLadder' | 'crCuStability' | 'massCalcPie' | 'periodicMini' | 'subatomicChart' | 'rutherfordVectors' | 'bohrOrbits' | 'kineticStates' | 'diffusionTube' | 'heatingCurve' | 'sublimationSetup' | 'hazardSymbols' | 'scientificMethod' | 'quantumNumbersTable' | 'hundRule' | 'molecularMassCalc' | 'periodicTrends' | 'periodGroupFinder' | 'mendeleevVsModern' | 'specialGroupsChart' | 'ionicBondFormation' | 'covalentSharing' | 'metallicElectronSea' | 'waterPolarityHydration' | 'octetVsDuet' | 'energyConservation' | 'workAngleVectors' | 'hydraulicPressSvg' | 'archimedesBeaker' | 'manometerPressure' | 'barometerSvg' | 'mitosisStages' | 'meiosisStages' | 'crossingOverSvg' | 'chromosomeShapes';
+  customDiagramType?: 'notation' | 'aufbauLadder' | 'crCuStability' | 'massCalcPie' | 'periodicMini' | 'subatomicChart' | 'rutherfordVectors' | 'bohrOrbits' | 'kineticStates' | 'diffusionTube' | 'heatingCurve' | 'sublimationSetup' | 'hazardSymbols' | 'scientificMethod' | 'quantumNumbersTable' | 'hundRule' | 'molecularMassCalc' | 'periodicTrends' | 'periodGroupFinder' | 'mendeleevVsModern' | 'specialGroupsChart' | 'ionicBondFormation' | 'covalentSharing' | 'metallicElectronSea' | 'waterPolarityHydration' | 'octetVsDuet' | 'energyConservation' | 'workAngleVectors' | 'hydraulicPressSvg' | 'archimedesBeaker' | 'manometerPressure' | 'barometerSvg' | 'mitosisStages' | 'meiosisStages' | 'crossingOverSvg' | 'chromosomeShapes' | 'plantVsAnimalCellSvg' | (string & {});
 }
 
 export interface Slide {

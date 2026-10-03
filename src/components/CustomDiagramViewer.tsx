@@ -1518,5 +1518,313 @@ export const CustomDiagramViewer: React.FC<CustomDiagramViewerProps> = ({ type }
     </div>
   );
 
+  // =========================================================================
+  // PHYSICS CHAPTER 4: WORK, POWER, ENERGY DIAGRAMS
+  // =========================================================================
+  if (type === 'workAngleVectors') {
+    return (
+      <div className="w-full h-full min-h-[260px] max-h-96 bg-slate-950 p-4 flex flex-col items-center justify-center rounded-xl border border-slate-800 select-none">
+        <div className="flex items-center justify-between w-full max-w-2xl mb-2 px-1 text-xs">
+          <span className="font-bold text-amber-400 uppercase tracking-wider">
+            কাজের সমীকরণ ও ভেক্টর কোণ: W = F · s · cosθ
+          </span>
+          <span className="text-[10px] text-slate-400 font-mono">
+            বল (F) ও সরণ (s) এর মধ্যবর্তী কোণ θ
+          </span>
+        </div>
+        <svg viewBox="0 0 600 200" className="w-full max-w-2xl h-auto overflow-visible font-sans text-xs">
+          <rect x="20" y="20" width="560" height="160" rx="8" fill="#090d16" stroke="#334155" strokeWidth="1.5" />
+          
+          {/* Surface line */}
+          <line x1="50" y1="140" x2="550" y2="140" stroke="#475569" strokeWidth="3" />
+          <line x1="50" y1="145" x2="550" y2="145" stroke="#334155" strokeWidth="1" strokeDasharray="6 4" />
+          
+          {/* Object Block */}
+          <rect x="180" y="90" width="80" height="50" rx="4" fill="#1e293b" stroke="#38bdf8" strokeWidth="2" />
+          <text x="220" y="120" textAnchor="middle" fill="#38bdf8" fontSize="12" fontWeight="bold">ভর (m)</text>
+          
+          {/* Displacement Vector s */}
+          <defs>
+            <marker id="arrowAmber" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 1 L 10 5 L 0 9 z" fill="#f59e0b" />
+            </marker>
+            <marker id="arrowCyan" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 1 L 10 5 L 0 9 z" fill="#38bdf8" />
+            </marker>
+            <marker id="arrowRose" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 1 L 10 5 L 0 9 z" fill="#fb7185" />
+            </marker>
+          </defs>
+          
+          <line x1="260" y1="115" x2="420" y2="115" stroke="#f59e0b" strokeWidth="3" markerEnd="url(#arrowAmber)" />
+          <text x="340" y="105" textAnchor="middle" fill="#f59e0b" fontSize="11" fontWeight="bold">সরণ ভেক্টর (s)</text>
+          
+          {/* Force Vector F at angle theta */}
+          <line x1="260" y1="115" x2="380" y2="45" stroke="#38bdf8" strokeWidth="3" markerEnd="url(#arrowCyan)" />
+          <text x="340" y="45" textAnchor="middle" fill="#38bdf8" fontSize="11" fontWeight="bold">বল ভেক্টর (F)</text>
+          
+          {/* Angle arc */}
+          <path d="M 300 115 A 40 40 0 0 0 292 90" fill="none" stroke="#e2e8f0" strokeWidth="2" strokeDasharray="3 3" />
+          <text x="315" y="100" fill="#e2e8f0" fontSize="12" fontWeight="bold">θ</text>
+          
+          {/* 3 Work cases pill badges */}
+          <g transform="translate(420, 35)">
+            <rect x="0" y="0" width="145" height="34" rx="6" fill="#0f172a" stroke="#10b981" strokeWidth="1.2" />
+            <text x="72" y="15" textAnchor="middle" fill="#34d399" fontSize="9" fontWeight="bold">θ &lt; ৯০° (ধনাত্মক কাজ)</text>
+            <text x="72" y="28" textAnchor="middle" fill="#94a3b8" fontSize="8">W = + Fs cosθ</text>
+          </g>
+          <g transform="translate(420, 75)">
+            <rect x="0" y="0" width="145" height="34" rx="6" fill="#0f172a" stroke="#f59e0b" strokeWidth="1.2" />
+            <text x="72" y="15" textAnchor="middle" fill="#fbbf24" fontSize="9" fontWeight="bold">θ = ৯০° (শূন্য কাজ)</text>
+            <text x="72" y="28" textAnchor="middle" fill="#94a3b8" fontSize="8">cos ৯০° = ০ → W = ০</text>
+          </g>
+          <g transform="translate(420, 115)">
+            <rect x="0" y="0" width="145" height="34" rx="6" fill="#0f172a" stroke="#fb7185" strokeWidth="1.2" />
+            <text x="72" y="15" textAnchor="middle" fill="#fb7185" fontSize="9" fontWeight="bold">θ &gt; ৯০° (ঋণাত্মক কাজ)</text>
+            <text x="72" y="28" textAnchor="middle" fill="#94a3b8" fontSize="8">বলের বিপরীতে বাধা বলের কাজ</text>
+          </g>
+        </svg>
+      </div>
+    );
+  }
+
+  if (type === 'energyConservation') {
+    return (
+      <div className="w-full h-full min-h-[260px] max-h-96 bg-slate-950 p-4 flex flex-col items-center justify-center rounded-xl border border-slate-800 select-none">
+        <div className="flex items-center justify-between w-full max-w-2xl mb-2 px-1 text-xs">
+          <span className="font-bold text-amber-400 uppercase tracking-wider">
+            যান্ত্রিক শক্তির নিত্যতা: E = Ep + Ek = ধ্রুবক
+          </span>
+          <span className="text-[10px] text-slate-400 font-mono">
+            সর্বোচ্চ উচ্চতা → মধ্যবর্তী বিন্দু → ভূমি স্পর্শ
+          </span>
+        </div>
+        <svg viewBox="0 0 600 200" className="w-full max-w-2xl h-auto overflow-visible font-sans text-xs">
+          <rect x="20" y="20" width="560" height="160" rx="8" fill="#090d16" stroke="#334155" strokeWidth="1.5" />
+          
+          {/* Free Fall Tower */}
+          <line x1="120" y1="40" x2="120" y2="160" stroke="#64748b" strokeWidth="2" strokeDasharray="4 4" />
+          <line x1="80" y1="160" x2="520" y2="160" stroke="#475569" strokeWidth="3" />
+          <text x="100" y="172" fill="#94a3b8" fontSize="9">ভূমি (h = ০)</text>
+          
+          {/* Point A (Top) */}
+          <circle cx="120" cy="50" r="14" fill="#f59e0b" filter="drop-shadow(0 0 8px #f59e0b)" />
+          <text x="120" y="54" textAnchor="middle" fill="#000" fontSize="10" fontWeight="bold">A</text>
+          <g transform="translate(150, 36)">
+            <text x="0" y="10" fill="#f59e0b" fontSize="10" fontWeight="bold">বিন্দু A (সর্বোচ্চ উচ্চতা h):</text>
+            <text x="0" y="22" fill="#94a3b8" fontSize="9">Ep = mgh, Ek = 0 → মোট শক্তি E = mgh</text>
+          </g>
+
+          {/* Point B (Middle) */}
+          <circle cx="120" cy="105" r="14" fill="#38bdf8" filter="drop-shadow(0 0 8px #38bdf8)" />
+          <text x="120" y="109" textAnchor="middle" fill="#000" fontSize="10" fontWeight="bold">B</text>
+          <g transform="translate(150, 92)">
+            <text x="0" y="10" fill="#38bdf8" fontSize="10" fontWeight="bold">বিন্দু B (মাঝামাঝি উচ্চতা):</text>
+            <text x="0" y="22" fill="#94a3b8" fontSize="9">Ep = mg(h-x), Ek = mgx → মোট শক্তি E = mgh</text>
+          </g>
+
+          {/* Point C (Ground) */}
+          <circle cx="120" cy="155" r="14" fill="#10b981" filter="drop-shadow(0 0 8px #10b981)" />
+          <text x="120" y="159" textAnchor="middle" fill="#000" fontSize="10" fontWeight="bold">C</text>
+          <g transform="translate(150, 142)">
+            <text x="0" y="10" fill="#10b981" fontSize="10" fontWeight="bold">বিন্দু C (ভূমি স্পর্শ করার মুহূর্তে):</text>
+            <text x="0" y="22" fill="#94a3b8" fontSize="9">Ep = 0, Ek = ½ mv² = mgh → মোট শক্তি E = mgh</text>
+          </g>
+
+          {/* Rollercoaster curve illustration */}
+          <path d="M 400 50 Q 450 160 500 110 T 550 155" fill="none" stroke="#eab308" strokeWidth="4" />
+          <circle cx="400" cy="50" r="7" fill="#f59e0b" />
+          <circle cx="460" cy="150" r="7" fill="#10b981" />
+          <circle cx="500" cy="110" r="7" fill="#38bdf8" />
+          <text x="475" y="45" textAnchor="middle" fill="#eab308" fontSize="9" fontWeight="bold">রোলার কোস্টার ট্র‍্যাক</text>
+        </svg>
+      </div>
+    );
+  }
+
+  // =========================================================================
+  // PHYSICS CHAPTER 5: PRESSURE, HYDRAULICS & BUOYANCY DIAGRAMS
+  // =========================================================================
+  if (type === 'hydraulicPressSvg') {
+    return (
+      <div className="w-full h-full min-h-[260px] max-h-96 bg-slate-950 p-4 flex flex-col items-center justify-center rounded-xl border border-slate-800 select-none">
+        <div className="flex items-center justify-between w-full max-w-2xl mb-2 px-1 text-xs">
+          <span className="font-bold text-cyan-400 uppercase tracking-wider">
+            প্যাসকেলের সূত্র ও বল বৃদ্ধিকরণ নীতি: F₂ = F₁ · (A₂ / A₁)
+          </span>
+          <span className="text-[10px] text-slate-400 font-mono">
+            চাপ সঞ্চালন P₁ = P₂
+          </span>
+        </div>
+        <svg viewBox="0 0 600 200" className="w-full max-w-2xl h-auto overflow-visible font-sans text-xs">
+          <rect x="20" y="20" width="560" height="160" rx="8" fill="#090d16" stroke="#334155" strokeWidth="1.5" />
+          
+          {/* Hydraulic U-Tube liquid channel */}
+          <path d="M 120 70 L 120 150 L 480 150 L 480 80 L 410 80 L 410 130 L 190 130 L 190 70 Z" fill="#0284c7" fillOpacity="0.4" stroke="#0ea5e9" strokeWidth="2" />
+          
+          {/* Small Piston (Left) */}
+          <rect x="122" y="60" width="66" height="18" rx="2" fill="#64748b" stroke="#94a3b8" strokeWidth="1.5" />
+          <line x1="155" y1="28" x2="155" y2="58" stroke="#f59e0b" strokeWidth="3" markerEnd="url(#arrowAmber)" />
+          <text x="155" y="25" textAnchor="middle" fill="#f59e0b" fontSize="11" fontWeight="bold">F₁ (প্রযুক্ত ক্ষুদ্র বল)</text>
+          <text x="155" y="95" textAnchor="middle" fill="#bae6fd" fontSize="9">ক্ষেত্রফল A₁</text>
+
+          {/* Large Piston (Right) */}
+          <rect x="412" y="70" width="66" height="24" rx="2" fill="#64748b" stroke="#94a3b8" strokeWidth="1.5" />
+          <line x1="445" y1="68" x2="445" y2="34" stroke="#10b981" strokeWidth="4" markerEnd="url(#arrowGreen)" />
+          <text x="445" y="25" textAnchor="middle" fill="#10b981" fontSize="11" fontWeight="bold">F₂ (বহুগুণ বর্ধিত বল)</text>
+          <text x="445" y="110" textAnchor="middle" fill="#bae6fd" fontSize="9">ক্ষেত্রফল A₂</text>
+
+          {/* Center equation display */}
+          <g transform="translate(230, 75)">
+            <rect x="0" y="0" width="140" height="45" rx="6" fill="#0f172a" stroke="#0284c7" strokeWidth="1.5" />
+            <text x="70" y="18" textAnchor="middle" fill="#38bdf8" fontSize="11" fontWeight="bold">P₁ = P₂ (সমান চাপ)</text>
+            <text x="70" y="34" textAnchor="middle" fill="#f59e0b" fontSize="11" fontWeight="bold">F₂ = F₁ × (A₂ / A₁)</text>
+          </g>
+        </svg>
+      </div>
+    );
+  }
+
+  if (type === 'archimedesBeaker') {
+    return (
+      <div className="w-full h-full min-h-[260px] max-h-96 bg-slate-950 p-4 flex flex-col items-center justify-center rounded-xl border border-slate-800 select-none">
+        <div className="flex items-center justify-between w-full max-w-2xl mb-2 px-1 text-xs">
+          <span className="font-bold text-cyan-400 uppercase tracking-wider">
+            আর্কিমিডিসের নীতি ও প্লবতা: FB = V · ρ · g
+          </span>
+          <span className="text-[10px] text-slate-400 font-mono">
+            অপসারিত তরলের ওজন = প্লবতা (উর্ধ্বমুখী বল)
+          </span>
+        </div>
+        <svg viewBox="0 0 600 200" className="w-full max-w-2xl h-auto overflow-visible font-sans text-xs">
+          <rect x="20" y="20" width="560" height="160" rx="8" fill="#090d16" stroke="#334155" strokeWidth="1.5" />
+          
+          {/* Overflow Beaker */}
+          <rect x="120" y="60" width="140" height="100" rx="4" fill="#0284c7" fillOpacity="0.25" stroke="#38bdf8" strokeWidth="2" />
+          {/* Spout */}
+          <path d="M 260 70 L 300 95 L 300 100 L 260 80 Z" fill="#0284c7" fillOpacity="0.6" stroke="#38bdf8" strokeWidth="1.5" />
+
+          {/* Measuring Cylinder (Catching displaced liquid) */}
+          <rect x="300" y="90" width="50" height="70" rx="3" fill="#0284c7" fillOpacity="0.3" stroke="#0ea5e9" strokeWidth="1.5" />
+          <text x="325" y="172" textAnchor="middle" fill="#7dd3fc" fontSize="9">অপসারিত তরল</text>
+
+          {/* Submerged Cylinder inside Beaker */}
+          <rect x="160" y="85" width="60" height="55" rx="4" fill="#64748b" stroke="#f59e0b" strokeWidth="2" />
+          <text x="190" y="115" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="bold">বস্তু (V)</text>
+
+          {/* Downward Gravity Weight W */}
+          <line x1="190" y1="140" x2="190" y2="160" stroke="#fb7185" strokeWidth="2.5" markerEnd="url(#arrowRose)" />
+          <text x="215" y="155" fill="#fb7185" fontSize="9">ওজন W = mg</text>
+
+          {/* Upward Buoyancy Force FB */}
+          <line x1="190" y1="85" x2="190" y2="60" stroke="#10b981" strokeWidth="3" markerEnd="url(#arrowGreen)" />
+          <text x="190" y="52" textAnchor="middle" fill="#34d399" fontSize="10" fontWeight="bold">প্লবতা FB = Vρg</text>
+
+          {/* Rules Card */}
+          <g transform="translate(380, 45)">
+            <rect x="0" y="0" width="180" height="110" rx="6" fill="#0f172a" stroke="#334155" strokeWidth="1.2" />
+            <text x="12" y="22" fill="#38bdf8" fontSize="10" fontWeight="bold">নিমজ্জন ও ভাসনের শর্ত:</text>
+            <text x="12" y="44" fill="#34d399" fontSize="9">১. W &lt; FB → ভাসবে (Float)</text>
+            <text x="12" y="66" fill="#fbbf24" fontSize="9">২. W = FB → সম্পূর্ণ নিমজ্জিত ভেসে থাকবে</text>
+            <text x="12" y="88" fill="#fb7185" fontSize="9">৩. W &gt; FB → ডুবে যাবে (Sink)</text>
+          </g>
+        </svg>
+      </div>
+    );
+  }
+
+  // =========================================================================
+  // BIOLOGY CHAPTER 2 & 3: LIVING CELL, TISSUE & MITOSIS DIAGRAMS
+  // =========================================================================
+  if (type === 'plantVsAnimalCellSvg') {
+    return (
+      <div className="w-full h-full min-h-[260px] max-h-96 bg-slate-950 p-4 flex flex-col items-center justify-center rounded-xl border border-slate-800 select-none">
+        <div className="flex items-center justify-between w-full max-w-2xl mb-2 px-1 text-xs">
+          <span className="font-bold text-emerald-400 uppercase tracking-wider">
+            উদ্ভিদকোষ বনাম প্রাণীকোষের তুলনামূলক গঠন
+          </span>
+          <span className="text-[10px] text-slate-400 font-mono">
+            কোষপ্রাচীর ও প্লাস্টিড বনাম সেন্ট্রোজোম
+          </span>
+        </div>
+        <div className="grid grid-cols-2 gap-4 w-full max-w-2xl">
+          {/* Plant Cell (Hexagonal/Rectangular with thick wall) */}
+          <div className="bg-slate-900/90 rounded-xl p-3 border border-emerald-500/50 flex flex-col items-center text-center">
+            <span className="text-xs font-bold text-emerald-300 mb-1">উদ্ভিদকোষ (Plant Cell)</span>
+            <div className="w-full h-32 bg-slate-950 rounded-lg border-2 border-emerald-500 relative flex items-center justify-center p-2 mb-2 overflow-hidden">
+              {/* Outer Cell Wall */}
+              <div className="absolute inset-1 border-2 border-emerald-700/60 rounded" />
+              {/* Large Central Vacuole */}
+              <div className="w-20 h-16 rounded-2xl bg-cyan-500/30 border border-cyan-400 flex items-center justify-center">
+                <span className="text-[8px] text-cyan-200 font-bold">বৃহৎ কোষগহ্বর</span>
+              </div>
+              {/* Chloroplasts */}
+              <div className="absolute top-2 left-3 w-5 h-3 rounded-full bg-emerald-500 border border-emerald-300" title="ক্লোরোপ্লাস্ট" />
+              <div className="absolute bottom-2 left-4 w-5 h-3 rounded-full bg-emerald-500 border border-emerald-300" />
+              {/* Nucleus pushed to side */}
+              <div className="absolute top-3 right-3 w-7 h-7 rounded-full bg-purple-600/70 border border-purple-400 flex items-center justify-center">
+                <span className="text-[7px] text-purple-200">নিউক্লিয়াস</span>
+              </div>
+            </div>
+            <span className="text-[10px] text-emerald-300 font-semibold">সেলুলোজ নির্মিত জড় কোষপ্রাচীর</span>
+            <span className="text-[9px] text-slate-400">ক্লোরোপ্লাস্ট ও প্লাস্টিড বিদ্যমান · সেন্ট্রোজোম নেই</span>
+          </div>
+
+          {/* Animal Cell (Spherical, No wall, small vacuoles) */}
+          <div className="bg-slate-900/90 rounded-xl p-3 border border-pink-500/50 flex flex-col items-center text-center">
+            <span className="text-xs font-bold text-pink-300 mb-1">প্রাণীকোষ (Animal Cell)</span>
+            <div className="w-full h-32 bg-slate-950 rounded-full border-2 border-pink-400/80 relative flex items-center justify-center p-2 mb-2 overflow-hidden">
+              {/* Centered Nucleus */}
+              <div className="w-10 h-10 rounded-full bg-purple-600/70 border-2 border-purple-300 flex items-center justify-center">
+                <span className="text-[8px] text-purple-100 font-bold">নিউক্লিয়াস</span>
+              </div>
+              {/* Centrosome */}
+              <div className="absolute top-4 right-8 w-4 h-4 rounded-full bg-amber-500/80 border border-amber-300 flex items-center justify-center">
+                <span className="text-[6px] text-amber-950 font-black">C</span>
+              </div>
+              {/* Mitochondria */}
+              <div className="absolute bottom-4 left-6 w-6 h-3 rounded-full bg-orange-500/70 border border-orange-300" />
+              <div className="absolute top-6 left-8 w-5 h-3 rounded-full bg-orange-500/70 border border-orange-300" />
+            </div>
+            <span className="text-[10px] text-pink-300 font-semibold">কোষপ্রাচীর অনুপস্থিত (প্লাজমালেমা)</span>
+            <span className="text-[9px] text-slate-400">সেন্ট্রোজোম উপস্থিত · প্লাস্টিড অনুপস্থিত</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (type === 'mitosisStages') {
+    return (
+      <div className="w-full h-full min-h-[260px] max-h-96 bg-slate-950 p-4 flex flex-col items-center justify-center rounded-xl border border-slate-800 select-none">
+        <div className="flex items-center justify-between w-full max-w-2xl mb-2 px-1 text-xs">
+          <span className="font-bold text-emerald-400 uppercase tracking-wider">
+            মাইটোসিস কোষ বিভাজনের ৫টি পর্যায়ক্রম
+          </span>
+          <span className="text-[10px] text-slate-400 font-mono">
+            মাতৃকোষ (2n) → ২টি সমগুণসম্পন্ন অপত্য কোষ (2n)
+          </span>
+        </div>
+        <div className="grid grid-cols-5 gap-2 w-full max-w-2xl text-center">
+          {[
+            { step: '১. প্রোফেজ', sub: 'ক্রোমোজোম ঘনীভবন', color: 'border-blue-500', badge: 'bg-blue-500/20 text-blue-300' },
+            { step: '২. প্রো-মেটাফেজ', sub: 'স্পিন্ডল যন্ত্র সৃষ্টি', color: 'border-cyan-500', badge: 'bg-cyan-500/20 text-cyan-300' },
+            { step: '৩. মেটাফেজ', sub: 'বিষুবীয় অঞ্চলে বিন্যাস', color: 'border-emerald-500', badge: 'bg-emerald-500/20 text-emerald-300' },
+            { step: '৪. অ্যানাফেজ', sub: 'মেরুমুখী চলন (V,L,J,I)', color: 'border-amber-500', badge: 'bg-amber-500/20 text-amber-300' },
+            { step: '৫. টেলোফেজ', sub: 'নিউক্লিয়াস পুনর্গঠন', color: 'border-purple-500', badge: 'bg-purple-500/20 text-purple-300' },
+          ].map((s, idx) => (
+            <div key={idx} className={`p-2 rounded-xl bg-slate-900 border ${s.color} flex flex-col items-center justify-between h-36`}>
+              <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${s.badge}`}>{s.step}</span>
+              <div className="w-12 h-12 rounded-full border border-slate-700 bg-slate-950 flex items-center justify-center">
+                <span className="text-xs font-mono font-bold text-white">{idx + 1}</span>
+              </div>
+              <span className="text-[9px] text-slate-300 leading-tight">{s.sub}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return null;
 };

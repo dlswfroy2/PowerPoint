@@ -16,8 +16,12 @@ import {
   HelpCircle 
 } from 'lucide-react';
 
-export const CellDivisionLab: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'mitosis' | 'crossingOver' | 'cellCycle'>('mitosis');
+export const CellDivisionLab: React.FC<{ defaultTab?: 'mitosis' | 'crossingOver' | 'cellCycle' }> = ({ defaultTab = 'mitosis' }) => {
+  const [activeTab, setActiveTab] = useState<'mitosis' | 'crossingOver' | 'cellCycle'>(defaultTab);
+
+  React.useEffect(() => {
+    setActiveTab(defaultTab);
+  }, [defaultTab]);
 
   // --- MITOSIS STUDIO STATE ---
   const mitosisStages = [

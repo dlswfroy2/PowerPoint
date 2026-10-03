@@ -18,8 +18,12 @@ import {
   Scale
 } from 'lucide-react';
 
-export function WorkEnergyLab() {
-  const [activeTab, setActiveTab] = useState<'conservation' | 'workAngle' | 'efficiency'>('conservation');
+export function WorkEnergyLab({ defaultTab = 'conservation' }: { defaultTab?: 'conservation' | 'workAngle' | 'efficiency' } = {}) {
+  const [activeTab, setActiveTab] = useState<'conservation' | 'workAngle' | 'efficiency'>(defaultTab);
+
+  useEffect(() => {
+    setActiveTab(defaultTab);
+  }, [defaultTab]);
 
   // --- Tab 1: Conservation of Energy State ---
   const [mass, setMass] = useState<number>(2); // kg

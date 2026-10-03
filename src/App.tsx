@@ -301,18 +301,22 @@ export default function App() {
         {activeTab === 'compoundProps' && <CompoundPropertiesLab />}
 
         {/* Physics Chapter 4 Interactive Labs */}
-        {activeTab === 'workEnergyLab' && <WorkEnergyLab />}
+        {activeTab === 'workEnergyLab' && <WorkEnergyLab defaultTab="workAngle" />}
+        {activeTab === 'energyConservationLab' && <WorkEnergyLab defaultTab="conservation" />}
+        {activeTab === 'efficiencyLab' && <WorkEnergyLab defaultTab="efficiency" />}
 
         {/* Physics Chapter 5 Interactive Labs */}
-        {activeTab === 'pressureLab' && <PressureFluidsLab />}
+        {(activeTab === 'pressureLab' || activeTab === 'hydraulicLab') && <PressureFluidsLab defaultTab="hydraulic" />}
+        {activeTab === 'archimedesLab' && <PressureFluidsLab defaultTab="archimedes" />}
+        {activeTab === 'depthPressureLab' && <PressureFluidsLab defaultTab="depthPressure" />}
 
         {/* Biology Chapter 2 Interactive Labs */}
         {activeTab === 'cellExplorerLab' && <CellExplorerLab />}
 
         {/* Biology Chapter 3 Interactive Labs */}
-        {activeTab === 'cellDivisionLab' && (
-          activeChapter === 2 ? <CellExplorerLab /> : <CellDivisionLab />
-        )}
+        {activeTab === 'cellDivisionLab' && <CellDivisionLab defaultTab="mitosis" />}
+        {activeTab === 'crossingOverLab' && <CellDivisionLab defaultTab="crossingOver" />}
+        {activeTab === 'cellCycleLab' && <CellDivisionLab defaultTab="cellCycle" />}
 
         {/* Assessment Quiz (Chemistry, Physics & Biology Chapters Supported) */}
         {activeTab === 'quiz' && (
