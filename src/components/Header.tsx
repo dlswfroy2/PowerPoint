@@ -96,25 +96,27 @@ export const Header: React.FC<HeaderProps> = ({
       : { text: 'text-cyan-400', border: 'border-cyan-500/30', bg: 'bg-cyan-500/10', activeTab: 'bg-cyan-500 text-slate-950' };
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md shadow-md text-slate-900">
-  {/* টপ গ্রেডিয়েন্ট বর্ডার লাইন */}
-  <div className="h-1 w-full bg-gradient-to-r from-blue-500 via-indigo-500 to-cyan-500"></div>
+    <header className="sticky top-0 z-40 w-full bg-[#0a1226]/95 backdrop-blur-md shadow-lg border-b border-slate-800 text-slate-100">
+      {/* টপ গ্রেডিয়েন্ট বর্ডার লাইন */}
+      <div className="h-1 w-full bg-gradient-to-r from-blue-500 via-indigo-500 to-cyan-500"></div>
 
-  {/* ========================================================================= */}
-  {/* ROW 1: BRAND, SUBJECT & CHAPTER SELECTOR, PRESENTATION TOOLS              */}
-  {/* ========================================================================= */}
-  <div className="mx-auto flex flex-wrap items-center justify-between gap-3 px-4 py-2.5 sm:px-6 bg-slate-50 border-b border-slate-200">
+      {/* ========================================================================= */}
+      {/* ROW 1: BRAND, SUBJECT & CHAPTER SELECTOR, PRESENTATION TOOLS              */}
+      {/* ========================================================================= */}
+      <div className="mx-auto flex items-center justify-between gap-2 sm:gap-4 px-3 py-2 sm:px-6 bg-[#0c1730] border-b border-blue-900/60">
         
         {/* Left: Logo & Subject / Chapter Switcher */}
-        <div className="flex items-center gap-3 min-w-0">
-          {/* Logo GIF Section */}
-          <img 
-            src="/logo.gif" 
-            alt="প্রেজেন্টেশন ও ল্যাব" 
-            className="h-16 w-auto object-contain cursor-pointer transition-transform hover:scale-105 shrink-0"
-          />
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0 shrink">
+          {/* Logo Section inside clean rounded white pill */}
+          <div className="flex items-center justify-center rounded-xl bg-white px-2 py-1 shadow-sm border border-slate-200 shrink-0 h-10">
+            <img 
+              src="/logo.gif" 
+              alt="প্রেজেন্টেশন ও ল্যাব" 
+              className="h-8 w-auto object-contain cursor-pointer transition-transform hover:scale-105"
+            />
+          </div>
 
-          <span className={`flex h-9 w-9 items-center justify-center rounded-lg ${subjectTheme.bg} ${subjectTheme.text} ring-1 ${subjectTheme.border} shrink-0 hidden sm:flex`}>
+          <span className={`flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-lg ${subjectTheme.bg} ${subjectTheme.text} ring-1 ${subjectTheme.border} shrink-0 hidden sm:flex`}>
             {activeSubject === 'biology' ? (
               <Dna className="h-5 w-5 animate-pulse" />
             ) : activeSubject === 'physics' ? (
@@ -132,7 +134,7 @@ export const Header: React.FC<HeaderProps> = ({
             )}
           </span>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 min-w-0">
             <select
               value={`${activeSubject}-${activeChapter}`}
               onChange={(e) => {
@@ -144,7 +146,7 @@ export const Header: React.FC<HeaderProps> = ({
                 setActiveChapter(nextChapter);
                 setActiveTab('slides');
               }}
-              className="bg-slate-900 border border-slate-700 hover:border-cyan-500 text-white font-bold text-xs sm:text-sm rounded-lg px-2.5 py-1.5 outline-none cursor-pointer transition shadow-sm max-w-[280px] sm:max-w-md truncate"
+              className="bg-slate-900 border border-slate-700/80 hover:border-cyan-500 text-white font-bold text-xs sm:text-sm rounded-lg px-2.5 py-1.5 outline-none cursor-pointer transition shadow-sm max-w-[190px] xs:max-w-[240px] sm:max-w-[320px] md:max-w-md truncate"
               title="বিষয় ও অধ্যায় পরিবর্তন করুন"
             >
               <optgroup label="রসায়ন (Chemistry)">
@@ -165,7 +167,7 @@ export const Header: React.FC<HeaderProps> = ({
             </select>
 
             {isCustomSlidesActive && (
-              <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/40">
+              <span className="hidden md:inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 shrink-0">
                 <Sparkles className="h-3 w-3" /> কাস্টম PPTX
               </span>
             )}
@@ -173,16 +175,16 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Right: Presentation & PowerPoint Controls */}
-        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap ml-auto">
+        <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
           {/* 1. PowerPoint Show Mode (Hero Button) */}
           {activeTab === 'slides' && openPowerPointShow && (
             <button
               onClick={openPowerPointShow}
               title="পূর্ণপর্দায় পাওয়ারপয়েন্ট স্লাইডশো শুরু করুন"
-              className="flex items-center gap-1.5 rounded-lg border border-cyan-500/60 bg-gradient-to-r from-cyan-600 to-blue-600 px-3 py-1.5 text-xs font-bold text-white shadow-md shadow-cyan-500/20 transition hover:brightness-110"
+              className="flex items-center gap-1.5 rounded-lg border border-cyan-500/60 bg-gradient-to-r from-cyan-600 to-blue-600 px-2.5 sm:px-3 py-1.5 text-xs font-bold text-white shadow-md shadow-cyan-500/20 transition hover:brightness-110 shrink-0"
             >
               <Play className="h-3.5 w-3.5 fill-white" />
-              <span>স্লাইডশো (F5)</span>
+              <span className="hidden xs:inline">স্লাইডশো (F5)</span>
             </button>
           )}
 
@@ -192,10 +194,10 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={onExportPptx}
               disabled={isExportingPptx}
               title="মাইক্রোসফট পাওয়ারপয়েন্ট (.pptx) ফাইল ডাউনলোড করুন"
-              className="flex items-center gap-1.5 rounded-lg border border-orange-500/40 bg-orange-500/10 px-2.5 py-1.5 text-xs font-semibold text-orange-300 transition hover:border-orange-500/60 hover:bg-orange-500/20 hover:text-white disabled:opacity-50"
+              className="flex items-center gap-1.5 rounded-lg border border-orange-500/40 bg-orange-500/10 px-2 sm:px-2.5 py-1.5 text-xs font-semibold text-orange-300 transition hover:border-orange-500/60 hover:bg-orange-500/20 hover:text-white disabled:opacity-50 shrink-0"
             >
               <Presentation className="h-3.5 w-3.5 text-orange-400" />
-              <span className="hidden sm:inline">{isExportingPptx ? 'তৈরি হচ্ছে...' : 'PPTX ডাউনলোড'}</span>
+              <span className="hidden lg:inline">{isExportingPptx ? 'তৈরি হচ্ছে...' : 'PPTX ডাউনলোড'}</span>
             </button>
           )}
 
@@ -204,10 +206,10 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               onClick={onOpenPptxUpload}
               title="সম্পাদিত পাওয়ারপয়েন্ট (.pptx) ফাইল আপলোড করুন"
-              className="flex items-center gap-1.5 rounded-lg border border-indigo-500/40 bg-indigo-500/10 px-2.5 py-1.5 text-xs font-semibold text-indigo-300 transition hover:border-indigo-500/60 hover:bg-indigo-500/20 hover:text-white"
+              className="flex items-center gap-1.5 rounded-lg border border-indigo-500/40 bg-indigo-500/10 px-2 sm:px-2.5 py-1.5 text-xs font-semibold text-indigo-300 transition hover:border-indigo-500/60 hover:bg-indigo-500/20 hover:text-white shrink-0"
             >
               <Upload className="h-3.5 w-3.5 text-indigo-400" />
-              <span className="hidden sm:inline">PPTX আপলোড</span>
+              <span className="hidden lg:inline">PPTX আপলোড</span>
             </button>
           )}
 
@@ -216,10 +218,10 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               onClick={onResetCustomSlides}
               title="আসল স্লাইডে ফিরে যান"
-              className="flex items-center gap-1 rounded-lg border border-amber-500/40 bg-amber-500/10 px-2 py-1.5 text-xs font-semibold text-amber-300 transition hover:bg-amber-500/20"
+              className="flex items-center gap-1 rounded-lg border border-amber-500/40 bg-amber-500/10 px-2 py-1.5 text-xs font-semibold text-amber-300 transition hover:bg-amber-500/20 shrink-0"
             >
               <RotateCcw className="h-3.5 w-3.5" />
-              <span className="hidden md:inline">আসল স্লাইড</span>
+              <span className="hidden xl:inline">আসল স্লাইড</span>
             </button>
           )}
 
@@ -228,10 +230,10 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               onClick={openPresenterModal}
               title="প্রেজেন্টার মোড ও শিক্ষক স্পিকার নোটস"
-              className="flex items-center gap-1 rounded-lg border border-slate-700 bg-slate-900 px-2.5 py-1.5 text-xs font-medium text-slate-200 transition hover:border-slate-600 hover:bg-slate-800 hover:text-white"
+              className="flex items-center gap-1 rounded-lg border border-slate-700 bg-slate-900/90 px-2 sm:px-2.5 py-1.5 text-xs font-medium text-slate-200 transition hover:border-slate-600 hover:bg-slate-800 hover:text-white shrink-0"
             >
               <FileText className="h-3.5 w-3.5 text-cyan-400" />
-              <span className="hidden md:inline">প্রেজেন্টার ভিউ</span>
+              <span className="hidden md:inline">প্রেজেন্টার</span>
             </button>
           )}
 
@@ -239,7 +241,7 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             onClick={openPrintView}
             title="ক্লাস হ্যান্ডআউট প্রিন্ট বা PDF সংরক্ষণ"
-            className="flex items-center gap-1 rounded-lg border border-slate-700 bg-slate-900 px-2.5 py-1.5 text-xs font-medium text-slate-200 transition hover:border-slate-600 hover:bg-slate-800 hover:text-white"
+            className="flex items-center gap-1 rounded-lg border border-slate-700 bg-slate-900/90 px-2 sm:px-2.5 py-1.5 text-xs font-medium text-slate-200 transition hover:border-slate-600 hover:bg-slate-800 hover:text-white shrink-0"
           >
             <BookOpen className="h-3.5 w-3.5 text-amber-400" />
             <span className="hidden md:inline">হ্যান্ডআউট</span>
@@ -249,7 +251,7 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             onClick={toggleFullscreen}
             title={isFullscreen ? 'ফুলস্ক্রিন বন্ধ করুন' : 'পূর্ণপর্দায় উপস্থাপন'}
-            className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-700 bg-slate-900 text-slate-200 transition hover:border-slate-600 hover:bg-slate-800 hover:text-white"
+            className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-700 bg-slate-900/90 text-slate-200 transition hover:border-slate-600 hover:bg-slate-800 hover:text-white shrink-0"
           >
             {isFullscreen ? <Minimize2 className="h-4 w-4 text-cyan-400" /> : <Maximize2 className="h-4 w-4 text-slate-300" />}
           </button>
@@ -259,7 +261,7 @@ export const Header: React.FC<HeaderProps> = ({
       {/* ========================================================================= */}
       {/* ROW 2: SUB-NAVIGATION TABS (DEEP BLUE THEME)                              */}
       {/* ========================================================================= */}
-      <div className="mx-auto flex flex-wrap items-center justify-start gap-1.5 px-4 py-2 sm:px-6 bg-blue-950 border-t border-blue-900 shadow-inner">
+      <div className="mx-auto flex items-center justify-start gap-1.5 px-3 py-1.5 sm:px-6 bg-[#0a1428] border-t border-blue-900/40 overflow-x-auto no-scrollbar">
         
         {/* Core Slide Tab */}
         <button
