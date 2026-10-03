@@ -1,4 +1,11 @@
-import { QuizQuestion } from './chapter1QuizData';
+export interface QuizQuestion {
+  id: number;
+  question: string;
+  options: string[];
+  correctIndex: number;
+  explanation: string;
+  topic: string;
+}
 
 export const biologyChapter2QuizQuestions: QuizQuestion[] = [
   {

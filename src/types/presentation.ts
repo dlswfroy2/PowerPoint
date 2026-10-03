@@ -49,7 +49,7 @@ export interface Slide {
     content: string;
   };
   speakerNotes: string;
-  recommendedInteractiveTab?: 'simulator' | 'aufbau' | 'isotope' | 'kinetic' | 'diffusion' | 'heating' | 'safety' | 'ptable' | 'positionFinder' | 'trends' | 'bondingLab' | 'formulaBuilder' | 'compoundProps' | 'workEnergyLab' | 'pressureLab' | 'cellDivisionLab';
+  recommendedInteractiveTab?: 'simulator' | 'aufbau' | 'isotope' | 'kinetic' | 'diffusion' | 'heating' | 'safety' | 'ptable' | 'positionFinder' | 'trends' | 'bondingLab' | 'formulaBuilder' | 'compoundProps' | 'workEnergyLab' | 'pressureLab' | 'cellDivisionLab' | 'cellExplorerLab';
   rawPptx?: RawPptxSlide;
 }
 

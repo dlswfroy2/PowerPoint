@@ -37,7 +37,7 @@ interface SlideViewerProps {
   currentSlideIndex: number;
   setCurrentSlideIndex: React.Dispatch<React.SetStateAction<number>>;
   onOpenSlideIndex: () => void;
-  onNavigateToTab: (tab: 'simulator' | 'aufbau' | 'isotope' | 'kinetic' | 'diffusion' | 'heating' | 'safety' | 'ptable' | 'positionFinder' | 'trends' | 'bondingLab' | 'formulaBuilder' | 'compoundProps' | 'workEnergyLab' | 'pressureLab' | 'cellDivisionLab') => void;
+  onNavigateToTab: (tab: 'simulator' | 'aufbau' | 'isotope' | 'kinetic' | 'diffusion' | 'heating' | 'safety' | 'ptable' | 'positionFinder' | 'trends' | 'bondingLab' | 'formulaBuilder' | 'compoundProps' | 'workEnergyLab' | 'pressureLab' | 'cellDivisionLab' | 'cellExplorerLab') => void;
   openPowerPointShow?: () => void;
   onUpdateSlide?: (updatedSlide: Slide, slideIndex: number) => void;
   onResetSlide?: (slideIndex: number) => void;

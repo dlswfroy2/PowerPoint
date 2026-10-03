@@ -165,7 +165,7 @@ export const QuizSection: React.FC<QuizSectionProps> = ({
 
           {/* Options */}
           <div className="space-y-2.5">
-            {currentQ.options.map((option, idx) => {
+            {currentQ.options.map((option: string, idx: number) => {
               const isSelected = selectedAnswer === idx;
               const isCorrect = idx === currentQ.correctIndex;
               const hasAnswered = selectedAnswer !== null;
