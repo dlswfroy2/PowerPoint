@@ -19,8 +19,8 @@ export const chapter5Slides: Slide[] = [
       },
       {
         id: 'c5_s1_img2',
-        url: '/src/assets/images/elements_compounds_1790751385322.jpg',
-        titleBn: 'মৌল থেকে যৌগে রূপান্তর',
+        url: '/src/assets/images/chemical_bonds_lattice_1791100780997.jpg',
+        titleBn: 'মৌল থেকে যৌগে রূপান্তর (রাসায়নিক বন্ধন)',
         titleEn: 'Elements to Compounds Transformation',
         captionBn: 'স্বাধীন পরমাণুসমূহ রাসায়নিক বন্ধনের মাধ্যমে যুক্ত হয়ে কোটি কোটি যৌগিক পদার্থ গঠন করে',
         captionEn: 'Isolated atoms bind through chemical bonds to create the vast universe of chemical compounds',
@@ -871,6 +871,94 @@ export const chapter5Slides: Slide[] = [
   },
   {
     id: 15,
+    chapter: 5,
+    title: 'আন্তঃআণবিক আকর্ষণ বল ও হাইড্রোজেন বন্ধন',
+    subtitle: 'Intermolecular Forces & Hydrogen Bonding — কেন H₂O তরল অথচ H₂S গ্যাস? এবং ভ্যান ডার ওয়ালস বল',
+    category: 'আন্তঃআণবিক বন্ধন',
+    image: '/src/assets/images/chemical_bonds_lattice_1791100780997.jpg',
+    imageCaption: 'পানির অণুগুলোর মধ্যকার ডাইপোল-ডাইপোল আকর্ষণ ও হাইড্রোজেন বন্ধন (H-Bond) সৃষ্টি।',
+    gallery: [
+      {
+        id: 'c5_s15_img1',
+        titleBn: 'হাইড্রোজেন বন্ধন ও পানির অণু জালিকা',
+        titleEn: 'Hydrogen Bonding Network in Water',
+        captionBn: 'তড়িৎ ঋণাত্মক অক্সিজেনের সাথে আংশিক ধনাত্মক হাইড্রোজেনের দুর্বল ইলেক্ট্রোস্ট্যাটিক আকর্ষণ বল।',
+        captionEn: 'Electrostatic attraction between electronegative oxygen and partially positive hydrogen.',
+        type: 'diagram',
+        customDiagramType: 'waterPolarityHydration'
+      },
+      {
+        id: 'c5_s15_img2',
+        titleBn: 'ভ্যান ডার ওয়ালস বল ও ভৌত অবস্থার প্রভাব',
+        titleEn: 'Van der Waals Forces and Physical States',
+        captionBn: 'অণুগুলোর আকারের সাথে ভ্যান ডার ওয়ালস বলের তীব্রতা বৃদ্ধি পায় (CH₄ গ্যাস কিন্তু C₂₀H₄₂ কঠিন মোম)।',
+        captionEn: 'Intermolecular attraction increases with molecular weight.',
+        type: 'diagram',
+        customDiagramType: 'covalentSharing'
+      }
+    ],
+    diagramAnnotations: [
+      {
+        labelBn: 'হাইড্রোজেন বন্ধন (H-Bond)',
+        labelEn: 'Hydrogen Bond',
+        symbol: '···H─O─',
+        detailBn: 'তীব্র তড়িৎ ঋণাত্মক পরমাণুর (F, O, N) সাথে যুক্ত হাইড্রোজেন অন্য অণুর ঋণাত্মক প্রান্তের সাথে যে দুর্বল আকর্ষণ সৃষ্টি করে।',
+        detailEn: 'Dipole-dipole attraction formed when H is bonded to strongly electronegative atoms.',
+        badgeType: 'property',
+        position: { x: 35, y: 40 }
+      },
+      {
+        labelBn: 'ভ্যান ডার ওয়ালস বল',
+        labelEn: 'Van der Waals Force',
+        symbol: 'VdW',
+        detailBn: 'সকল সমযোজী অণুর মধ্যে বিদ্যমান সার্বজনীন দুর্বল আকর্ষণ বল। আণবিক ভর বৃদ্ধির সাথে এটি বৃদ্ধি পায়।',
+        detailEn: 'Universal weak intermolecular attraction between neutral molecules.',
+        badgeType: 'bond',
+        position: { x: 65, y: 70 }
+      }
+    ],
+    keyPoints: [
+      {
+        heading: 'আন্তঃআণবিক আকর্ষণ বল (Intermolecular Force) কী?',
+        description: 'সমযোজী অণুগুলো যখন কাছাকাছি আসে, তখন একটি অণুর ধনাত্মক প্রান্ত অন্য অণুর ঋণাত্মক প্রান্তকে যে দুর্বল বল দ্বারা আকর্ষণ করে তাকে আন্তঃআণবিক আকর্ষণ বল বা ভ্যান ডার ওয়ালস বল বলে। এর মান রাসায়নিক বন্ধন (আয়নিক বা সমযোজী) থেকে বহু গুণ দুর্বল।',
+        highlight: 'ভ্যান ডার ওয়ালস বল < সমযোজী বন্ধন < আয়নিক বন্ধন'
+      },
+      {
+        heading: 'হাইড্রোজেন বন্ধনের শর্ত ও তীব্রতা:',
+        description: 'তীব্র তড়িৎ ঋণাত্মক ও ক্ষুদ্র আকারের পরমাণু (যেমন: F, O, N) এর সাথে যুক্ত হাইড্রোজেন অণু যখন অন্য অণুর F, O বা N এর মুখোমুখি হয়, তখন ডাইপোল-ডাইপোল আকর্ষণের একটি বিশেষ শক্তিশালী রূপ হিসেবে হাইড্রোজেন বন্ধন গঠিত হয়। এটি ড্যাশড রেখা (···) দ্বারা নির্দেশ করা হয়।',
+        formula: '\\delta^+ \\text{H} - \\text{O}^{\\delta-} \\cdots \\delta^+ \\text{H} - \\text{O}^{\\delta-}'
+      },
+      {
+        heading: 'বোর্ড পরীক্ষার হট প্রশ্ন: সাধারণ তাপমাত্রায় H₂O তরল কিন্তু H₂S গ্যাস কেন?',
+        description: 'অক্সিজেনের তড়িৎ ঋণাত্মকতা (৩.৫) অনেক বেশি হওয়ায় O–H বন্ধন তীব্র পোলার এবং পানির অণুগুলো পরস্পরের সাথে শক্তিশালী আন্তঃআণবিক হাইড্রোজেন বন্ধন তৈরি করে সন্নিবিষ্ট থাকে। ফলে সাধারণ তাপমাত্রায় পানি তরল। পক্ষান্তরে সালফারের তড়িৎ ঋণাত্মকতা (২.৫) কম হওয়ায় H₂S অণুতে হাইড্রোজেন বন্ধন তৈরি হতে পারে না, কেবল দুর্বল ভ্যান ডার ওয়ালস বল থাকে। তাই H₂S একটি গ্যাসীয় পদার্থ।',
+        highlight: 'H₂O-তে হাইড্রোজেন বন্ধন বিদ্যমান, H₂S-এ অনুপস্থিত'
+      },
+      {
+        heading: 'বরফের ঘনত্ব পানির চেয়ে কম কেন? (ব্যতিক্রমী ধর্ম):',
+        description: 'পানি যখন বরফে পরিণত হয় (০°C), তখন হাইড্রোজেন বন্ধনের কারণে অণুগুলো ত্রিমাত্রিক হেক্সাগোনাল কেলাস তৈরি করে। এতে অণুগুলোর মাঝে প্রচুর ফাঁকা স্থান (Cages) সৃষ্টি হয়, ফলে বরফের আয়তন বৃদ্ধি পায় এবং ঘনত্ব পানির চেয়ে প্রায় ৯% কমে যায়। একারণে বরফ পানিতে ভাসে।',
+        highlight: 'বরফের ঘনত্ব পানির চেয়ে কম (ভাসমান বরফ)'
+      }
+    ],
+    tableData: {
+      caption: 'হাইড্রোজেন বন্ধন ও ভ্যান ডার ওয়ালস বলের তুলনামূলক চার্ট',
+      headers: ['বৈশিষ্ট্য', 'ভ্যান ডার ওয়ালস বল', 'হাইড্রোজেন বন্ধন', 'সমযোজী বন্ধন'],
+      rows: [
+        ['বলের ধরন', 'আন্তঃআণবিক দুর্বল আকর্ষণ', 'বিশেষ শক্তিশালী ডাইপোল আকর্ষণ', 'রাসায়নিক অন্তঃআণবিক বন্ধন'],
+        ['বন্ধন শক্তি', '১ - ৪ kJ/mol (সবচেয়ে দুর্বল)', '১০ - ৪০ kJ/mol (মাঝারি)', '২০০ - ৫০০ kJ/mol (খুব শক্তিশালী)'],
+        ['উপস্থিত যৌগ', 'CH₄, Cl₂, O₂, CO₂ ইত্যাদি', 'H₂O, HF, NH₃, অ্যালকোহল, ডিএনএ', 'H₂O, CH₄ এর ভেতরের বন্ধন'],
+        ['ভৌত প্রভাব', 'গ্যাস বা উদ্বায়ী তরল অবস্থা', 'উচ্চ স্ফুটনাঙ্ক ও তরল অবস্থা', 'স্থায়ী অণু গঠন']
+      ]
+    },
+    callout: {
+      type: 'tip',
+      title: 'বোর্ড পরীক্ষার অনুধাবন টিপ',
+      content: 'পরীক্ষায় যদি প্রশ্ন আসে: "ইথানল ও ডাইমিথাইল ইথারের আণবিক ভর একই (৪৬) হলেও ইথানল তরল কিন্তু ইথার গ্যাস কেন?"—উত্তর লিখবেন: ইথানলে আন্তঃআণবিক হাইড্রোজেন বন্ধন গঠিত হয় কিন্তু ইথারে গঠিত হতে পারে না।'
+    },
+    speakerNotes: 'শিক্ষার্থীদের পানির অণুর ত্রিমাত্রিক মডেল দেখিয়ে ড্যাশড হাইড্রোজেন বন্ধনের আকর্ষণ বলের গুরুত্ব ব্যাখ্যা করুন।',
+    recommendedInteractiveTab: 'compoundProps'
+  },
+  {
+    id: 16,
     chapter: 5,
     title: 'অধ্যায় ৫-এর সম্পূর্ণ সারসংক্ষেপ ও পরীক্ষার প্রস্তুতি',
     subtitle: 'রাসায়নিক বন্ধন, যোজনী, সংকেত, আয়নিক ও সমযোজী ধর্মের দ্রুত রিভিশন ও সৃজনশীল টিপস',

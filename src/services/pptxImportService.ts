@@ -97,7 +97,7 @@ function getFirstElementByLocalName(parent: Element | Document, localName: strin
 export async function parsePptxFile(
   file: File,
   subject: 'chemistry' | 'physics' | 'biology',
-  chapter: 1 | 2 | 3 | 4 | 5
+  chapter: number
 ): Promise<PptxImportResult> {
   const arrayBuffer = await file.arrayBuffer();
   const zip = await loadZipFromBuffer(arrayBuffer);

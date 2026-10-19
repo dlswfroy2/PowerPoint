@@ -18,7 +18,7 @@ interface PptxUploadModalProps {
   isOpen: boolean;
   onClose: () => void;
   activeSubject: 'chemistry' | 'physics' | 'biology';
-  activeChapter: 1 | 2 | 3 | 4 | 5;
+  activeChapter: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | number;
   subjectLabel: string;
   chapterTitle: string;
   onApplySlides: (slides: Slide[]) => void;

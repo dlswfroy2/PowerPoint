@@ -1570,13 +1570,23 @@ const MenuItemComp: React.FC<{ item: MenuItem; activeId: string; setActive: (id:
   );
 };
 
+interface CellExplorerLabProps {
+  defaultSection?: string;
+}
+
 // ─── Main Component ──────────────────────────────────────────────────────────
-export const CellExplorerLab: React.FC = () => {
-  const [activeId, setActiveId] = useState<string>('2.1');
+export const CellExplorerLab: React.FC<CellExplorerLabProps> = ({ defaultSection = '2.1' }) => {
+  const [activeId, setActiveId] = useState<string>(defaultSection);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef<number>(0);
   const timeRef = useRef<number>(0);
   const [tick, setTick] = useState(0);
+
+  useEffect(() => {
+    if (defaultSection) {
+      setActiveId(defaultSection);
+    }
+  }, [defaultSection]);
 
   const section = sections[activeId] || sections['2.1'];
 

@@ -18,11 +18,8 @@ import {
   Volume2,
   VolumeX,
   Wand2,
-  ArrowRight,
-  Edit3
+  ArrowRight
 } from 'lucide-react';
-import { SlideEditModal } from './SlideEditModal';
-import { FormulaBadge } from './FormulaBadge';
 
 interface PowerPointShowModalProps {
   isOpen: boolean;
@@ -53,13 +50,9 @@ export const PowerPointShowModal: React.FC<PowerPointShowModalProps> = ({
   currentSlideIndex,
   setCurrentSlideIndex,
   subjectName = 'বিজ্ঞান',
-  chapterNumber = 1,
-  onUpdateSlide,
-  onResetSlide,
-  isSlideEdited
+  chapterNumber = 1
 }) => {
   const currentSlide = slides[currentSlideIndex];
-  const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
   
   // Total steps calculation for this slide:
   // Points + Visual component (table, diagram, or image)
@@ -192,19 +185,12 @@ export const PowerPointShowModal: React.FC<PowerPointShowModalProps> = ({
 
   // Keyboard navigation for authentic PowerPoint behavior
   useEffect(() => {
-    if (!isOpen || isEditModalOpen) return;
+    if (!isOpen) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       // Escape -> close
       if (e.key === 'Escape') {
         onClose();
-        return;
-      }
-
-      // 'E' or 'e' -> toggle slide editor
-      if ((e.key === 'e' || e.key === 'E') && onUpdateSlide) {
-        e.preventDefault();
-        setIsEditModalOpen(true);
         return;
       }
 
@@ -255,7 +241,7 @@ export const PowerPointShowModal: React.FC<PowerPointShowModalProps> = ({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, isEditModalOpen, currentSlideIndex, revealedCount, autoRevealAll, blankMode, maxSteps, onUpdateSlide]);
+  }, [isOpen, currentSlideIndex, revealedCount, autoRevealAll, blankMode, maxSteps]);
 
   // Mouse move handler for laser pointer & auto-hiding toolbar
   const handleMouseMove = (e: React.MouseEvent) => {
@@ -402,20 +388,6 @@ export const PowerPointShowModal: React.FC<PowerPointShowModalProps> = ({
         </div>
 
         <div className="flex items-center gap-3">
-          {onUpdateSlide && (
-            <button
-              onClick={() => setIsEditModalOpen(true)}
-              title="স্লাইড এডিট করুন (E)"
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-semibold text-cyan-300 hover:text-white transition"
-            >
-              <Edit3 className="h-3.5 w-3.5" />
-              <span>এডিট স্লাইড</span>
-              {isSlideEdited?.(currentSlideIndex) && (
-                <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
-              )}
-            </button>
-          )}
-
           <span className="text-xs font-mono text-cyan-400 bg-slate-900 px-3 py-1 rounded-md border border-slate-800 font-bold">
             স্লাইড {currentSlideIndex + 1} / {slides.length}
           </span>
@@ -516,8 +488,8 @@ export const PowerPointShowModal: React.FC<PowerPointShowModalProps> = ({
                             </div>
                           )}
                           {point.formula && (
-                            <div className="inline-block mt-1.5 ml-1.5">
-                              <FormulaBadge formula={point.formula} size="sm" />
+                            <div className="inline-block mt-1 ml-1.5 px-2.5 py-0.5 rounded bg-amber-950 text-amber-300 text-xs font-mono font-bold border border-amber-800">
+                              {point.formula}
                             </div>
                           )}
                         </div>
@@ -694,25 +666,6 @@ export const PowerPointShowModal: React.FC<PowerPointShowModalProps> = ({
             {autoRevealAll ? 'একসাথে' : 'ধাপে ধাপে'}
           </button>
 
-          {/* Edit Slide Button */}
-          {onUpdateSlide && (
-            <button
-              onClick={() => setIsEditModalOpen(true)}
-              title="স্লাইড এডিট করুন (E)"
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition ${
-                isSlideEdited?.(currentSlideIndex)
-                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30'
-                  : 'text-cyan-300 hover:text-white hover:bg-slate-800 border border-slate-700'
-              }`}
-            >
-              <Edit3 className="h-3.5 w-3.5" />
-              <span>এডিট</span>
-              {isSlideEdited?.(currentSlideIndex) && (
-                <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
-              )}
-            </button>
-          )}
-
           <div className="h-5 w-[1px] bg-slate-700 mx-1" />
 
           {/* Laser Pointer */}
@@ -776,20 +729,6 @@ export const PowerPointShowModal: React.FC<PowerPointShowModalProps> = ({
           </button>
         </div>
       </div>
-
-      {/* In-Show Slide Edit Modal */}
-      {onUpdateSlide && (
-        <SlideEditModal
-          isOpen={isEditModalOpen}
-          onClose={() => setIsEditModalOpen(false)}
-          slide={currentSlide}
-          slideIndex={currentSlideIndex}
-          totalSlides={slides.length}
-          onSave={(updated) => onUpdateSlide(updated, currentSlideIndex)}
-          onResetOriginal={onResetSlide ? () => onResetSlide(currentSlideIndex) : undefined}
-          isEdited={isSlideEdited ? isSlideEdited(currentSlideIndex) : false}
-        />
-      )}
     </div>
   );
 };

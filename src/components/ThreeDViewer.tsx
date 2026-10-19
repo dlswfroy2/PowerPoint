@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import * as THREE from 'three';
+import { BIOLOGY_3D_CATALOG, Biology3DModelMeta } from '../data/biology3DModelsCatalog';
 import { 
   RotateCcw, 
   Maximize2, 
@@ -14,7 +15,12 @@ import {
   Atom, 
   ShieldAlert,
   HelpCircle,
-  X
+  X,
+  Waves,
+  Sun,
+  Square,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import {
   buildPhysics3DScene,
@@ -25,15 +31,36 @@ import {
   buildBiology3DScene,
   updateBiology3DPhysics
 } from './ThreeDBiologyScenes';
+import {
+  buildChemistryCh6Scene,
+  updateChemistryCh6Physics
+} from './ThreeDChemistryCh6Scenes';
+import {
+  buildChemistryCh7Scene,
+  updateChemistryCh7Physics
+} from './ThreeDChemistryCh7Scenes';
+import {
+  buildChemistryCh8Scene,
+  updateChemistryCh8Physics
+} from './ThreeDChemistryCh8Scenes';
+import {
+  buildChemistryCh9to12Scene,
+  updateChemistryCh9to12Physics
+} from './ThreeDChemistryCh9to12Scenes';
 
 interface ThreeDViewerProps {
   slideId: number;
   slideTitle: string;
   category: string;
-  chapter?: 1 | 2 | 3 | 4 | 5;
+  chapter?: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | number;
   subject?: 'chemistry' | 'physics' | 'biology';
+  slideImage?: string;
+  slideImageCaption?: string;
   isModal?: boolean;
   onClose?: () => void;
+  activeModelId?: number;
+  onModelSelect?: (modelIndex: number) => void;
+  onSwitchTo2D?: (modelIndex: number) => void;
 }
 
 interface ScreenLabel {
@@ -47,27 +74,67 @@ interface ScreenLabel {
   visible: boolean;
 }
 
+const toBengali = (num: number): string => {
+  return num.toString().replace(/\d/g, (d) => '০১২৩৪৫৬৭৮৯'[parseInt(d, 10)]);
+};
+
 export const ThreeDViewer: React.FC<ThreeDViewerProps> = ({
   slideId,
   slideTitle,
   category,
   chapter = 3,
   subject = 'chemistry',
+  slideImage,
+  slideImageCaption,
   isModal = false,
-  onClose
+  onClose,
+  activeModelId,
+  onModelSelect,
+  onSwitchTo2D
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // Interaction & UI State
   const [autoRotate, setAutoRotate] = useState<boolean>(true);
-  const [showLabels, setShowLabels] = useState<boolean>(true);
+  const [showLabels, setShowLabels] = useState<boolean>(false);
   const [speedMultiplier, setSpeedMultiplier] = useState<number>(1);
   const [activeOrbitalTab, setActiveOrbitalTab] = useState<'s' | 'p' | 'd'>('p');
   const [activeIsotopeTab, setActiveIsotopeTab] = useState<'H1' | 'H2' | 'H3'>('H1');
   const [quantumState, setQuantumState] = useState<'ground' | 'excited' | 'jump'>('ground');
   const [screenLabels, setScreenLabels] = useState<ScreenLabel[]>([]);
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+
+  // Physics 7 Wave Interactive State
+  const [waveFreq, setWaveFreq] = useState<number>(2.5); // Hz
+  const [waveAmp, setWaveAmp] = useState<number>(1.0);  // m
+  const [waveMedium, setWaveMedium] = useState<'air' | 'water' | 'iron'>('air');
+
+  // Biology 20-Model State
+  const initialModelIndex = activeModelId || Math.max(1, Math.min(20, ((slideId - 1) % 20) + 1));
+  const [activeModelIndex, setActiveModelIndex] = useState<number>(initialModelIndex);
+
+  useEffect(() => {
+    if (activeModelId) {
+      setActiveModelIndex(activeModelId);
+    } else {
+      setActiveModelIndex(Math.max(1, Math.min(20, ((slideId - 1) % 20) + 1)));
+    }
+  }, [slideId, activeModelId]);
+
+  const handleSelectModel = (id: number) => {
+    setActiveModelIndex(id);
+    onModelSelect?.(id);
+  };
+
+  const effectiveModelId = subject === 'biology' ? activeModelIndex : slideId;
+  const biologyModelsForChapter = BIOLOGY_3D_CATALOG[chapter] || [];
+  const currentModelMeta = biologyModelsForChapter.find((m: Biology3DModelMeta) => m.id === activeModelIndex) || biologyModelsForChapter[0];
+
+  // Biology 4 Bioenergetics Interactive State
+  const [bioLightIntensity, setBioLightIntensity] = useState<number>(85); // %
+  const [bioAtpCycleState, setBioAtpCycleState] = useState<'charged' | 'discharged'>('charged');
+  const [bioPhotosynthPhase, setBioPhotosynthPhase] = useState<'light' | 'dark'>('light');
 
   // References to keep animation loop clean
   const sceneRef = useRef<THREE.Scene | null>(null);
@@ -165,9 +232,15 @@ export const ThreeDViewer: React.FC<ThreeDViewerProps> = ({
     const modelGroup = new THREE.Group();
     scene.add(modelGroup);
     sceneObjectsRef.current.modelGroup = modelGroup;
+    sceneObjectsRef.current.waveFreq = waveFreq;
+    sceneObjectsRef.current.waveAmp = waveAmp;
+    sceneObjectsRef.current.waveMedium = waveMedium;
+    sceneObjectsRef.current.bioLightIntensity = bioLightIntensity;
+    sceneObjectsRef.current.bioAtpCycleState = bioAtpCycleState;
+    sceneObjectsRef.current.bioPhotosynthPhase = bioPhotosynthPhase;
 
     // Build specific 3D setup depending on slideId, chapter, and subject
-    buildSlide3DScene(slideId, chapter, modelGroup, sceneObjectsRef.current, subject);
+    buildSlide3DScene(effectiveModelId, chapter, modelGroup, sceneObjectsRef.current, subject);
 
     // Resize Observer
     const handleResize = () => {
@@ -205,7 +278,7 @@ export const ThreeDViewer: React.FC<ThreeDViewerProps> = ({
       }
 
       // Slide-specific real-time 3D physics / orbit animations
-      updateSlide3DPhysics(slideId, time, sceneObjectsRef.current, quantumState, chapter, subject);
+      updateSlide3DPhysics(effectiveModelId, time, sceneObjectsRef.current, quantumState, chapter, subject);
 
       // Render
       renderer.render(scene, camera);
@@ -265,7 +338,7 @@ export const ThreeDViewer: React.FC<ThreeDViewerProps> = ({
         }
       });
     };
-  }, [slideId, chapter, subject, activeOrbitalTab, activeIsotopeTab, quantumState, speedMultiplier]);
+  }, [slideId, chapter, subject, slideImage, activeOrbitalTab, activeIsotopeTab, quantumState, speedMultiplier, waveFreq, waveAmp, waveMedium, bioLightIntensity, bioAtpCycleState, bioPhotosynthPhase, activeModelIndex]);
 
   // Pointer event handlers for interactive 360-degree rotation
   const handlePointerDown = (e: React.PointerEvent) => {
@@ -370,8 +443,20 @@ export const ThreeDViewer: React.FC<ThreeDViewerProps> = ({
       <div className="relative z-10 flex flex-wrap items-center justify-between p-3 bg-gradient-to-b from-slate-950/90 to-transparent gap-2">
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-xs font-bold">
-            <Atom className="h-4 w-4 text-cyan-400 animate-spin" />
-            <span>ইন্টারেক্টিভ ৩ডি ভিউ (Interactive 3D)</span>
+            {subject === 'physics' ? (
+              <Waves className="h-4 w-4 text-cyan-400 animate-pulse" />
+            ) : subject === 'biology' ? (
+              <Sun className="h-4 w-4 text-emerald-400 animate-spin" />
+            ) : (
+              <Atom className="h-4 w-4 text-cyan-400 animate-spin" />
+            )}
+            <span>
+              {subject === 'physics'
+                ? `পদার্থবিজ্ঞান অধ্যায় ${chapter} · ৩ডি সিমুলেশন`
+                : subject === 'biology'
+                ? `জীববিজ্ঞান অধ্যায় ${chapter} · ৩ডি সিমুলেশন`
+                : `রসায়ন অধ্যায় ${chapter} · ৩ডি সিমুলেশন`}
+            </span>
           </div>
           <span className="text-xs text-slate-400 hidden sm:inline font-medium">
             মাউস টেনে ৩৬০° ঘুরান · স্ক্রোল করে জুম করুন
@@ -439,6 +524,8 @@ export const ThreeDViewer: React.FC<ThreeDViewerProps> = ({
             <RotateCcw className="h-3.5 w-3.5" />
           </button>
 
+
+
           {/* Close modal if active */}
           {onClose && (
             <button
@@ -496,7 +583,7 @@ export const ThreeDViewer: React.FC<ThreeDViewerProps> = ({
         )}
 
         {/* Chemistry Chapter 3 Slide 7: Orbitals Shape Switcher */}
-        {subject === 'chemistry' && slideId === 7 && (
+        {subject === 'chemistry' && chapter === 3 && slideId === 7 && (
           <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs">
             <span className="text-slate-400 text-[11px] px-2 font-medium">৩ডি অরবিটাল:</span>
             <button
@@ -527,7 +614,7 @@ export const ThreeDViewer: React.FC<ThreeDViewerProps> = ({
         )}
 
         {/* Chemistry Chapter 3 Slide 10: Hydrogen Isotopes Switcher */}
-        {subject === 'chemistry' && slideId === 10 && (
+        {subject === 'chemistry' && chapter === 3 && slideId === 10 && (
           <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs">
             <span className="text-slate-400 text-[11px] px-2 font-medium">হাইড্রোজেন আইসোটোপ:</span>
             <button
@@ -557,6 +644,24 @@ export const ThreeDViewer: React.FC<ThreeDViewerProps> = ({
           </div>
         )}
 
+        {/* Chemistry Chapter 4 Interactive Info Badges */}
+        {subject === 'chemistry' && chapter === 4 && (
+          <div className="flex items-center gap-2 text-xs">
+            <span className="px-2.5 py-1 rounded-lg bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-bold">
+              রসায়ন ৪র্থ অধ্যায় · ৩ডি পর্যায় সারণি ও পর্যায়বৃত্ত ধর্ম সিমুলেশন
+            </span>
+          </div>
+        )}
+
+        {/* Chemistry Chapter 5 Interactive Info Badges */}
+        {subject === 'chemistry' && chapter === 5 && (
+          <div className="flex items-center gap-2 text-xs">
+            <span className="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold">
+              রসায়ন ৫ম অধ্যায় · ৩ডি আয়নিক, সমযোজী ও ধাতব বন্ধন মডেল
+            </span>
+          </div>
+        )}
+
         {/* Physics Chapter 4 Interactive Info Badges */}
         {subject === 'physics' && chapter === 4 && (
           <div className="flex items-center gap-2 text-xs">
@@ -575,11 +680,261 @@ export const ThreeDViewer: React.FC<ThreeDViewerProps> = ({
           </div>
         )}
 
-        {/* Biology Chapter 3 Interactive Info Badges */}
-        {subject === 'biology' && chapter === 3 && (
+        {/* Physics Chapter 6 Interactive Info Badges */}
+        {subject === 'physics' && chapter === 6 && (
+          <div className="flex items-center gap-2 text-xs">
+            <span className="px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold">
+              পদার্থবিজ্ঞান ৬ষ্ঠ অধ্যায় · ৩ডি তাপ, প্রসারণ ও ক্যালরিমিতি সিমুলেশন
+            </span>
+          </div>
+        )}
+
+        {/* Physics Chapter 7 Interactive Wave Controls */}
+        {subject === 'physics' && chapter === 7 && (
+          <div className="flex flex-wrap items-center gap-2 text-xs bg-slate-900/90 p-1.5 rounded-xl border border-cyan-500/40">
+            <span className="flex items-center gap-1 text-cyan-300 font-bold px-2 py-0.5 rounded bg-cyan-500/20">
+              <Waves className="h-3.5 w-3.5 text-cyan-400" />
+              <span>তরঙ্গ নিয়ন্ত্রণ</span>
+            </span>
+
+            {/* Frequency Slider */}
+            <div className="flex items-center gap-1.5 bg-slate-950 px-2 py-1 rounded-lg border border-slate-800">
+              <span className="text-[11px] text-slate-400 font-medium">কম্পাঙ্ক (f):</span>
+              <input
+                type="range"
+                min="1"
+                max="6"
+                step="0.5"
+                value={waveFreq}
+                onChange={(e) => setWaveFreq(parseFloat(e.target.value))}
+                className="w-16 accent-cyan-400 h-1.5 cursor-pointer"
+                title="তরঙ্গের কম্পাঙ্ক পরিবর্তন করুন"
+              />
+              <span className="font-mono text-cyan-300 font-bold text-[11px]">{waveFreq} Hz</span>
+            </div>
+
+            {/* Amplitude Slider */}
+            <div className="flex items-center gap-1.5 bg-slate-950 px-2 py-1 rounded-lg border border-slate-800">
+              <span className="text-[11px] text-slate-400 font-medium">বিস্তার (A):</span>
+              <input
+                type="range"
+                min="0.4"
+                max="1.8"
+                step="0.2"
+                value={waveAmp}
+                onChange={(e) => setWaveAmp(parseFloat(e.target.value))}
+                className="w-16 accent-cyan-400 h-1.5 cursor-pointer"
+                title="তরঙ্গের বিস্তার পরিবর্তন করুন"
+              />
+              <span className="font-mono text-amber-300 font-bold text-[11px]">{waveAmp}m</span>
+            </div>
+
+            {/* Medium Selector */}
+            <div className="flex items-center gap-1 bg-slate-950 p-0.5 rounded-lg border border-slate-800 text-[11px]">
+              <button
+                onClick={() => setWaveMedium('air')}
+                className={`px-2 py-0.5 rounded font-bold transition ${waveMedium === 'air' ? 'bg-cyan-500 text-slate-950' : 'text-slate-400 hover:text-white'}`}
+                title="বায়ু মাধ্যমে শব্দের বেগ ৩৪৩ m/s"
+              >
+                বায়ু (৩৪৩ m/s)
+              </button>
+              <button
+                onClick={() => setWaveMedium('water')}
+                className={`px-2 py-0.5 rounded font-bold transition ${waveMedium === 'water' ? 'bg-cyan-500 text-slate-950' : 'text-slate-400 hover:text-white'}`}
+                title="পানি মাধ্যমে শব্দের বেগ ১৪৯৮ m/s"
+              >
+                পানি (১৪৯৮ m/s)
+              </button>
+              <button
+                onClick={() => setWaveMedium('iron')}
+                className={`px-2 py-0.5 rounded font-bold transition ${waveMedium === 'iron' ? 'bg-cyan-500 text-slate-950' : 'text-slate-400 hover:text-white'}`}
+                title="লোহা মাধ্যমে শব্দের বেগ ৫১৩০ m/s"
+              >
+                লোহা (৫১৩০ m/s)
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Biology 3D Interactive Model Navigation System */}
+        {subject === 'biology' && biologyModelsForChapter.length > 0 && (
+          <div className="flex flex-wrap items-center justify-between gap-2 w-full bg-slate-900/95 backdrop-blur-md px-3 py-2 rounded-xl border border-emerald-500/30 shadow-lg text-xs">
+            {/* Model Badge & Topic Details */}
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="p-1.5 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shrink-0">
+                <Sun className="h-4 w-4" />
+              </span>
+              <div className="truncate">
+                <div className="flex items-center gap-1.5 truncate">
+                  <span className="font-bold text-white text-xs shrink-0">
+                    ৩ডি মডেল {toBengali(activeModelIndex)}/২০:
+                  </span>
+                  {currentModelMeta && (
+                    <span className="text-[11px] text-emerald-300 font-semibold truncate">
+                      {currentModelMeta.titleBn}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Systematic Topic Selector: Prev Arrow + Dropdown + Next Arrow + Switch to 2D */}
+            <div className="flex items-center gap-1.5 shrink-0 ml-auto">
+              <button
+                type="button"
+                onClick={() => handleSelectModel(activeModelIndex > 1 ? activeModelIndex - 1 : 20)}
+                className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg transition border border-slate-700 shadow-sm"
+                title="পূর্ববর্তী ৩ডি মডেল"
+              >
+                <ChevronLeft className="h-3.5 w-3.5" />
+              </button>
+
+              <select
+                value={activeModelIndex}
+                onChange={(e) => handleSelectModel(Number(e.target.value))}
+                className="bg-slate-950 text-emerald-300 border border-emerald-500/40 rounded-lg px-2.5 py-1 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-emerald-400 cursor-pointer shadow-inner max-w-[200px] sm:max-w-[260px] truncate"
+                title="অধ্যায়ের যে-কোনো ৩ডি মডেল সরাসরি নির্বাচন করুন"
+              >
+                {biologyModelsForChapter.map((m: Biology3DModelMeta) => (
+                  <option key={m.id} value={m.id} className="bg-slate-900 text-slate-200">
+                    {toBengali(m.id)}. {m.titleBn.split('—')[0]}
+                  </option>
+                ))}
+              </select>
+
+              <button
+                type="button"
+                onClick={() => handleSelectModel(activeModelIndex < 20 ? activeModelIndex + 1 : 1)}
+                className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg transition border border-slate-700 shadow-sm"
+                title="পরবর্তী ৩ডি মডেল"
+              >
+                <ChevronRight className="h-3.5 w-3.5" />
+              </button>
+
+              {onSwitchTo2D && (
+                <button
+                  type="button"
+                  onClick={() => onSwitchTo2D(activeModelIndex)}
+                  className="flex items-center gap-1 px-2.5 py-1 bg-emerald-500/20 hover:bg-emerald-500 hover:text-slate-950 text-emerald-300 rounded-lg font-bold transition border border-emerald-500/40 text-xs shadow-sm ml-1"
+                  title="এই বিষয়ের ২ডি বৈজ্ঞানিক ডায়াগ্রাম দেখুন"
+                >
+                  <Square className="h-3 w-3" />
+                  <span className="hidden sm:inline">২ডি চিত্র</span>
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Biology Chapter 4 Interactive Bioenergetics Controls */}
+        {subject === 'biology' && chapter === 4 && (
+          <div className="flex flex-wrap items-center gap-2 text-xs bg-slate-900/90 p-1.5 rounded-xl border border-emerald-500/40">
+            <span className="flex items-center gap-1 text-emerald-300 font-bold px-2 py-0.5 rounded bg-emerald-500/20">
+              <Sun className="h-3.5 w-3.5 text-emerald-400" />
+              <span>বায়োএনার্জি কন্ট্রোল</span>
+            </span>
+
+            {/* ATP Cycle Button */}
+            <button
+              onClick={() => setBioAtpCycleState(prev => prev === 'charged' ? 'discharged' : 'charged')}
+              className={`px-2.5 py-1 rounded-lg font-bold text-[11px] transition flex items-center gap-1 shadow-md ${
+                bioAtpCycleState === 'charged'
+                  ? 'bg-amber-500 text-slate-950 hover:bg-amber-400'
+                  : 'bg-rose-500 text-white hover:bg-rose-400'
+              }`}
+              title="ATP শক্তি নির্গমন বা রিচার্জ প্রক্রিয়া"
+            >
+              <Zap className="h-3 w-3" />
+              <span>{bioAtpCycleState === 'charged' ? 'ATP শক্তি নির্গমন (-৭.৩ kcal)' : 'ADP রিচার্জ (+৭.৩ kcal)'}</span>
+            </button>
+
+            {/* Sunlight Intensity Slider */}
+            <div className="flex items-center gap-1.5 bg-slate-950 px-2 py-1 rounded-lg border border-slate-800">
+              <span className="text-[11px] text-slate-400 font-medium">সূর্যালোক:</span>
+              <input
+                type="range"
+                min="10"
+                max="100"
+                step="10"
+                value={bioLightIntensity}
+                onChange={(e) => setBioLightIntensity(parseInt(e.target.value, 10))}
+                className="w-16 accent-emerald-400 h-1.5 cursor-pointer"
+                title="সালোকসংশ্লেষণের আলোক তীব্রতা"
+              />
+              <span className="font-mono text-emerald-300 font-bold text-[11px]">{bioLightIntensity}%</span>
+            </div>
+
+            {/* Phase Selector */}
+            <div className="flex items-center gap-1 bg-slate-950 p-0.5 rounded-lg border border-slate-800 text-[11px]">
+              <button
+                onClick={() => setBioPhotosynthPhase('light')}
+                className={`px-2 py-0.5 rounded font-bold transition ${bioPhotosynthPhase === 'light' ? 'bg-emerald-500 text-slate-950' : 'text-slate-400 hover:text-white'}`}
+              >
+                আলোক পর্যায়
+              </button>
+              <button
+                onClick={() => setBioPhotosynthPhase('dark')}
+                className={`px-2 py-0.5 rounded font-bold transition ${bioPhotosynthPhase === 'dark' ? 'bg-emerald-500 text-slate-950' : 'text-slate-400 hover:text-white'}`}
+              >
+                ক্যালভিন চক্র (C3)
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Biology Chapter 5 Interactive Info Badges */}
+        {subject === 'biology' && chapter === 5 && (
           <div className="flex items-center gap-2 text-xs">
             <span className="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold">
-              জীববিজ্ঞান ৩য় অধ্যায় · ৩ডি কোষ বিভাজন ও ক্রোমোজোম সিমুলেশন
+              জীববিজ্ঞান ৫ম অধ্যায় · ৩ডি পৌষ্টিকতন্ত্র, এনজাইম, দাঁত ও পুষ্টি সিমুলেশন
+            </span>
+          </div>
+        )}
+
+        {/* Chemistry Chapter 6 Interactive Mole Badges & Formula Banner */}
+        {subject === 'chemistry' && chapter === 6 && (
+          <div className="flex flex-wrap items-center gap-2 text-xs bg-slate-900/90 p-1.5 rounded-xl border border-cyan-500/40">
+            <span className="flex items-center gap-1 text-cyan-300 font-bold px-2 py-0.5 rounded bg-cyan-500/20">
+              <Sparkles className="h-3.5 w-3.5 text-cyan-400" />
+              <span>মোলের ৩ডি রূপান্তর ল্যাব</span>
+            </span>
+            <span className="px-2 py-0.5 rounded bg-slate-950 text-amber-300 font-mono text-[11px] border border-slate-800">
+              n = W/M = N/Nₐ = V/২২.৪ = S×V
+            </span>
+            <span className="hidden sm:inline px-2 py-0.5 rounded bg-slate-950 text-emerald-400 font-mono text-[11px] border border-slate-800">
+              Nₐ = ৬.০২×১০²³ কণা/মোল
+            </span>
+          </div>
+        )}
+
+        {/* Chemistry Chapter 7 Interactive Reactions Banner */}
+        {subject === 'chemistry' && chapter === 7 && (
+          <div className="flex flex-wrap items-center gap-2 text-xs bg-slate-900/90 p-1.5 rounded-xl border border-rose-500/40">
+            <span className="flex items-center gap-1 text-rose-300 font-bold px-2 py-0.5 rounded bg-rose-500/20">
+              <Sparkles className="h-3.5 w-3.5 text-rose-400" />
+              <span>রাসায়নিক বিক্রিয়া ৩ডি সিমুলেশন</span>
+            </span>
+            <span className="px-2 py-0.5 rounded bg-slate-950 text-amber-300 font-mono text-[11px] border border-slate-800">
+              রেডক্স (ইলেকট্রন স্থানান্তর) ⇌ লা শাতেলিয়ার সাম্যাবস্থা
+            </span>
+            <span className="hidden sm:inline px-2 py-0.5 rounded bg-slate-950 text-emerald-400 font-mono text-[11px] border border-slate-800">
+              জারণ = ছারণ (+বৃদ্ধি), বিজারণ = গ্রহণ (-হ্রাস)
+            </span>
+          </div>
+        )}
+
+        {/* Chemistry Chapter 8 Interactive Electrochemistry Banner */}
+        {subject === 'chemistry' && chapter === 8 && (
+          <div className="flex flex-wrap items-center gap-2 text-xs bg-slate-900/90 p-1.5 rounded-xl border border-rose-500/40">
+            <span className="flex items-center gap-1 text-rose-300 font-bold px-2 py-0.5 rounded bg-rose-500/20">
+              <Sparkles className="h-3.5 w-3.5 text-rose-400" />
+              <span>রসায়ন ও শক্তি ৩ডি ল্যাব</span>
+            </span>
+            <span className="px-2 py-0.5 rounded bg-slate-950 text-amber-300 font-mono text-[11px] border border-slate-800">
+              ড্যানিয়েল সেল E° = ১.১০ V
+            </span>
+            <span className="hidden sm:inline px-2 py-0.5 rounded bg-slate-950 text-emerald-400 font-mono text-[11px] border border-slate-800">
+              তড়িৎ লেপন & পানির বিশ্লেষণ ২:১
             </span>
           </div>
         )}
@@ -599,6 +954,8 @@ export const ThreeDViewer: React.FC<ThreeDViewerProps> = ({
           <span className="font-mono text-[11px] text-cyan-300 w-8">{speedMultiplier}x</span>
         </div>
       </div>
+
+
     </div>
   );
 };
@@ -621,7 +978,8 @@ function buildSlide3DScene(
   // BIOLOGY 3D SCENES (Chapter 3)
   // ----------------------------------------------------
   if (subject === 'biology') {
-    buildBiology3DScene(slideId, chapter, group, refs, addAnchor);
+    const effectiveModelId = Math.max(1, Math.min(20, slideId || 1));
+    buildBiology3DScene(effectiveModelId, chapter, group, refs, addAnchor);
     return;
   }
 
@@ -638,6 +996,38 @@ function buildSlide3DScene(
   // ----------------------------------------------------
   if (chapter === 4 || chapter === 5) {
     buildChemistryExtra3DScene(slideId, chapter, group, refs, addAnchor);
+    return;
+  }
+
+  // ----------------------------------------------------
+  // CHEMISTRY CHAPTER 6: MOLE & CHEMICAL CALCULATIONS
+  // ----------------------------------------------------
+  if (chapter === 6) {
+    buildChemistryCh6Scene(slideId, chapter, group, refs, addAnchor);
+    return;
+  }
+
+  // ----------------------------------------------------
+  // CHEMISTRY CHAPTER 7: CHEMICAL REACTIONS
+  // ----------------------------------------------------
+  if (chapter === 7) {
+    buildChemistryCh7Scene(slideId, chapter, group, refs, addAnchor);
+    return;
+  }
+
+  // ----------------------------------------------------
+  // CHEMISTRY CHAPTER 8: CHEMISTRY & ENERGY
+  // ----------------------------------------------------
+  if (chapter === 8) {
+    buildChemistryCh8Scene(slideId, chapter, group, refs, addAnchor);
+    return;
+  }
+
+  // ----------------------------------------------------
+  // CHEMISTRY CHAPTERS 9, 10, 11 & 12: DEDICATED 3D SCENES
+  // ----------------------------------------------------
+  if (chapter === 9 || chapter === 10 || chapter === 11 || chapter === 12) {
+    buildChemistryCh9to12Scene(slideId, chapter, group, refs, addAnchor);
     return;
   }
 
@@ -915,11 +1305,11 @@ function buildSlide3DScene(
   }
 
   // ----------------------------------------------------
-  // CHAPTER 2: STATES OF MATTER 3D SCENES
+  // CHAPTER 2: STATES OF MATTER 3D SCENES (All 20 Textbook Topics)
   // ----------------------------------------------------
   if (chapter === 2) {
-    if (slideId === 1 || slideId === 2 || slideId === 3) {
-      // 3D Kinetic Theory Molecular Box
+    // 1-5: 3D Kinetic Theory Molecular Box & Crystal Lattice
+    if (slideId >= 1 && slideId <= 5) {
       const boxGeo = new THREE.BoxGeometry(4.2, 4.2, 4.2);
       const boxMat = new THREE.MeshBasicMaterial({ color: 0x334155, wireframe: true, transparent: true, opacity: 0.35 });
       const boxMesh = new THREE.Mesh(boxGeo, boxMat);
@@ -927,8 +1317,14 @@ function buildSlide3DScene(
 
       // Crystalline particle grid
       const sphereGeo = new THREE.SphereGeometry(0.18, 16, 16);
-      const sphereMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.2, metalness: 0.5, emissive: 0x0284c7, emissiveIntensity: 0.4 });
-      
+      const sphereMat = new THREE.MeshStandardMaterial({
+        color: slideId <= 2 ? 0x38bdf8 : slideId === 3 ? 0x22d3ee : 0x06b6d4,
+        roughness: 0.2,
+        metalness: 0.5,
+        emissive: 0x0284c7,
+        emissiveIntensity: 0.4
+      });
+
       const grid = new THREE.Group();
       group.add(grid);
       refs.crystalGrid = grid;
@@ -943,33 +1339,60 @@ function buildSlide3DScene(
         }
       }
 
-      addAnchor(grid, 'কঠিন ল্যাটিস', 'Solid Crystal Lattice', 'Lattice (s)', '#38bdf8');
+      addAnchor(grid, 'কঠিন কেলাস জালি ও কণার গতিতত্ত্ব', 'Solid Crystal Lattice & Kinetic Theory', 'E_k ∝ T', '#38bdf8');
       return;
     }
 
-    if (slideId === 4 || slideId === 5 || slideId === 6) {
-      // 3D Graham Diffusion Cylinder
+    // 6-9: Diffusion & Effusion Pressurized Model
+    if (slideId >= 6 && slideId <= 9) {
+      const cylGeo = new THREE.CylinderGeometry(1.2, 1.2, 4.0, 32, 1, true);
+      const cylMat = new THREE.MeshPhysicalMaterial({ color: 0x94a3b8, transparent: true, opacity: 0.3, roughness: 0.1, transmission: 0.8 });
+      const cyl = new THREE.Mesh(cylGeo, cylMat);
+      group.add(cyl);
+
+      // Piston / Orifice Chamber
+      const pistonGeo = new THREE.CylinderGeometry(1.15, 1.15, 0.2, 32);
+      const pistonMat = new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.8, roughness: 0.2 });
+      const piston = new THREE.Mesh(pistonGeo, pistonMat);
+      piston.position.y = 1.0;
+      group.add(piston);
+
+      // Effusion spray particles
+      const sprayGeo = new THREE.SphereGeometry(0.08, 12, 12);
+      const sprayMat = new THREE.MeshStandardMaterial({ color: 0x22d3ee, emissive: 0x0891b2, emissiveIntensity: 0.8 });
+      for (let i = 0; i < 24; i++) {
+        const p = new THREE.Mesh(sprayGeo, sprayMat);
+        p.position.set((Math.random() - 0.5) * 1.6, -1.5 + Math.random() * 2.2, (Math.random() - 0.5) * 1.6);
+        group.add(p);
+      }
+
+      addAnchor(cyl, slideId >= 8 ? 'নিঃসরণ সূক্ষ্ম ছিদ্রপথ ও চাপ' : 'ব্যাপন ঘনত্ব বিস্তার', slideId >= 8 ? 'Effusion Orifice' : 'Diffusion Gradient', slideId >= 8 ? 'P_high → P_low' : 'Net Flux', '#22d3ee');
+      return;
+    }
+
+    // 10-11: Graham Diffusion Cylinder (NH3 vs HCl with white ring of NH4Cl)
+    if (slideId === 10 || slideId === 11) {
       const cylGeo = new THREE.CylinderGeometry(0.8, 0.8, 6.5, 32, 1, true);
       cylGeo.rotateZ(Math.PI / 2);
       const cylMat = new THREE.MeshPhysicalMaterial({ color: 0x94a3b8, transparent: true, opacity: 0.25, roughness: 0.1, transmission: 0.8 });
       const cylMesh = new THREE.Mesh(cylGeo, cylMat);
       group.add(cylMesh);
 
-      // NH3 Source on Left
+      // NH3 Source on Left (M=17)
       const nh3Geo = new THREE.SphereGeometry(0.5, 24, 24);
       const nh3Mat = new THREE.MeshStandardMaterial({ color: 0x06b6d4, emissive: 0x0891b2, emissiveIntensity: 0.6 });
       const nh3Mesh = new THREE.Mesh(nh3Geo, nh3Mat);
       nh3Mesh.position.set(-2.8, 0, 0);
       group.add(nh3Mesh);
-      addAnchor(nh3Mesh, 'অ্যামোনিয়া উৎস', 'NH₃ Source (M=17)', 'NH₃', '#06b6d4');
+      addAnchor(nh3Mesh, 'অ্যামোনিয়া উৎস (M=17)', 'NH₃ Source (M=17)', 'NH₃', '#06b6d4');
 
-      // HCl Source on Right
+      // HCl Source on Right (M=36.5)
       const hclGeo = new THREE.SphereGeometry(0.5, 24, 24);
       const hclMat = new THREE.MeshStandardMaterial({ color: 0xf97316, emissive: 0xc2410c, emissiveIntensity: 0.6 });
       const hclMesh = new THREE.Mesh(hclGeo, hclMat);
       hclMesh.position.set(2.8, 0, 0);
       group.add(hclMesh);
-      addAnchor(hclMesh, 'হাইড্রোক্লোরিক উৎস', 'HCl Source (M=36.5)', 'HCl', '#f97316');
+      addAnchor(hclMesh, 'হাইড্রোক্লোরিক উৎস (M=36.5)', 'HCl Source (M=36.5)', 'HCl', '#f97316');
 
       // White Ring of NH4Cl at 59.4% distance
       const ringGeo = new THREE.TorusGeometry(0.78, 0.14, 16, 48);
@@ -982,20 +1405,47 @@ function buildSlide3DScene(
       return;
     }
 
-    if (slideId === 7 || slideId === 8 || slideId === 9 || slideId === 10 || slideId === 11) {
-      // 3D Beaker with Boiling Fluid & Thermometer
+    // 12: 3D Candle Combustion Model (Solid, Liquid & Gas)
+    if (slideId === 12) {
+      // Solid Candle Body
+      const candleGeo = new THREE.CylinderGeometry(0.9, 0.9, 3.2, 32);
+      const candleMat = new THREE.MeshStandardMaterial({ color: 0xfef08a, roughness: 0.3, emissive: 0xfef08a, emissiveIntensity: 0.1 });
+      const candle = new THREE.Mesh(candleGeo, candleMat);
+      candle.position.y = -0.6;
+      group.add(candle);
+      addAnchor(candle, 'কঠিন মোম ভিত্তি', 'Solid Candle Wax', 'Wax(s)', '#fde047');
+
+      // Wick
+      const wickGeo = new THREE.CylinderGeometry(0.05, 0.05, 0.8, 16);
+      const wickMat = new THREE.MeshBasicMaterial({ color: 0x1f2937 });
+      const wick = new THREE.Mesh(wickGeo, wickMat);
+      wick.position.y = 1.2;
+      group.add(wick);
+
+      // Flame (Tear drop geometry)
+      const flameGeo = new THREE.ConeGeometry(0.35, 1.2, 24);
+      const flameMat = new THREE.MeshStandardMaterial({ color: 0xf97316, emissive: 0xfbbf24, emissiveIntensity: 0.9, transparent: true, opacity: 0.85 });
+      const flame = new THREE.Mesh(flameGeo, flameMat);
+      flame.position.y = 1.9;
+      group.add(flame);
+      addAnchor(flame, 'গ্যাসীয় দহন শিখা', 'Combustion Flame', 'CO₂ + H₂O', '#f97316');
+      return;
+    }
+
+    // 13-16: 3D Boiling Beaker, Thermometer & Heating/Cooling Transitions
+    if (slideId >= 13 && slideId <= 16) {
       const beakerGeo = new THREE.CylinderGeometry(1.6, 1.6, 3.2, 32, 1, true);
       const beakerMat = new THREE.MeshPhysicalMaterial({ color: 0x64748b, transparent: true, opacity: 0.35, roughness: 0.1 });
       const beaker = new THREE.Mesh(beakerGeo, beakerMat);
       group.add(beaker);
 
-      // Water fluid volume inside
+      // Fluid volume inside
       const fluidGeo = new THREE.CylinderGeometry(1.55, 1.55, 2.0, 32);
       fluidGeo.translate(0, -0.5, 0);
       const fluidMat = new THREE.MeshStandardMaterial({ color: 0x0284c7, transparent: true, opacity: 0.6, roughness: 0.1, emissive: 0x0369a1, emissiveIntensity: 0.3 });
       const fluid = new THREE.Mesh(fluidGeo, fluidMat);
       group.add(fluid);
-      addAnchor(fluid, 'ফুটন্ত তরল (১০০°C)', 'Boiling Water Fluid', '100°C H₂O', '#38bdf8');
+      addAnchor(fluid, slideId === 15 || slideId === 16 ? 'পানির তাপীয় রূপান্তর' : 'ফুটন্ত তরল (১০০°C)', 'Phase Transition Fluid', '100°C H₂O', '#38bdf8');
 
       // Thermometer
       const thermGeo = new THREE.CylinderGeometry(0.08, 0.08, 3.6, 16);
@@ -1003,24 +1453,50 @@ function buildSlide3DScene(
       const thermMat = new THREE.MeshStandardMaterial({ color: 0xf43f5e, emissive: 0xbe123c, emissiveIntensity: 0.8 });
       const therm = new THREE.Mesh(thermGeo, thermMat);
       group.add(therm);
-      addAnchor(therm, 'থার্মোমিটার (১০০°C)', 'Thermometer (100°C)', 'T=100°C', '#f43f5e');
+      addAnchor(therm, 'থার্মোমিটার ও সুপ্ততাপ', 'Thermometer & Latent Heat', 'T = Const', '#f43f5e');
       return;
     }
 
-    // Sublimation (Slide 12) & Plasma (Slide 13)
-    if (slideId === 12 || slideId === 13) {
+    // 17: 3D Distillation Setup (Flask + Condenser + Distillate)
+    if (slideId === 17) {
+      // Boiling Flask (Sphere with neck)
+      const flaskBody = new THREE.Mesh(new THREE.SphereGeometry(1.2, 24, 24), new THREE.MeshPhysicalMaterial({ color: 0x64748b, transparent: true, opacity: 0.4 }));
+      flaskBody.position.set(-1.8, -0.5, 0);
+      group.add(flaskBody);
+
+      // Condenser Tube (Angled cylinder)
+      const condGeo = new THREE.CylinderGeometry(0.4, 0.4, 3.8, 24);
+      condGeo.rotateZ(Math.PI / 4);
+      const condMat = new THREE.MeshPhysicalMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.4, transmission: 0.8 });
+      const condenser = new THREE.Mesh(condGeo, condMat);
+      condenser.position.set(0.2, 0.3, 0);
+      group.add(condenser);
+      addAnchor(condenser, 'লিবিক শীতক (ঘনীভবন)', 'Liebig Condenser', 'Condensation', '#38bdf8');
+
+      // Receiver Beaker
+      const recGeo = new THREE.CylinderGeometry(0.7, 0.7, 1.4, 24);
+      const recMat = new THREE.MeshPhysicalMaterial({ color: 0x94a3b8, transparent: true, opacity: 0.35 });
+      const rec = new THREE.Mesh(recGeo, recMat);
+      rec.position.set(2.0, -1.2, 0);
+      group.add(rec);
+      addAnchor(rec, 'বিশুদ্ধ পাতিত তরল', 'Distillate Receiver', 'Pure Distillate', '#22d3ee');
+      return;
+    }
+
+    // 18: Sublimation Apparatus (Funnel + Cotton Plug + Violet Iodine Vapor)
+    if (slideId === 18) {
       const beakerGeo = new THREE.CylinderGeometry(1.5, 1.5, 2.6, 32, 1, true);
       const beakerMat = new THREE.MeshPhysicalMaterial({ color: 0x64748b, transparent: true, opacity: 0.35 });
       const beaker = new THREE.Mesh(beakerGeo, beakerMat);
       group.add(beaker);
 
-      // Violet Iodine Vapor Cloud / Plasma Glow
+      // Violet Iodine Vapor Cloud
       const vaporGeo = new THREE.SphereGeometry(1.2, 24, 24);
       const vaporMat = new THREE.MeshStandardMaterial({ color: 0xa855f7, transparent: true, opacity: 0.5, emissive: 0x9333ea, emissiveIntensity: 0.7 });
       const vapor = new THREE.Mesh(vaporGeo, vaporMat);
       vapor.position.set(0, 0.2, 0);
       group.add(vapor);
-      addAnchor(vapor, slideId === 12 ? 'বেগুনি আয়োডিন বাষ্প' : 'আয়নিত প্লাজমা গ্যাস', slideId === 12 ? 'Violet Iodine Vapor' : 'Ionized Plasma Gas', slideId === 12 ? 'I₂(g)' : 'Plasma', '#c084fc');
+      addAnchor(vapor, 'উর্ধ্বপাতিত বেগুনি বাষ্প', 'Sublimated Iodine Vapor', 'I₂(g) Sublimation', '#c084fc');
 
       // Inverted Funnel
       const funnelGeo = new THREE.ConeGeometry(1.6, 1.8, 32, 1, true);
@@ -1032,8 +1508,67 @@ function buildSlide3DScene(
       addAnchor(funnel, 'কাচ ফানেল ও তুলার ছিপি', 'Inverted Funnel & Plug', 'Funnel', '#94a3b8');
       return;
     }
-  }
 
+    // 19: Plasma State (Ionized High-Energy Filament Globe)
+    if (slideId === 19) {
+      // Outer Glass Sphere
+      const globeGeo = new THREE.SphereGeometry(2.0, 32, 32);
+      const globeMat = new THREE.MeshPhysicalMaterial({ color: 0x1e1b4b, transparent: true, opacity: 0.3, transmission: 0.9, roughness: 0.1 });
+      const globe = new THREE.Mesh(globeGeo, globeMat);
+      group.add(globe);
+
+      // Inner Core Electrode
+      const coreGeo = new THREE.SphereGeometry(0.5, 24, 24);
+      const coreMat = new THREE.MeshStandardMaterial({ color: 0xec4899, emissive: 0xdb2777, emissiveIntensity: 1.0 });
+      const core = new THREE.Mesh(coreGeo, coreMat);
+      group.add(core);
+
+      // Electric Plasma Arcs
+      const arcMat = new THREE.LineBasicMaterial({ color: 0x38bdf8, linewidth: 2 });
+      for (let i = 0; i < 8; i++) {
+        const points = [];
+        points.push(new THREE.Vector3(0, 0, 0));
+        const theta = (i / 8) * Math.PI * 2;
+        const phi = Math.random() * Math.PI;
+        const r = 1.9;
+        points.push(new THREE.Vector3((Math.random() - 0.5) * 0.8, (Math.random() - 0.5) * 0.8, (Math.random() - 0.5) * 0.8));
+        points.push(new THREE.Vector3(r * Math.sin(phi) * Math.cos(theta), r * Math.cos(phi), r * Math.sin(phi) * Math.sin(theta)));
+        const arcGeo = new THREE.BufferGeometry().setFromPoints(points);
+        const line = new THREE.Line(arcGeo, arcMat);
+        group.add(line);
+      }
+
+      addAnchor(core, 'আয়নিত প্লাজমা গোলক', 'High-Energy Plasma Globe', 'Plasma State', '#f472b6');
+      return;
+    }
+
+    // 20: Chapter 2 Master Summary Model (Three States Cycle)
+    if (slideId >= 20) {
+      const ringGeo = new THREE.TorusGeometry(1.8, 0.15, 16, 48);
+      const ringMat = new THREE.MeshStandardMaterial({ color: 0x22d3ee, metalness: 0.5, roughness: 0.2, emissive: 0x0891b2, emissiveIntensity: 0.4 });
+      const ring = new THREE.Mesh(ringGeo, ringMat);
+      group.add(ring);
+
+      // 3 Node Spheres for Solid, Liquid, Gas
+      const nodeGeo = new THREE.SphereGeometry(0.45, 24, 24);
+      
+      const sNode = new THREE.Mesh(nodeGeo, new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x0284c7, emissiveIntensity: 0.6 }));
+      sNode.position.set(-1.6, -0.9, 0);
+      group.add(sNode);
+      addAnchor(sNode, 'কঠিন অবস্থা', 'Solid Phase', 'Solid (s)', '#38bdf8');
+
+      const lNode = new THREE.Mesh(nodeGeo, new THREE.MeshStandardMaterial({ color: 0x34d399, emissive: 0x059669, emissiveIntensity: 0.6 }));
+      lNode.position.set(1.6, -0.9, 0);
+      group.add(lNode);
+      addAnchor(lNode, 'তরল অবস্থা', 'Liquid Phase', 'Liquid (l)', '#34d399');
+
+      const gNode = new THREE.Mesh(nodeGeo, new THREE.MeshStandardMaterial({ color: 0xf43f5e, emissive: 0xe11d48, emissiveIntensity: 0.6 }));
+      gNode.position.set(0, 1.7, 0);
+      group.add(gNode);
+      addAnchor(gNode, 'গ্যাসীয় অবস্থা', 'Gas Phase', 'Gas (g)', '#f43f5e');
+      return;
+    }
+  }
   // ----------------------------------------------------
   // CHAPTER 3: STRUCTURE OF MATTER (Original Scenes)
   // ----------------------------------------------------
@@ -1639,12 +2174,33 @@ function updateSlide3DPhysics(
   subject: string = 'chemistry'
 ) {
   if (subject === 'biology') {
-    updateBiology3DPhysics(slideId, time, refs, chapter);
+    const effectiveModelId = Math.max(1, Math.min(20, slideId || 1));
+    updateBiology3DPhysics(effectiveModelId, time, refs, chapter);
     return;
   }
 
   if (subject === 'physics') {
     updatePhysics3DPhysics(slideId, time, refs, chapter);
+    return;
+  }
+
+  if (subject === 'chemistry' && chapter === 6) {
+    updateChemistryCh6Physics(slideId, time, refs);
+    return;
+  }
+
+  if (subject === 'chemistry' && chapter === 7) {
+    updateChemistryCh7Physics(slideId, time, refs);
+    return;
+  }
+
+  if (subject === 'chemistry' && chapter === 8) {
+    updateChemistryCh8Physics(slideId, time, refs);
+    return;
+  }
+
+  if (subject === 'chemistry' && (chapter === 9 || chapter === 10 || chapter === 11 || chapter === 12)) {
+    updateChemistryCh9to12Physics(slideId, time, refs, chapter);
     return;
   }
 

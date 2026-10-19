@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="480" viewBox="0 0 800 480">
+  <defs>
+    <linearGradient id="bgGrad_12_2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#030712"/>
+      <stop offset="60%" stop-color="#0b1329"/>
+      <stop offset="100%" stop-color="#020617"/>
+    </linearGradient>
+    <linearGradient id="barGrad_12_2" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#60a5fa"/>
+    </linearGradient>
+    <filter id="glow_12_2" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="480" fill="url(#bgGrad_12_2)"/>
+
+  <!-- Subtle Science Grid Lines -->
+  <g stroke="#1e293b" stroke-width="0.8" opacity="0.4">
+    <line x1="40" y1="80" x2="760" y2="80"/>
+    <line x1="40" y1="410" x2="760" y2="410"/>
+    <line x1="200" y1="40" x2="200" y2="440" stroke-dasharray="4 8"/>
+    <line x1="600" y1="40" x2="600" y2="440" stroke-dasharray="4 8"/>
+  </g>
+
+  <!-- Top Badges Header -->
+  <g transform="translate(40, 32)">
+    <!-- Chapter Tag -->
+    <rect x="0" y="0" width="210" height="30" rx="8" fill="#3b82f6" fill-opacity="0.15" stroke="#3b82f6" stroke-width="1.2"/>
+    <text x="105" y="20" fill="#60a5fa" font-size="12" font-weight="bold" font-family="system-ui, sans-serif" text-anchor="middle">
+      অধ্যায় 12 • জীবের বংশগতি ও বিবর্তন
+    </text>
+
+    <!-- Topic Reference Tag -->
+    <rect x="222" y="0" width="100" height="30" rx="8" fill="#0284c7" fill-opacity="0.15" stroke="#38bdf8" stroke-width="1.2"/>
+    <text x="272" y="20" fill="#38bdf8" font-size="12" font-weight="bold" font-family="system-ui, sans-serif" text-anchor="middle">
+      টপিক ১২.১
+    </text>
+
+    <!-- Slide & Model # -->
+    <rect x="610" y="0" width="110" height="30" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1.2"/>
+    <text x="665" y="20" fill="#f8fafc" font-size="12" font-weight="bold" font-family="system-ui, sans-serif" text-anchor="middle">
+      মডেল 2 / 20
+    </text>
+  </g>
+
+  <!-- Titles -->
+  <text x="40" y="110" fill="#f8fafc" font-size="24" font-weight="900" font-family="system-ui, sans-serif" letter-spacing="0.3">
+    মনোহাইব্রিড ক্রস ও ৩:১ ফিনোটাইপিক অনুপাত
+  </text>
+  <text x="40" y="135" fill="#38bdf8" font-size="14" font-weight="600" font-family="system-ui, sans-serif" opacity="0.95">
+    Monohybrid Cross Punnett Square 3:1 Ratio
+  </text>
+
+  <!-- Central Scientific Motif -->
+  <g transform="translate(260, 190)">
+            <line x1="0" y1="40.0" x2="0" y2="100.0" stroke="#64748b" stroke-width="3" stroke-dasharray="2 4"/>
+            <circle cx="0" cy="40.0" r="6" fill="#3b82f6"/>
+            <circle cx="0" cy="100.0" r="6" fill="#60a5fa"/>
+            <circle cx="0" cy="70.0" r="3" fill="#facc15"/>
+            <line x1="24" y1="56.93927420185106" x2="24" y2="83.06072579814894" stroke="#64748b" stroke-width="3" stroke-dasharray="2 4"/>
+            <circle cx="24" cy="56.93927420185106" r="6" fill="#3b82f6"/>
+            <circle cx="24" cy="83.06072579814894" r="6" fill="#60a5fa"/>
+            <circle cx="24" cy="70.0" r="3" fill="#facc15"/>
+            <line x1="48" y1="67.96117257901679" x2="48" y2="72.03882742098321" stroke="#64748b" stroke-width="3" stroke-dasharray="2 4"/>
+            <circle cx="48" cy="67.96117257901679" r="6" fill="#3b82f6"/>
+            <circle cx="48" cy="72.03882742098321" r="6" fill="#60a5fa"/>
+            <circle cx="48" cy="70.0" r="3" fill="#facc15"/>
+            <line x1="72" y1="69.21542892634585" x2="72" y2="70.78457107365415" stroke="#64748b" stroke-width="3" stroke-dasharray="2 4"/>
+            <circle cx="72" cy="69.21542892634585" r="6" fill="#3b82f6"/>
+            <circle cx="72" cy="70.78457107365415" r="6" fill="#60a5fa"/>
+            <circle cx="72" cy="70.0" r="3" fill="#facc15"/>
+            <line x1="96" y1="60.263895416534524" x2="96" y2="79.73610458346548" stroke="#64748b" stroke-width="3" stroke-dasharray="2 4"/>
+            <circle cx="96" cy="60.263895416534524" r="6" fill="#3b82f6"/>
+            <circle cx="96" cy="79.73610458346548" r="6" fill="#60a5fa"/>
+            <circle cx="96" cy="70.0" r="3" fill="#facc15"/>
+            <line x1="120" y1="44.23360024179602" x2="120" y2="95.76639975820399" stroke="#64748b" stroke-width="3" stroke-dasharray="2 4"/>
+            <circle cx="120" cy="44.23360024179602" r="6" fill="#3b82f6"/>
+            <circle cx="120" cy="95.76639975820399" r="6" fill="#60a5fa"/>
+            <circle cx="120" cy="70.0" r="3" fill="#facc15"/>
+            <line x1="144" y1="26.724386701154437" x2="144" y2="113.27561329884556" stroke="#64748b" stroke-width="3" stroke-dasharray="2 4"/>
+            <circle cx="144" cy="26.724386701154437" r="6" fill="#3b82f6"/>
+            <circle cx="144" cy="113.27561329884556" r="6" fill="#60a5fa"/>
+            <circle cx="144" cy="70.0" r="3" fill="#facc15"/>
+            <line x1="168" y1="13.852726827592356" x2="168" y2="126.14727317240764" stroke="#64748b" stroke-width="3" stroke-dasharray="2 4"/>
+            <circle cx="168" cy="13.852726827592356" r="6" fill="#3b82f6"/>
+            <circle cx="168" cy="126.14727317240764" r="6" fill="#60a5fa"/>
+            <circle cx="168" cy="70.0" r="3" fill="#facc15"/>
+            <line x1="192" y1="10.11506173492478" x2="192" y2="129.88493826507522" stroke="#64748b" stroke-width="3" stroke-dasharray="2 4"/>
+            <circle cx="192" cy="10.11506173492478" r="6" fill="#3b82f6"/>
+            <circle cx="192" cy="129.88493826507522" r="6" fill="#60a5fa"/>
+            <circle cx="192" cy="70.0" r="3" fill="#facc15"/>
+            <line x1="216" y1="16.817065373320368" x2="216" y2="123.18293462667964" stroke="#64748b" stroke-width="3" stroke-dasharray="2 4"/>
+            <circle cx="216" cy="16.817065373320368" r="6" fill="#3b82f6"/>
+            <circle cx="216" cy="123.18293462667964" r="6" fill="#60a5fa"/>
+            <circle cx="216" cy="70.0" r="3" fill="#facc15"/>
+            <line x1="240" y1="31.617535054032224" x2="240" y2="108.38246494596777" stroke="#64748b" stroke-width="3" stroke-dasharray="2 4"/>
+            <circle cx="240" cy="31.617535054032224" r="6" fill="#3b82f6"/>
+            <circle cx="240" cy="108.38246494596777" r="6" fill="#60a5fa"/>
+            <circle cx="240" cy="70.0" r="3" fill="#facc15"/>
+            <line x1="264" y1="49.34624090540134" x2="264" y2="90.65375909459867" stroke="#64748b" stroke-width="3" stroke-dasharray="2 4"/>
+            <circle cx="264" cy="49.34624090540134" r="6" fill="#3b82f6"/>
+            <circle cx="264" cy="90.65375909459867" r="6" fill="#60a5fa"/>
+            <circle cx="264" cy="70.0" r="3" fill="#facc15"/></g>
+
+  <!-- Bottom Callout Footer Bar -->
+  <g transform="translate(40, 420)">
+    <rect x="0" y="0" width="720" height="44" rx="10" fill="#0f172a" fill-opacity="0.85" stroke="#1e293b" stroke-width="1"/>
+    
+    <!-- 3 Glowing Micro-badges -->
+    <circle cx="24" cy="22" r="7" fill="#3b82f6"/>
+    <text x="42" y="26" fill="#e2e8f0" font-size="12" font-weight="bold" font-family="system-ui, sans-serif">
+      প্রথম সূত্রে প্রকট ও প্রচ্ছন্ন অ্যালিলের পৃথকীকরণ
+    </text>
+
+    <rect x="560" y="8" width="145" height="28" rx="6" fill="#3b82f6" fill-opacity="0.2" stroke="#3b82f6" stroke-width="1"/>
+    <text x="632" y="26" fill="#60a5fa" font-size="11" font-weight="bold" font-family="system-ui, sans-serif" text-anchor="middle">
+      ✓ ৩ডি ও ২ডি সিঙ্কড
+    </text>
+  </g>
+
+  <!-- Outer Border -->
+  <rect x="1" y="1" width="798" height="478" rx="16" fill="none" stroke="#3b82f6" stroke-width="1.5" stroke-opacity="0.4"/>
+</svg>

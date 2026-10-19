@@ -19,8 +19,8 @@ export const chapter4Slides: Slide[] = [
       },
       {
         id: 'c4_s1_img2',
-        url: '/src/assets/images/elements_compounds_1790751385322.jpg',
-        titleBn: 'মৌলসমূহের প্রাকৃতিক প্রাচুর্য ও বৈচিত্র্য',
+        url: '/src/assets/images/periodic_table_trends_1791100765641.jpg',
+        titleBn: 'মৌলসমূহের প্রাকৃতিক প্রাচুর্য ও পর্যায় সারণি',
         titleEn: 'Natural Elements & Diversity',
         captionBn: 'ধাতু, অধাতু ও অপধাতুর ভৌত ও রাসায়নিক বৈচিত্র্যের একক প্রাতিষ্ঠানিক রূপ',
         captionEn: 'Unified structural framework reflecting physical and chemical properties of all elements',

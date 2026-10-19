@@ -1,11 +1,11 @@
 import pptxgen from 'pptxgenjs';
 import { Slide } from '../types/presentation';
 
-export async function exportSlidesToPPTX(slides: Slide[], chapterTitle: string): Promise<void> {
+export async function exportSlidesToPPTX(slides: Slide[], chapterTitle: string, subjectName: string = 'বিজ্ঞান'): Promise<void> {
   const pptx = new pptxgen();
   pptx.layout = 'LAYOUT_16x9';
-  pptx.author = 'SSC Chemistry Interactive Deck';
-  pptx.company = 'SSC Chemistry Masterclass';
+  pptx.author = `SSC ${subjectName} Interactive Deck`;
+  pptx.company = 'SSC Science Masterclass';
   pptx.subject = chapterTitle;
   pptx.title = chapterTitle;
 
@@ -22,7 +22,7 @@ export async function exportSlidesToPPTX(slides: Slide[], chapterTitle: string):
     fill: { color: '06B6D4' }
   });
 
-  titleSlide.addText('জাতীয় শিক্ষাক্রম ও পাঠ্যপুস্তক বোর্ড (NCTB) · নবম-দশম ও এসএসসি রসায়ন', {
+  titleSlide.addText(`জাতীয় শিক্ষাক্রম ও পাঠ্যপুস্তক বোর্ড (NCTB) · নবম-দশম ও এসএসসি ${subjectName}`, {
     x: 1.0,
     y: 1.8,
     w: 11.3,
@@ -53,7 +53,7 @@ export async function exportSlidesToPPTX(slides: Slide[], chapterTitle: string):
     align: 'center'
   });
 
-  titleSlide.addText('তৈরি করেছে: এসএসসি রসায়ন প্রেজেন্টেশন ও ল্যাব সিস্টেম', {
+  titleSlide.addText(`তৈরি করেছে: এসএসসি ${subjectName} প্রেজেন্টেশন ও ল্যাব সিস্টেম`, {
     x: 1.0,
     y: 6.2,
     w: 11.3,

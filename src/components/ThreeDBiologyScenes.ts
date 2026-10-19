@@ -1,1568 +1,998 @@
-import * as THREE from 'three';
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
-// Type helper for anchor adder
+import * as THREE from 'three';
+import { BIOLOGY_3D_CATALOG, Biology3DModelMeta } from '../data/biology3DModelsCatalog';
+import { buildBiologyCh1to5Scene } from './ThreeDBiologyCh1to5Scenes';
+import { buildBiologyCh6to10Scene } from './ThreeDBiologyCh6to10Scenes';
+import { buildBiologyCh11to14Scene } from './ThreeDBiologyCh11to14Scenes';
+
 type AddAnchorFn = (mesh: THREE.Object3D, textBn: string, textEn: string, symbol: string, color: string) => void;
 
 /**
- * Builds high-fidelity, FULLY ANIMATED 3D Interactive Scenes for SSC Biology Chapter 3: Cell Division
- * Every slide has living, moving, breathing animations showing the actual division process.
+ * Classifies any (chapter, modelId) into a dedicated biological model type
  */
+export function getBiologyModelType(chapter: number, modelId: number): string {
+  if (chapter === 1) {
+    if (modelId === 2) return 'dna';
+    if (modelId === 4) return 'bacterium';
+    if (modelId === 5) return 'amoeba';
+    if (modelId === 7) return 'plant_cell';
+    if (modelId === 8) return 'animal_cell';
+    if (modelId === 9) return 'ecosystem';
+    return 'dna';
+  }
+  if (chapter === 2) {
+    if (modelId === 1 || modelId === 4 || modelId === 11) return 'plant_cell';
+    if (modelId === 2 || modelId === 10 || modelId === 18) return 'animal_cell';
+    if (modelId === 6) return 'mitochondria';
+    if (modelId === 7) return 'chloroplast';
+    if (modelId === 16 || modelId === 17) return 'plant_water';
+    if (modelId === 19) return 'skeleton';
+    if (modelId === 20) return 'neuron';
+    return 'plant_cell';
+  }
+  if (chapter === 3) {
+    if (modelId === 1) return 'bacterium';
+    return 'mitosis';
+  }
+  if (chapter === 4) {
+    if (modelId >= 2 && modelId <= 6) return 'chloroplast';
+    return 'mitochondria';
+  }
+  if (chapter === 5) {
+    if (modelId === 2) return 'tooth';
+    return 'digestive';
+  }
+  if (chapter === 6) {
+    if (modelId === 1 || modelId === 2 || modelId === 4) return 'plant_water';
+    if (modelId === 3) return 'stomata';
+    if (modelId >= 6 && modelId <= 9) return 'blood_vessel';
+    return 'heart';
+  }
+  if (chapter === 7) {
+    if (modelId === 1) return 'stomata';
+    if (modelId >= 11 && modelId <= 13) return 'alveoli';
+    if (modelId >= 14 && modelId <= 16) return 'blood_vessel';
+    return 'lungs';
+  }
+  if (chapter === 8) {
+    if (modelId === 1 || modelId === 2 || modelId >= 15) return 'kidney';
+    return 'nephron';
+  }
+  if (chapter === 9) {
+    return 'skeleton';
+  }
+  if (chapter === 10) {
+    if (modelId >= 4 && modelId <= 7) return 'brain';
+    return 'neuron';
+  }
+  if (chapter === 11) {
+    return 'flower';
+  }
+  if (chapter === 12) {
+    if (modelId === 1 || modelId === 7) return 'mitosis';
+    return 'dna';
+  }
+  if (chapter === 13) {
+    return 'ecosystem';
+  }
+  if (chapter === 14) {
+    if (modelId === 6) return 'bacterium';
+    return 'biotech';
+  }
+  return 'dna';
+}
+
 export function buildBiology3DScene(
-  slideId: number,
+  slideOrModelId: number,
   chapter: number,
   group: THREE.Group,
   refs: any,
   addAnchor: AddAnchorFn
 ) {
-  refs.biologySlide = slideId;
+  const normId = slideOrModelId > 20 ? ((slideOrModelId - 1) % 20) + 1 : Math.max(1, slideOrModelId);
+  const models = BIOLOGY_3D_CATALOG[chapter] || BIOLOGY_3D_CATALOG[1] || [];
+  const meta: Biology3DModelMeta = models.find(m => m.id === normId) || models[0];
+
+  const type = getBiologyModelType(chapter, normId);
+  refs.bioType = type;
   refs.biologyChapter = chapter;
+  refs.biologyModelId = normId;
 
-  // =========================================================================
-  // CHAPTER 2: জীবকোষ ও টিস্যু (CELL & TISSUE 3D SCENES)
-  // =========================================================================
-  if (chapter === 2) {
-    // Slide 1: উদ্ভিদ ও প্রাণীকোষের সামগ্রিক রূপরেখা (Plant vs Animal Cell)
-    if (slideId === 1) {
-      // Plant Cell Body (Hexagonal/Pill form with thick green cell wall)
-      const wallGeo = new THREE.BoxGeometry(3.6, 2.6, 2.0);
-      const wallMat = new THREE.MeshStandardMaterial({
-        color: 0x059669, wireframe: true, transparent: true, opacity: 0.6
-      });
-      const wallMesh = new THREE.Mesh(wallGeo, wallMat);
-      group.add(wallMesh);
-
-      // Cytoplasm inside
-      const cytoGeo = new THREE.BoxGeometry(3.3, 2.3, 1.8);
-      const cytoMat = new THREE.MeshPhysicalMaterial({
-        color: 0x10b981, transparent: true, opacity: 0.35, roughness: 0.2
-      });
-      const cytoMesh = new THREE.Mesh(cytoGeo, cytoMat);
-      group.add(cytoMesh);
-      refs.cytoMesh = cytoMesh;
-      addAnchor(wallMesh, 'সেলুলোজ নির্মিত কোষপ্রাচীর', 'Plant Cell Wall', 'Wall', '#10b981');
-
-      // Large Central Vacuole
-      const vacGeo = new THREE.SphereGeometry(0.85, 24, 24);
-      const vacMat = new THREE.MeshPhysicalMaterial({
-        color: 0x38bdf8, transparent: true, opacity: 0.55, roughness: 0.1
-      });
-      const vacMesh = new THREE.Mesh(vacGeo, vacMat);
-      vacMesh.position.set(-0.6, 0, 0);
-      group.add(vacMesh);
-      refs.vacMesh = vacMesh;
-      addAnchor(vacMesh, 'বৃহৎ কোষগহ্বর (কোষরসপূর্ণ)', 'Central Vacuole', 'Vacuole', '#38bdf8');
-
-      // Chloroplast discs
-      for (let i = 0; i < 4; i++) {
-        const chlGeo = new THREE.CylinderGeometry(0.3, 0.3, 0.1, 16);
-        const chlMat = new THREE.MeshStandardMaterial({ color: 0x22c55e, emissive: 0x15803d, emissiveIntensity: 0.5 });
-        const chlMesh = new THREE.Mesh(chlGeo, chlMat);
-        chlMesh.position.set(0.8, -0.6 + i * 0.4, (i % 2 === 0 ? 0.4 : -0.4));
-        group.add(chlMesh);
-      }
-
-      // Nucleus
-      const nucMesh = new THREE.Mesh(
-        new THREE.SphereGeometry(0.55, 24, 24),
-        new THREE.MeshStandardMaterial({ color: 0x8b5cf6, emissive: 0x6d28d9, emissiveIntensity: 0.6 })
-      );
-      nucMesh.position.set(0.9, 0.5, 0);
-      group.add(nucMesh);
-      refs.nucMesh = nucMesh;
-      addAnchor(nucMesh, 'সুগঠিত প্রকৃত নিউক্লিয়াস', 'Eukaryotic Nucleus', 'Nucleus', '#8b5cf6');
-      return;
-    }
-
-    // Slide 2: প্লাজমা মেমব্রেন ও ফ্লুইড মোজাইক মডেল (Fluid Mosaic Bilayer)
-    if (slideId === 2) {
-      const lipidGroup = new THREE.Group();
-      group.add(lipidGroup);
-      refs.lipidGroup = lipidGroup;
-
-      // Two layers of phospholipid heads
-      const headGeo = new THREE.SphereGeometry(0.16, 12, 12);
-      const topHeadMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x0284c7, emissiveIntensity: 0.4 });
-      const botHeadMat = new THREE.MeshStandardMaterial({ color: 0x0ea5e9, emissive: 0x0369a1, emissiveIntensity: 0.4 });
-
-      for (let x = -2.2; x <= 2.2; x += 0.42) {
-        for (let z = -1.2; z <= 1.2; z += 0.42) {
-          // Top layer (hydrophilic head)
-          const th = new THREE.Mesh(headGeo, topHeadMat);
-          th.position.set(x, 0.8, z);
-          lipidGroup.add(th);
-
-          // Bottom layer (hydrophilic head)
-          const bh = new THREE.Mesh(headGeo, botHeadMat);
-          bh.position.set(x, -0.8, z);
-          lipidGroup.add(bh);
-        }
-      }
-
-      // Protein Channel spanning bilayer
-      const protGeo = new THREE.CylinderGeometry(0.45, 0.45, 1.8, 20);
-      const protMat = new THREE.MeshStandardMaterial({
-        color: 0xec4899, emissive: 0xbe185d, emissiveIntensity: 0.5, roughness: 0.3
-      });
-      const channelMesh = new THREE.Mesh(protGeo, protMat);
-      channelMesh.position.set(0, 0, 0);
-      group.add(channelMesh);
-      refs.channelMesh = channelMesh;
-      addAnchor(channelMesh, 'ইনটিগ্রাল চ্যানেল প্রোটিন', 'Integral Transport Channel', 'Protein', '#ec4899');
-
-      // Carbohydrate branch (Glycocalyx)
-      const carbGeo = new THREE.SphereGeometry(0.12, 8, 8);
-      const carbMat = new THREE.MeshStandardMaterial({ color: 0xfacc15, emissive: 0xeab308, emissiveIntensity: 0.6 });
-      for (let c = 0; c < 3; c++) {
-        const cm = new THREE.Mesh(carbGeo, carbMat);
-        cm.position.set(c * 0.2 - 0.2, 1.1 + c * 0.2, 0);
-        group.add(cm);
-      }
-      addAnchor(lipidGroup, 'ফসফোলিপিড দ্বিস্তর (Bilayer)', 'Phospholipid Bilayer', 'Lipid', '#38bdf8');
-      return;
-    }
-
-    // Slide 3: মাইটোকন্ড্রিয়া (Mitochondria - Powerhouse)
-    if (slideId === 3) {
-      // Outer membrane capsule
-      const mitoGeo = new THREE.CapsuleGeometry(1.0, 2.2, 24, 24);
-      mitoGeo.rotateZ(Math.PI / 3);
-      const mitoMat = new THREE.MeshPhysicalMaterial({
-        color: 0xd97706, transparent: true, opacity: 0.4, roughness: 0.2
-      });
-      const mitoMesh = new THREE.Mesh(mitoGeo, mitoMat);
-      group.add(mitoMesh);
-      refs.mitoMesh = mitoMesh;
-      addAnchor(mitoMesh, 'বহিঃআবরণী (Outer Membrane)', 'Outer Membrane', 'Mito', '#f59e0b');
-
-      // Inner folded cristae shelves
-      const cristaeGroup = new THREE.Group();
-      group.add(cristaeGroup);
-      refs.cristaeGroup = cristaeGroup;
-
-      for (let i = -1.2; i <= 1.2; i += 0.45) {
-        const shelfGeo = new THREE.BoxGeometry(0.12, 1.2, 0.9);
-        const shelfMat = new THREE.MeshStandardMaterial({
-          color: 0xef4444, emissive: 0xb91c1c, emissiveIntensity: 0.6
-        });
-        const shelf = new THREE.Mesh(shelfGeo, shelfMat);
-        shelf.position.set(i * 0.7, i * 0.35, 0);
-        shelf.rotation.z = Math.PI / 4;
-        cristaeGroup.add(shelf);
-      }
-      addAnchor(cristaeGroup, 'ভাঁজযুক্ত ক্রিস্টি ও ম্যাট্রিক্স', 'Folded Inner Cristae', 'Cristae', '#ef4444');
-
-      // Glowing ATP synthesis particles
-      const atpGroup = new THREE.Group();
-      group.add(atpGroup);
-      refs.atpGroup = atpGroup;
-      for (let a = 0; a < 16; a++) {
-        const atpMesh = new THREE.Mesh(
-          new THREE.SphereGeometry(0.08, 8, 8),
-          new THREE.MeshStandardMaterial({ color: 0xfef08a, emissive: 0xfacc15, emissiveIntensity: 1 })
-        );
-        atpMesh.position.set((Math.random() - 0.5) * 2, (Math.random() - 0.5) * 1.5, (Math.random() - 0.5) * 1.2);
-        atpGroup.add(atpMesh);
-      }
-      return;
-    }
-
-    // Slide 4: ক্লোরোপ্লাস্ট ও প্লাস্টিড (Chloroplast & Grana Thylakoids)
-    if (slideId === 4) {
-      // Outer chloroplast disc envelope
-      const chloGeo = new THREE.CylinderGeometry(1.8, 1.8, 0.8, 32);
-      const chloMat = new THREE.MeshPhysicalMaterial({
-        color: 0x15803d, transparent: true, opacity: 0.45, roughness: 0.2
-      });
-      const chloMesh = new THREE.Mesh(chloGeo, chloMat);
-      chloMesh.rotation.x = Math.PI / 6;
-      group.add(chloMesh);
-      addAnchor(chloMesh, 'দ্বিস্তর ক্লোরোপ্লাস্ট ঝিল্লি', 'Double Chloroplast Membrane', 'Chloroplast', '#22c55e');
-
-      // Grana stacks (coins)
-      const granaGroup = new THREE.Group();
-      group.add(granaGroup);
-      refs.granaGroup = granaGroup;
-
-      const stackPositions = [
-        [-0.8, -0.5], [0.6, -0.6], [-0.5, 0.6], [0.7, 0.4], [0, 0]
-      ];
-      stackPositions.forEach(([gx, gz]) => {
-        for (let coin = 0; coin < 5; coin++) {
-          const coinMesh = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.3, 0.3, 0.06, 16),
-            new THREE.MeshStandardMaterial({ color: 0x4ade80, emissive: 0x16a34a, emissiveIntensity: 0.7 })
-          );
-          coinMesh.position.set(gx, coin * 0.1 - 0.2, gz);
-          granaGroup.add(coinMesh);
-        }
-      });
-      addAnchor(granaGroup, 'গ্রানা ও থাইলাকয়েড থলি (সালোকসংশ্লেষণ)', 'Grana Thylakoid Stacks', 'Grana', '#4ade80');
-      return;
-    }
-
-    // Slide 5: এন্ডোপ্লাজমিক রেটিকুলাম ও গলগি বস্তু (ER & Golgi)
-    if (slideId === 5) {
-      const golgiGroup = new THREE.Group();
-      group.add(golgiGroup);
-      refs.golgiGroup = golgiGroup;
-
-      // Curved cisternae sheets
-      for (let s = 0; s < 5; s++) {
-        const cistGeo = new THREE.TorusGeometry(1.2 + s * 0.25, 0.12, 12, 32, Math.PI * 0.9);
-        const cistMat = new THREE.MeshStandardMaterial({
-          color: 0xa855f7, emissive: 0x7e22ce, emissiveIntensity: 0.5
-        });
-        const cistMesh = new THREE.Mesh(cistGeo, cistMat);
-        cistMesh.rotation.z = Math.PI * 0.55;
-        cistMesh.position.set(s * 0.25 - 0.5, 0, 0);
-        golgiGroup.add(cistMesh);
-      }
-      addAnchor(golgiGroup, 'গলগি সিস্টার্নি (Cisternae)', 'Golgi Cisternae', 'Golgi', '#c084fc');
-
-      // Transport vesicles budding off
-      const vesicleGroup = new THREE.Group();
-      group.add(vesicleGroup);
-      refs.vesicleGroup = vesicleGroup;
-      for (let v = 0; v < 8; v++) {
-        const vm = new THREE.Mesh(
-          new THREE.SphereGeometry(0.18, 12, 12),
-          new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x0284c7, emissiveIntensity: 0.7 })
-        );
-        vm.position.set(0.8 + Math.random() * 0.8, (Math.random() - 0.5) * 1.5, (Math.random() - 0.5) * 1.2);
-        vesicleGroup.add(vm);
-      }
-      addAnchor(vesicleGroup, 'ক্ষরণকারী ভেসিকল (Vesicles)', 'Secretory Vesicles', 'Vesicle', '#38bdf8');
-      return;
-    }
-
-    // Slide 6: লাইসোজোম, রাইবোসোম ও সেন্ট্রোসোম (Lysosome & Centrosome)
-    if (slideId === 6) {
-      // Lysosome sphere
-      const lysoMesh = new THREE.Mesh(
-        new THREE.SphereGeometry(1.1, 24, 24),
-        new THREE.MeshPhysicalMaterial({ color: 0xf43f5e, transparent: true, opacity: 0.6, roughness: 0.2 })
-      );
-      group.add(lysoMesh);
-      refs.lysoMesh = lysoMesh;
-      addAnchor(lysoMesh, 'লাইসোজোম (হাইড্রোলাইটিক এনজাইমপূর্ণ)', 'Lysosome with Enzymes', 'Lyso', '#f43f5e');
-
-      // Centrosome with 2 perpendicular centrioles
-      const centGroup = new THREE.Group();
-      centGroup.position.set(1.8, 0.8, 0);
-      group.add(centGroup);
-      refs.centGroup = centGroup;
-
-      const c1 = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.15, 0.15, 0.8, 16),
-        new THREE.MeshStandardMaterial({ color: 0xf59e0b, emissive: 0xd97706, emissiveIntensity: 0.7 })
-      );
-      const c2 = c1.clone();
-      c2.rotation.x = Math.PI / 2;
-      centGroup.add(c1);
-      centGroup.add(c2);
-      addAnchor(centGroup, 'সেন্ট্রিওল জোড়া (Centrosome)', 'Centriole Pair', 'Centriole', '#f59e0b');
-      return;
-    }
-
-    // Slide 7: নিউক্লিয়াস: কেন্দ্রিকা ও ক্রোমাটিন জালিকা (Nucleus & Chromatin)
-    if (slideId === 7) {
-      // Outer nuclear envelope with pores
-      const nucMesh = new THREE.Mesh(
-        new THREE.SphereGeometry(1.6, 32, 32),
-        new THREE.MeshPhysicalMaterial({ color: 0x7c3aed, transparent: true, opacity: 0.45, roughness: 0.2 })
-      );
-      group.add(nucMesh);
-      refs.nucMesh = nucMesh;
-      addAnchor(nucMesh, 'দ্বিস্তর নিউক্লিয়ার মেমব্রেন ও রন্ধ্র', 'Nuclear Envelope & Pores', 'Envelope', '#a78bfa');
-
-      // Dense Nucleolus in center
-      const nucleolus = new THREE.Mesh(
-        new THREE.SphereGeometry(0.55, 20, 20),
-        new THREE.MeshStandardMaterial({ color: 0xec4899, emissive: 0xdb2777, emissiveIntensity: 0.8 })
-      );
-      group.add(nucleolus);
-      refs.nucleolus = nucleolus;
-      addAnchor(nucleolus, 'নিউক্লিওলাস (আরএনএ ও প্রোটিন সংশ্লেষণ)', 'Dense Nucleolus', 'Nucleolus', '#ec4899');
-
-      // Chromatin network (intertwined torus rings)
-      const chromGroup = new THREE.Group();
-      group.add(chromGroup);
-      refs.chromGroup = chromGroup;
-      for (let k = 0; k < 6; k++) {
-        const ring = new THREE.Mesh(
-          new THREE.TorusGeometry(0.9, 0.04, 8, 24),
-          new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x0284c7, emissiveIntensity: 0.5 })
-        );
-        ring.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
-        chromGroup.add(ring);
-      }
-      addAnchor(chromGroup, 'ক্রোমাটিন তন্তু (ডিএনএ ও হিস্টোন প্রোটিন)', 'Chromatin Network', 'Chromatin', '#38bdf8');
-      return;
-    }
-
-    // Slide 8: ভাজক টিস্যু (Meristematic Dividing Tissue)
-    if (slideId === 8) {
-      const meristemGroup = new THREE.Group();
-      group.add(meristemGroup);
-      refs.meristemGroup = meristemGroup;
-
-      // Cluster of dense, cubical, actively dividing cells
-      for (let ix = -1; ix <= 1; ix++) {
-        for (let iy = -1; iy <= 1; iy++) {
-          const cellMesh = new THREE.Mesh(
-            new THREE.BoxGeometry(0.8, 0.8, 0.8),
-            new THREE.MeshStandardMaterial({
-              color: 0x10b981, emissive: 0x059669, emissiveIntensity: 0.4, roughness: 0.3
-            })
-          );
-          cellMesh.position.set(ix * 0.9, iy * 0.9, 0);
-          meristemGroup.add(cellMesh);
-
-          // Prominent large nucleus in each
-          const nucl = new THREE.Mesh(
-            new THREE.SphereGeometry(0.22, 12, 12),
-            new THREE.MeshStandardMaterial({ color: 0x8b5cf6, emissive: 0x6d28d9, emissiveIntensity: 0.8 })
-          );
-          nucl.position.set(ix * 0.9, iy * 0.9, 0.2);
-          meristemGroup.add(nucl);
-        }
-      }
-      addAnchor(meristemGroup, 'ঘন সন্নিবিষ্ট ভাজক টিস্যু (বড় নিউক্লিয়াসযুক্ত)', 'Meristematic Plant Tissue', 'Meristem', '#10b981');
-      return;
-    }
-
-    // Slide 9: জটিল টিস্যু: জাইলেম ও ফ্লোয়েম (Xylem & Phloem Vascular Bundle)
-    if (slideId === 9) {
-      const vascGroup = new THREE.Group();
-      group.add(vascGroup);
-      refs.vascGroup = vascGroup;
-
-      // Xylem Vessel (Thick lignified water conduit)
-      const xylGeo = new THREE.CylinderGeometry(0.6, 0.6, 3.2, 24, 1, true);
-      const xylMat = new THREE.MeshStandardMaterial({
-        color: 0x0284c7, wireframe: false, roughness: 0.3, emissive: 0x0369a1, emissiveIntensity: 0.4
-      });
-      const xylMesh = new THREE.Mesh(xylGeo, xylMat);
-      xylMesh.position.set(-0.9, 0, 0);
-      vascGroup.add(xylMesh);
-      addAnchor(xylMesh, 'জাইলেম বাহিকা (পানি ও খনিজ ঊর্ধ্বমুখী পরিবহন)', 'Xylem Vessel (Water)', 'Xylem', '#38bdf8');
-
-      // Phloem Sieve Tube (Food conduit with companion cells)
-      const phlGeo = new THREE.CylinderGeometry(0.5, 0.5, 3.2, 24, 1, true);
-      const phlMat = new THREE.MeshStandardMaterial({
-        color: 0x16a34a, roughness: 0.3, emissive: 0x15803d, emissiveIntensity: 0.4
-      });
-      const phlMesh = new THREE.Mesh(phlGeo, phlMat);
-      phlMesh.position.set(0.9, 0, 0);
-      vascGroup.add(phlMesh);
-      addAnchor(phlMesh, 'ফ্লোয়েম সিভনল ও সঙ্গীকোষ (জৈব খাদ্য পরিবহন)', 'Phloem Sieve Tube (Food)', 'Phloem', '#22c55e');
-      return;
-    }
-
-    // Slide 10: রক্ত ও যোজক কলা (Blood & Connective Tissue)
-    if (slideId === 10) {
-      const bloodGroup = new THREE.Group();
-      group.add(bloodGroup);
-      refs.bloodGroup = bloodGroup;
-
-      // Biconcave Red Blood Cells (RBCs / Erythrocytes)
-      for (let r = 0; r < 7; r++) {
-        const rbcGeo = new THREE.CylinderGeometry(0.45, 0.45, 0.16, 20);
-        const rbcMat = new THREE.MeshStandardMaterial({
-          color: 0xdc2626, emissive: 0x991b1b, emissiveIntensity: 0.5, roughness: 0.3
-        });
-        const rbc = new THREE.Mesh(rbcGeo, rbcMat);
-        rbc.position.set((Math.random() - 0.5) * 2.8, (Math.random() - 0.5) * 2.2, (Math.random() - 0.5) * 1.5);
-        rbc.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, 0);
-        bloodGroup.add(rbc);
-      }
-      addAnchor(bloodGroup, 'লোহিত রক্তকণিকা (অক্সিজেন বাহী আরবিসি)', 'Red Blood Cells (RBCs)', 'RBC', '#ef4444');
-
-      // White Blood Cell (WBC / Leukocyte) with irregular lobes
-      const wbcMesh = new THREE.Mesh(
-        new THREE.SphereGeometry(0.65, 20, 20),
-        new THREE.MeshStandardMaterial({ color: 0xf8fafc, emissive: 0x94a3b8, emissiveIntensity: 0.5 })
-      );
-      wbcMesh.position.set(0, 0, 0);
-      group.add(wbcMesh);
-      refs.wbcMesh = wbcMesh;
-      addAnchor(wbcMesh, 'শ্বেত রক্তকণিকা (রোগ প্রতিরোধকারী ডব্লিউবিসি)', 'White Blood Cell (WBC)', 'WBC', '#38bdf8');
-      return;
-    }
-
-    // Slide 11: পেশি টিস্যু (Muscular Tissue - Striated Myofibrils)
-    if (slideId === 11) {
-      const muscleGroup = new THREE.Group();
-      group.add(muscleGroup);
-      refs.muscleGroup = muscleGroup;
-
-      // Muscle Fiber Cylinders
-      for (let m = -1; m <= 1; m++) {
-        const fiber = new THREE.Mesh(
-          new THREE.CylinderGeometry(0.35, 0.35, 3.2, 20),
-          new THREE.MeshStandardMaterial({ color: 0xe11d48, emissive: 0x9f1239, emissiveIntensity: 0.5 })
-        );
-        fiber.position.set(m * 0.85, 0, 0);
-        muscleGroup.add(fiber);
-
-        // Striation bands along fiber
-        for (let b = -1.2; b <= 1.2; b += 0.3) {
-          const band = new THREE.Mesh(
-            new THREE.RingGeometry(0.36, 0.40, 16),
-            new THREE.MeshBasicMaterial({ color: 0xfecdd3, side: THREE.DoubleSide })
-          );
-          band.rotation.x = Math.PI / 2;
-          band.position.set(m * 0.85, b, 0);
-          muscleGroup.add(band);
-        }
-      }
-      addAnchor(muscleGroup, 'ডোরাকাটা ঐচ্ছিক পেশিতন্তু ও সারকোমিয়ার', 'Striated Muscle Fiber', 'Muscle', '#f43f5e');
-      return;
-    }
-
-    // Slide 12: স্নায়ু টিস্যু ও নিউরনের গঠন (Nervous Tissue & 3D Neuron)
-    if (slideId === 12) {
-      const neuronGroup = new THREE.Group();
-      group.add(neuronGroup);
-      refs.neuronGroup = neuronGroup;
-
-      // Soma / Cell Body
-      const somaMesh = new THREE.Mesh(
-        new THREE.SphereGeometry(0.7, 24, 24),
-        new THREE.MeshStandardMaterial({ color: 0x0284c7, emissive: 0x0369a1, emissiveIntensity: 0.6 })
-      );
-      somaMesh.position.set(0, 1.2, 0);
-      neuronGroup.add(somaMesh);
-      addAnchor(somaMesh, 'নিউরন কোষদেহ (Cyton/Soma)', 'Neuron Soma / Cell Body', 'Soma', '#38bdf8');
-
-      // Dendrite branches
-      for (let d = 0; d < 6; d++) {
-        const angle = (d / 6) * Math.PI * 2;
-        const den = new THREE.Mesh(
-          new THREE.CylinderGeometry(0.04, 0.12, 0.7, 8),
-          new THREE.MeshStandardMaterial({ color: 0x38bdf8 })
-        );
-        den.position.set(Math.cos(angle) * 0.8, 1.2 + Math.sin(angle) * 0.6, 0);
-        den.rotation.z = angle;
-        neuronGroup.add(den);
-      }
-
-      // Long Axon Cable
-      const axon = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.08, 0.08, 2.0, 12),
-        new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x0284c7, emissiveIntensity: 0.4 })
-      );
-      axon.position.set(0, -0.2, 0);
-      neuronGroup.add(axon);
-
-      // Myelin Sheath Beads
-      for (let my = 0; my < 3; my++) {
-        const sheath = new THREE.Mesh(
-          new THREE.CapsuleGeometry(0.2, 0.4, 12, 12),
-          new THREE.MeshStandardMaterial({ color: 0xfacc15, emissive: 0xca8a04, emissiveIntensity: 0.5 })
-        );
-        sheath.position.set(0, 0.4 - my * 0.6, 0);
-        neuronGroup.add(sheath);
-      }
-      addAnchor(axon, 'মায়োলিন শিথযুক্ত অ্যাক্সন ও র‍্যানভিয়ারের পর্ব', 'Myelinated Axon', 'Axon', '#facc15');
-
-      // Synapse terminal bulb
-      const syn = new THREE.Mesh(
-        new THREE.SphereGeometry(0.25, 16, 16),
-        new THREE.MeshStandardMaterial({ color: 0xec4899, emissive: 0xdb2777, emissiveIntensity: 0.9 })
-      );
-      syn.position.set(0, -1.3, 0);
-      neuronGroup.add(syn);
-      refs.synMesh = syn;
-      addAnchor(syn, 'সাইন্যাপস ও নিউরোট্রান্সমিটার নিঃসরণ', 'Synaptic Terminal', 'Synapse', '#ec4899');
-      return;
-    }
+  // Chapter-specific dedicated 3D scenes for all 14 chapters (20 models each)
+  if (chapter >= 1 && chapter <= 5) {
+    buildBiologyCh1to5Scene(normId, chapter, group, refs, addAnchor);
+    return;
+  }
+  if (chapter >= 6 && chapter <= 10) {
+    buildBiologyCh6to10Scene(normId, chapter, group, refs, addAnchor);
+    return;
+  }
+  if (chapter >= 11 && chapter <= 14) {
+    buildBiologyCh11to14Scene(normId, chapter, group, refs, addAnchor);
+    return;
   }
 
-  // =========================================================================
-  // CHAPTER 3: CELL DIVISION 3D SCENES
-  // =========================================================================
-  if (chapter === 3) {
+  // Common Materials
+  const redMat = new THREE.MeshStandardMaterial({ color: 0xef4444, roughness: 0.35 });
+  const darkRedMat = new THREE.MeshStandardMaterial({ color: 0x991b1b, roughness: 0.4 });
+  const blueMat = new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.3 });
+  const cyanMat = new THREE.MeshStandardMaterial({ color: 0x06b6d4, roughness: 0.25, metalness: 0.1 });
+  const emeraldMat = new THREE.MeshStandardMaterial({ color: 0x10b981, roughness: 0.35 });
+  const darkGreenMat = new THREE.MeshStandardMaterial({ color: 0x065f46, roughness: 0.4 });
+  const goldMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.2, metalness: 0.4 });
+  const amberMat = new THREE.MeshStandardMaterial({ color: 0xfbbf24, roughness: 0.3 });
+  const purpleMat = new THREE.MeshStandardMaterial({ color: 0x8b5cf6, roughness: 0.3 });
+  const glassMat = new THREE.MeshPhysicalMaterial({ color: 0xbae6fd, transparent: true, opacity: 0.4, roughness: 0.1 });
+  const boneMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.25 });
+  const yellowMat = new THREE.MeshStandardMaterial({ color: 0xfacc15, roughness: 0.3 });
 
-    // =========================================================================
-    // SLIDE 1: কোষ বিভাজনের প্রকারভেদ — মাতৃকোষ থেকে অপত্য কোষ সৃষ্টির দৃশ্য
-    // A mother cell visibly pulsing and splitting into daughter cells with orbit rings
-    // =========================================================================
-    if (slideId === 1) {
-      // Mother cell — large, breathing
-      const motherGeo = new THREE.SphereGeometry(1.8, 48, 48);
-      const motherMat = new THREE.MeshPhysicalMaterial({
-        color: 0x065f46, transparent: true, opacity: 0.50, roughness: 0.15, metalness: 0.1
-      });
-      const motherCell = new THREE.Mesh(motherGeo, motherMat);
-      group.add(motherCell);
-      refs.motherCell = motherCell;
+  // 1. DNA Double Helix
+  if (type === 'dna') {
+    const helixGroup = new THREE.Group();
+    group.add(helixGroup);
+    refs.bioMainMesh = helixGroup;
 
-      // Nucleus inside mother
-      const nucMesh = new THREE.Mesh(
-        new THREE.SphereGeometry(0.75, 24, 24),
-        new THREE.MeshStandardMaterial({ color: 0x10b981, emissive: 0x064e3b, emissiveIntensity: 0.7 })
-      );
-      group.add(nucMesh);
-      refs.motherNucleus = nucMesh;
-      addAnchor(motherCell, 'মাতৃকোষ (বিভাজনের পূর্বে)', 'Mother Cell Before Division', 'Mother Cell', '#10b981');
+    const turns = 2.5;
+    const height = 4.8;
+    const radius = 1.3;
+    const rungs = 18;
 
-      // 3 daughter/product orbs orbiting — Amitosis (amber), Mitosis (cyan), Meiosis (pink)
-      const orbitData = [
-        { color: 0xf59e0b, hex: '#f59e0b', labelBn: 'অ্যামাইটোসিস → ২টি কোষ', labelEn: 'Amitosis → 2 Cells', sym: 'Amitosis', speed: 0.6, r: 3.2, phase: 0 },
-        { color: 0x38bdf8, hex: '#38bdf8', labelBn: 'মাইটোসিস → ২টি সমগুণ কোষ (2n)', labelEn: 'Mitosis → 2 Identical (2n)', sym: 'Mitosis', speed: 0.4, r: 3.8, phase: 2.1 },
-        { color: 0xec4899, hex: '#ec4899', labelBn: 'মিয়োসিস → ৪টি হ্যাপ্লয়েড গ্যামেট (n)', labelEn: 'Meiosis → 4 Haploid Gametes (n)', sym: 'Meiosis', speed: 0.3, r: 3.0, phase: 4.2 },
-      ];
-      refs.orbitOrbs = [];
-      orbitData.forEach((od) => {
-        const orb = new THREE.Mesh(
-          new THREE.SphereGeometry(0.55, 20, 20),
-          new THREE.MeshStandardMaterial({ color: od.color, emissive: od.color, emissiveIntensity: 0.6 })
-        );
-        group.add(orb);
-        refs.orbitOrbs.push({ mesh: orb, speed: od.speed, r: od.r, phase: od.phase });
-        addAnchor(orb, od.labelBn, od.labelEn, od.sym, od.hex);
+    for (let i = 0; i < rungs; i++) {
+      const t = (i / rungs) * Math.PI * 2 * turns;
+      const y = (i / rungs) * height - height / 2;
+      const x1 = Math.cos(t) * radius;
+      const z1 = Math.sin(t) * radius;
+      const x2 = Math.cos(t + Math.PI) * radius;
+      const z2 = Math.sin(t + Math.PI) * radius;
 
-        // Orbit ring guide
-        const ringGeo = new THREE.TorusGeometry(od.r, 0.02, 8, 80);
-        const ringMat = new THREE.MeshBasicMaterial({ color: od.color, transparent: true, opacity: 0.15 });
-        const ring = new THREE.Mesh(ringGeo, ringMat);
-        ring.rotation.x = Math.PI / 2;
-        group.add(ring);
-      });
-      return;
+      // Backbone Spheres
+      const s1 = new THREE.Mesh(new THREE.SphereGeometry(0.18, 16, 16), blueMat);
+      s1.position.set(x1, y, z1);
+      helixGroup.add(s1);
+
+      const s2 = new THREE.Mesh(new THREE.SphereGeometry(0.18, 16, 16), redMat);
+      s2.position.set(x2, y, z2);
+      helixGroup.add(s2);
+
+      // Connecting Base-pair Rung
+      const rungMat = i % 2 === 0 ? goldMat : emeraldMat;
+      const rungGeo = new THREE.CylinderGeometry(0.06, 0.06, radius * 2, 8);
+      const rungMesh = new THREE.Mesh(rungGeo, rungMat);
+      rungMesh.position.set(0, y, 0);
+      rungMesh.rotation.z = Math.PI / 2;
+      rungMesh.rotation.y = -t;
+      helixGroup.add(rungMesh);
     }
 
-    // =========================================================================
-    // SLIDE 2: অ্যামাইটোসিস — কোষটি টেনে ভেঙে দুটি ভাগ হচ্ছে (LIVE SPLITTING)
-    // The cell elongates, constricts in the middle, and splits into 2
-    // =========================================================================
-    if (slideId === 2) {
-      // The elongating bacterial/amoeba cell body group
-      const bodyGroup = new THREE.Group();
-      group.add(bodyGroup);
-      refs.amitosisBody = bodyGroup;
-
-      // Left lobe
-      const leftLobe = new THREE.Mesh(
-        new THREE.SphereGeometry(1.4, 32, 32),
-        new THREE.MeshPhysicalMaterial({ color: 0x047857, transparent: true, opacity: 0.55, roughness: 0.2 })
-      );
-      refs.amitosisLeft = leftLobe;
-      bodyGroup.add(leftLobe);
-
-      // Right lobe
-      const rightLobe = new THREE.Mesh(
-        new THREE.SphereGeometry(1.4, 32, 32),
-        new THREE.MeshPhysicalMaterial({ color: 0x047857, transparent: true, opacity: 0.55, roughness: 0.2 })
-      );
-      refs.amitosisRight = rightLobe;
-      bodyGroup.add(rightLobe);
-
-      // Connecting bridge (constriction) that shrinks over time
-      const bridge = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.8, 0.8, 1.0, 20),
-        new THREE.MeshPhysicalMaterial({ color: 0x065f46, transparent: true, opacity: 0.45, roughness: 0.2 })
-      );
-      bridge.rotation.z = Math.PI / 2;
-      refs.amitosisNucleus = bridge; // reuse ref name for backwards compat
-      refs.amitosisBridge = bridge;
-      bodyGroup.add(bridge);
-
-      // Cleavage furrow ring (glowing amber)
-      const furrow = new THREE.Mesh(
-        new THREE.TorusGeometry(0.85, 0.12, 16, 48),
-        new THREE.MeshStandardMaterial({ color: 0xf59e0b, emissive: 0xd97706, emissiveIntensity: 1.0 })
-      );
-      furrow.rotation.y = Math.PI / 2;
-      refs.amitosisFurrow = furrow;
-      group.add(furrow);
-      addAnchor(furrow, 'সংকুচিত খাঁজ — কোষটি দুই ভাগে বিভক্ত হচ্ছে', 'Cleavage Furrow — Cell Splitting in Half', 'Furrow', '#f59e0b');
-
-      // Dividing nucleus (dumbbell)
-      const nucL = new THREE.Mesh(new THREE.SphereGeometry(0.6, 16, 16), new THREE.MeshStandardMaterial({ color: 0x34d399, emissive: 0x065f46, emissiveIntensity: 0.6 }));
-      refs.amitosisNucL = nucL;
-      bodyGroup.add(nucL);
-
-      const nucR = new THREE.Mesh(new THREE.SphereGeometry(0.6, 16, 16), new THREE.MeshStandardMaterial({ color: 0x34d399, emissive: 0x065f46, emissiveIntensity: 0.6 }));
-      refs.amitosisNucR = nucR;
-      bodyGroup.add(nucR);
-
-      addAnchor(nucL, 'অপত্য নিউক্লিয়াস ১ (প্রত্যক্ষ বিভাজন)', 'Daughter Nucleus 1 (Amitosis)', 'Nuc 1', '#34d399');
-      addAnchor(nucR, 'অপত্য নিউক্লিয়াস ২', 'Daughter Nucleus 2', 'Nuc 2', '#34d399');
-
-      // Bacterial circular DNA plasmid
-      const plasmid = new THREE.Mesh(
-        new THREE.TorusGeometry(0.38, 0.05, 8, 28),
-        new THREE.MeshBasicMaterial({ color: 0x38bdf8 })
-      );
-      refs.amitosisplasmid = plasmid;
-      group.add(plasmid);
-      addAnchor(plasmid, 'আদিকোষী বৃত্তাকার ডিএনএ (Plasmid)', 'Prokaryotic Circular DNA', 'DNA', '#38bdf8');
-      return;
-    }
-
-    // =========================================================================
-    // SLIDE 3: মাইটোসিস — ডিএনএ দ্বিগুণ হচ্ছে (DNA Double Helix Live Replication)
-    // The double helix rotates, "unzips", and duplicates in real time
-    // =========================================================================
-    if (slideId === 3) {
-      const helixGroup = new THREE.Group();
-      group.add(helixGroup);
-      refs.dnaHelix = helixGroup;
-
-      const strandCount = 24;
-      refs.dnaNodes1 = [];
-      refs.dnaNodes2 = [];
-      refs.dnaRungs = [];
-      for (let i = 0; i < strandCount; i++) {
-        const y = (i - strandCount / 2) * 0.24;
-        const angle = i * 0.42;
-        const r = 1.0;
-        const x1 = Math.cos(angle) * r;
-        const z1 = Math.sin(angle) * r;
-        const x2 = -x1;
-        const z2 = -z1;
-
-        const rung = new THREE.Mesh(
-          new THREE.CylinderGeometry(0.035, 0.035, 2.0, 6),
-          new THREE.MeshStandardMaterial({ color: i % 2 === 0 ? 0x38bdf8 : 0xf43f5e, metalness: 0.3, emissiveIntensity: 0.3, emissive: i % 2 === 0 ? 0x0284c7 : 0xbe185d })
-        );
-        rung.position.set(0, y, 0);
-        rung.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), new THREE.Vector3(x1, 0, z1).normalize());
-        helixGroup.add(rung);
-        refs.dnaRungs.push({ mesh: rung, baseAngle: angle, baseY: y, idx: i });
-
-        const n1 = new THREE.Mesh(new THREE.SphereGeometry(0.13, 10, 10), new THREE.MeshStandardMaterial({ color: 0x10b981, emissive: 0x047857, emissiveIntensity: 0.4 }));
-        n1.position.set(x1, y, z1);
-        helixGroup.add(n1);
-        refs.dnaNodes1.push({ mesh: n1, baseAngle: angle, baseY: y });
-
-        const n2 = new THREE.Mesh(new THREE.SphereGeometry(0.13, 10, 10), new THREE.MeshStandardMaterial({ color: 0x10b981, emissive: 0x047857, emissiveIntensity: 0.4 }));
-        n2.position.set(x2, y, z2);
-        helixGroup.add(n2);
-        refs.dnaNodes2.push({ mesh: n2, baseAngle: angle, baseY: y });
+    if (meta.labels && meta.labels.length > 0) {
+      const a1 = new THREE.Object3D(); a1.position.set(0, 1.8, 1.3); group.add(a1);
+      addAnchor(a1, meta.labels[0]?.bn || 'DNA সূত্রক', meta.labels[0]?.en || 'DNA Strand', 'DNA', '#0ea5e9');
+      if (meta.labels[1]) {
+        const a2 = new THREE.Object3D(); a2.position.set(0, 0, 0); group.add(a2);
+        addAnchor(a2, meta.labels[1].bn, meta.labels[1].en, meta.labels[1].sym, meta.labels[1].color);
       }
-      addAnchor(helixGroup, 'ইন্টারফেজ S-পর্যায়: ডিএনএ দ্বিগুণ হচ্ছে', 'S-Phase: DNA Double Helix Replicating', 'DNA Replication', '#38bdf8');
-
-      // Two daughter cell emblems that grow larger over time
-      const dCell1 = new THREE.Mesh(new THREE.SphereGeometry(0.6, 20, 20), new THREE.MeshStandardMaterial({ color: 0x10b981, emissive: 0x047857, emissiveIntensity: 0.5 }));
-      dCell1.position.set(-2.8, -1.6, 0);
-      group.add(dCell1);
-      refs.dnaCell1 = dCell1;
-      addAnchor(dCell1, 'অপত্য কোষ ১ (সমগুণ 2n)', 'Daughter Cell 1 (2n)', 'Cell 1 (2n)', '#10b981');
-
-      const dCell2 = new THREE.Mesh(new THREE.SphereGeometry(0.6, 20, 20), new THREE.MeshStandardMaterial({ color: 0x10b981, emissive: 0x047857, emissiveIntensity: 0.5 }));
-      dCell2.position.set(2.8, -1.6, 0);
-      group.add(dCell2);
-      refs.dnaCell2 = dCell2;
-      addAnchor(dCell2, 'অপত্য কোষ ২ (সমগুণ 2n)', 'Daughter Cell 2 (2n)', 'Cell 2 (2n)', '#10b981');
-      return;
     }
-
-    // =========================================================================
-    // SLIDE 4: প্রোফেজ — ক্রোমোজোমগুলো ঘনীভূত হচ্ছে, নিউক্লিওলাস বিলীন হচ্ছে
-    // Chromosomes condense (get thicker + shorter) live; nuclear envelope fades
-    // =========================================================================
-    if (slideId === 4) {
-      // Cell boundary
-      const cellShell = new THREE.Mesh(
-        new THREE.SphereGeometry(3.0, 40, 40),
-        new THREE.MeshPhysicalMaterial({ color: 0x0f4c37, transparent: true, opacity: 0.18, roughness: 0.1 })
-      );
-      group.add(cellShell);
-
-      // Nuclear envelope (will fade out in animation)
-      const nucEnv = new THREE.Mesh(
-        new THREE.SphereGeometry(2.0, 32, 32),
-        new THREE.MeshPhysicalMaterial({ color: 0x059669, transparent: true, opacity: 0.35, roughness: 0.1 })
-      );
-      group.add(nucEnv);
-      refs.propNucEnv = nucEnv;
-
-      // Fading Nucleolus
-      const nucleolus = new THREE.Mesh(
-        new THREE.SphereGeometry(0.55, 16, 16),
-        new THREE.MeshStandardMaterial({ color: 0x064e3b, transparent: true, opacity: 0.8, emissive: 0x047857, emissiveIntensity: 0.5 })
-      );
-      nucleolus.position.set(0.5, 0.5, 0);
-      group.add(nucleolus);
-      refs.propNucleolus = nucleolus;
-      addAnchor(nucleolus, 'বিলুপ্তপ্রায় নিউক্লিওলাস', 'Disappearing Nucleolus', 'Nucleolus', '#6ee7b7');
-
-      // Condensing Chromosomes — they get thicker (scale up radius) and shorter
-      const chromoGroup = new THREE.Group();
-      group.add(chromoGroup);
-      refs.prophaseChromos = chromoGroup;
-      refs.propChromoMeshes = [];
-
-      const chromoData = [
-        { x: -0.7, y: 0.6, rot: 0.3, color: 0xec4899 },
-        { x: 0.7, y: -0.6, rot: -0.4, color: 0x38bdf8 },
-        { x: -0.6, y: -0.6, rot: 0.8, color: 0xf59e0b },
-        { x: 0.6, y: 0.7, rot: -0.7, color: 0xa855f7 },
-      ];
-
-      chromoData.forEach((cd, idx) => {
-        const cGroup = new THREE.Group();
-        cGroup.position.set(cd.x, cd.y, 0);
-        cGroup.rotation.z = cd.rot;
-        chromoGroup.add(cGroup);
-
-        // Two chromatid arms (X-shape)
-        const arm1 = new THREE.Mesh(
-          new THREE.CylinderGeometry(0.10, 0.10, 1.2, 12),
-          new THREE.MeshStandardMaterial({ color: cd.color, roughness: 0.3, emissive: cd.color, emissiveIntensity: 0.45 })
-        );
-        arm1.rotation.z = Math.PI / 4;
-        cGroup.add(arm1);
-
-        const arm2 = new THREE.Mesh(
-          new THREE.CylinderGeometry(0.10, 0.10, 1.2, 12),
-          new THREE.MeshStandardMaterial({ color: cd.color, roughness: 0.3, emissive: cd.color, emissiveIntensity: 0.45 })
-        );
-        arm2.rotation.z = -Math.PI / 4;
-        cGroup.add(arm2);
-
-        const centromere = new THREE.Mesh(new THREE.SphereGeometry(0.16, 12, 12), new THREE.MeshBasicMaterial({ color: 0xfacc15 }));
-        cGroup.add(centromere);
-
-        refs.propChromoMeshes.push({ group: cGroup, arm1, arm2, baseColor: cd.color });
-        if (idx === 0) {
-          addAnchor(cGroup, 'ক্রোমোজোম ঘনীভূত হচ্ছে (খাটো ও মোটা)', 'Chromosome Condensing (Short & Thick)', 'Chromatin→Chr', '#ec4899');
-        }
-      });
-      return;
-    }
-
-    // =========================================================================
-    // SLIDE 5: প্রো-মেটাফেজ — স্পিন্ডল তন্তু ক্রোমোজোম টেনে মাঝে নিয়ে আসছে
-    // Spindle fibers grow from poles and pull chromosomes toward center
-    // =========================================================================
-    if (slideId === 5) {
-      // Cell boundary
-      const cShell = new THREE.Mesh(
-        new THREE.SphereGeometry(3.2, 40, 40),
-        new THREE.MeshPhysicalMaterial({ color: 0x0c2340, transparent: true, opacity: 0.15 })
-      );
-      group.add(cShell);
-
-      // Poles (centrosomes with aster rays)
-      const poleMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, emissive: 0xd97706, emissiveIntensity: 1.0 });
-      const poleL = new THREE.Mesh(new THREE.SphereGeometry(0.32, 16, 16), poleMat);
-      poleL.position.set(-3.0, 0, 0);
-      group.add(poleL);
-      addAnchor(poleL, 'উত্তর মেরু — সেন্ট্রিওল ও অ্যাস্টার রশ্মি', 'North Pole — Centrosome & Aster', 'Pole N', '#f59e0b');
-
-      const poleR = new THREE.Mesh(new THREE.SphereGeometry(0.32, 16, 16), poleMat.clone());
-      poleR.position.set(3.0, 0, 0);
-      group.add(poleR);
-      addAnchor(poleR, 'দক্ষিণ মেরু — সেন্ট্রিওল', 'South Pole — Centrosome', 'Pole S', '#f59e0b');
-
-      // Aster rays (short lines from each pole)
-      [-3.0, 3.0].forEach((px) => {
-        for (let a = 0; a < 8; a++) {
-          const angle = (a / 8) * Math.PI * 2;
-          const rayDir = new THREE.Vector3(0, Math.cos(angle) * 0.8, Math.sin(angle) * 0.8);
-          const rayEnd = rayDir.clone().multiplyScalar(1.1);
-          const rayCurve = new THREE.LineCurve3(new THREE.Vector3(px, 0, 0), new THREE.Vector3(px, rayEnd.y, rayEnd.z));
-          const ray = new THREE.Mesh(
-            new THREE.TubeGeometry(rayCurve, 4, 0.025, 4, false),
-            new THREE.MeshBasicMaterial({ color: 0xf59e0b, transparent: true, opacity: 0.6 })
-          );
-          group.add(ray);
-        }
-      });
-
-      // Spindle fibers from pole to pole (animated lengths)
-      refs.spindleFibers = [];
-      for (let offset = -1.4; offset <= 1.4; offset += 0.46) {
-        const curve = new THREE.CatmullRomCurve3([
-          new THREE.Vector3(-3.0, 0, 0),
-          new THREE.Vector3(0, offset, offset * 0.35),
-          new THREE.Vector3(3.0, 0, 0)
-        ]);
-        const tube = new THREE.Mesh(
-          new THREE.TubeGeometry(curve, 24, 0.028, 5, false),
-          new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.55 })
-        );
-        group.add(tube);
-        refs.spindleFibers.push(tube);
-      }
-
-      // Chromosomes dancing toward equator — attached to traction fibers
-      const spindleChrGroup = new THREE.Group();
-      group.add(spindleChrGroup);
-      refs.spindleChromosomes = spindleChrGroup;
-      refs.prometaChromos = [];
-
-      const prometaData = [
-        { yOff: 0.9, xOff: -1.0, color: 0xec4899 },
-        { yOff: -0.9, xOff: 0.9, color: 0x38bdf8 },
-        { yOff: 0.4, xOff: 0.5, color: 0xf59e0b },
-        { yOff: -0.4, xOff: -0.5, color: 0xa855f7 },
-      ];
-      prometaData.forEach((pd, idx) => {
-        const cg = new THREE.Group();
-        cg.position.set(pd.xOff, pd.yOff, 0);
-        spindleChrGroup.add(cg);
-
-        const a1 = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 1.0, 10), new THREE.MeshStandardMaterial({ color: pd.color, emissive: pd.color, emissiveIntensity: 0.5 }));
-        a1.rotation.z = Math.PI / 4;
-        cg.add(a1);
-        const a2 = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 1.0, 10), new THREE.MeshStandardMaterial({ color: pd.color, emissive: pd.color, emissiveIntensity: 0.5 }));
-        a2.rotation.z = -Math.PI / 4;
-        cg.add(a2);
-        const cent = new THREE.Mesh(new THREE.SphereGeometry(0.18, 12, 12), new THREE.MeshBasicMaterial({ color: 0xfacc15 }));
-        cg.add(cent);
-
-        refs.prometaChromos.push({ group: cg, targetX: 0, startX: pd.xOff, startY: pd.yOff });
-        if (idx === 0) {
-          addAnchor(cg, 'ক্রোমোজোম স্পিন্ডল তন্তুর সাথে যুক্ত হয়ে মাঝে আসছে', 'Chromosome Moving Toward Equator (Spindle Traction)', 'Kinetochore', '#ec4899');
-        }
-      });
-      return;
-    }
-
-    // =========================================================================
-    // SLIDE 6: মেটাফেজ — সব ক্রোমোজোম বিষুবীয় তলে সারিবদ্ধ, ঘুরছে
-    // =========================================================================
-    if (slideId === 6) {
-      // Cell membrane
-      const cShell = new THREE.Mesh(
-        new THREE.SphereGeometry(3.2, 40, 40),
-        new THREE.MeshPhysicalMaterial({ color: 0x0c2340, transparent: true, opacity: 0.15 })
-      );
-      group.add(cShell);
-
-      // Poles
-      [-3.0, 3.0].forEach((px) => {
-        const p = new THREE.Mesh(new THREE.SphereGeometry(0.22, 14, 14), new THREE.MeshBasicMaterial({ color: 0x64748b }));
-        p.position.x = px;
-        group.add(p);
-      });
-
-      // Spindle fibers
-      for (let offset = -1.4; offset <= 1.4; offset += 0.46) {
-        const curve = new THREE.CatmullRomCurve3([
-          new THREE.Vector3(-3.0, 0, 0),
-          new THREE.Vector3(0, offset, 0),
-          new THREE.Vector3(3.0, 0, 0)
-        ]);
-        const tube = new THREE.Mesh(
-          new THREE.TubeGeometry(curve, 24, 0.025, 5, false),
-          new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.45 })
-        );
-        group.add(tube);
-      }
-
-      // Equatorial disk
-      const eqDisk = new THREE.Mesh(
-        new THREE.CylinderGeometry(2.2, 2.2, 0.05, 40),
-        new THREE.MeshBasicMaterial({ color: 0xfacc15, transparent: true, opacity: 0.18 })
-      );
-      eqDisk.rotation.z = Math.PI / 2;
-      group.add(eqDisk);
-      addAnchor(eqDisk, 'বিষুবীয় তল (Metaphase Plate) — সর্বাধিক সংকুচিত', 'Metaphase Plate — Maximum Condensation', 'Equator', '#facc15');
-
-      // 4 aligned chromosomes rotating around the equatorial axis
-      const metaGroup = new THREE.Group();
-      group.add(metaGroup);
-      refs.metaPhaseGroup = metaGroup;
-
-      const chromoColors = [0xec4899, 0x38bdf8, 0xf59e0b, 0xa855f7];
-      const chromoYPos = [-1.5, -0.5, 0.5, 1.5];
-      refs.metaChromos = [];
-      chromoYPos.forEach((y, i) => {
-        const cg = new THREE.Group();
-        cg.position.set(0, y, 0);
-        metaGroup.add(cg);
-
-        const color = chromoColors[i];
-        const cL = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 1.1, 12), new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 0.5 }));
-        cL.position.x = -0.5;
-        cL.rotation.z = Math.PI / 2;
-        cg.add(cL);
-
-        const cR = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 1.1, 12), new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 0.5 }));
-        cR.position.x = 0.5;
-        cR.rotation.z = Math.PI / 2;
-        cg.add(cR);
-
-        const cent = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 16), new THREE.MeshBasicMaterial({ color: 0xfacc15 }));
-        cg.add(cent);
-
-        refs.metaChromos.push(cg);
-        if (i === 1) {
-          addAnchor(cg, 'মেটাকাইনেসিস — সর্বাধিক খাটো ও মোটা ক্রোমোজোম', 'Metakinesis — Max Condensed Chromosomes', 'Meta-chr', '#38bdf8');
-        }
-      });
-      return;
-    }
-
-    // =========================================================================
-    // SLIDE 7: অ্যানাফেজ — ক্রোমোজোমগুলো বিপরীত মেরুতে সরে যাচ্ছে (LIVE MIGRATION)
-    // Chromosomes animate apart toward opposite poles; V, L, J, I shapes visible
-    // =========================================================================
-    if (slideId === 7) {
-      // Cell shell
-      const cShell = new THREE.Mesh(
-        new THREE.SphereGeometry(3.4, 40, 40),
-        new THREE.MeshPhysicalMaterial({ color: 0x0c1830, transparent: true, opacity: 0.15 })
-      );
-      group.add(cShell);
-
-      // Poles
-      [-3.2, 3.2].forEach((px, pi) => {
-        const pm = new THREE.Mesh(new THREE.SphereGeometry(0.25, 14, 14), new THREE.MeshBasicMaterial({ color: 0xf59e0b }));
-        pm.position.x = px;
-        group.add(pm);
-        // aster rays from each pole
-        for (let a = 0; a < 6; a++) {
-          const angle = (a / 6) * Math.PI * 2;
-          const ray = new THREE.Mesh(
-            new THREE.TubeGeometry(new THREE.LineCurve3(new THREE.Vector3(px, 0, 0), new THREE.Vector3(px, Math.cos(angle) * 0.8, Math.sin(angle) * 0.8)), 4, 0.02, 4, false),
-            new THREE.MeshBasicMaterial({ color: 0xf59e0b, transparent: true, opacity: 0.5 })
-          );
-          group.add(ray);
-        }
-      });
-
-      // Thinning spindle fibers
-      for (let offset = -1.0; offset <= 1.0; offset += 0.5) {
-        const curve = new THREE.CatmullRomCurve3([new THREE.Vector3(-3.2, 0, 0), new THREE.Vector3(0, offset, 0), new THREE.Vector3(3.2, 0, 0)]);
-        const tube = new THREE.Mesh(
-          new THREE.TubeGeometry(curve, 24, 0.02, 5, false),
-          new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.35 })
-        );
-        group.add(tube);
-      }
-
-      // Left migrating chromosomes (V and L shapes)
-      const leftGroup = new THREE.Group();
-      leftGroup.position.set(-1.5, 0, 0);
-      group.add(leftGroup);
-      refs.anaphaseLeft = leftGroup;
-
-      // V-shape: Metacentric
-      const vChr = new THREE.Group();
-      vChr.position.set(0, 1.1, 0);
-      leftGroup.add(vChr);
-      [[1, 0.35, 0.35, -Math.PI / 4], [1, -0.35, 0.35, Math.PI / 4]].forEach(([len, px, py, rot]) => {
-        const a = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.13, len as number, 8), new THREE.MeshStandardMaterial({ color: 0xec4899, emissive: 0xbe185d, emissiveIntensity: 0.6 }));
-        a.rotation.z = rot as number;
-        a.position.set(px as number, py as number, 0);
-        vChr.add(a);
-      });
-      vChr.add(new THREE.Mesh(new THREE.SphereGeometry(0.18, 10, 10), new THREE.MeshBasicMaterial({ color: 0xfacc15 })));
-      addAnchor(vChr, 'মেটাসেন্ট্রিক (V-আকার) — উত্তর মেরুমুখী', 'Metacentric (V) → North Pole', 'V-Chr', '#ec4899');
-
-      // L-shape: Sub-metacentric
-      const lChr = new THREE.Group();
-      lChr.position.set(0, -1.1, 0);
-      leftGroup.add(lChr);
-      const lAL = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.13, 1.1, 8), new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x0284c7, emissiveIntensity: 0.6 }));
-      lAL.rotation.z = -Math.PI / 6; lAL.position.set(0.4, 0.4, 0);
-      lChr.add(lAL);
-      const lAS = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.13, 0.5, 8), new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x0284c7, emissiveIntensity: 0.6 }));
-      lAS.rotation.z = Math.PI / 3; lAS.position.set(0.2, -0.2, 0);
-      lChr.add(lAS);
-      lChr.add(new THREE.Mesh(new THREE.SphereGeometry(0.18, 10, 10), new THREE.MeshBasicMaterial({ color: 0xfacc15 })));
-      addAnchor(lChr, 'সাব-মেটাসেন্ট্রিক (L-আকার)', 'Sub-Metacentric (L)', 'L-Chr', '#38bdf8');
-
-      // Right migrating chromosomes (J and I shapes)
-      const rightGroup = new THREE.Group();
-      rightGroup.position.set(1.5, 0, 0);
-      group.add(rightGroup);
-      refs.anaphaseRight = rightGroup;
-
-      // J-shape: Acrocentric
-      const jChr = new THREE.Group();
-      jChr.position.set(0, 1.1, 0);
-      rightGroup.add(jChr);
-      const jAL = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.13, 1.2, 8), new THREE.MeshStandardMaterial({ color: 0xf59e0b, emissive: 0xd97706, emissiveIntensity: 0.6 }));
-      jAL.rotation.z = Math.PI / 6; jAL.position.set(-0.4, 0.4, 0);
-      jChr.add(jAL);
-      const jAS = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.13, 0.28, 8), new THREE.MeshStandardMaterial({ color: 0xf59e0b, emissive: 0xd97706, emissiveIntensity: 0.6 }));
-      jAS.rotation.z = -Math.PI / 3; jAS.position.set(-0.1, -0.15, 0);
-      jChr.add(jAS);
-      jChr.add(new THREE.Mesh(new THREE.SphereGeometry(0.18, 10, 10), new THREE.MeshBasicMaterial({ color: 0xfacc15 })));
-      addAnchor(jChr, 'অ্যাক্রোসেন্ট্রিক (J-আকার) — দক্ষিণ মেরুমুখী', 'Acrocentric (J) → South Pole', 'J-Chr', '#f59e0b');
-
-      // I-shape: Telocentric
-      const iChr = new THREE.Group();
-      iChr.position.set(0, -1.1, 0);
-      rightGroup.add(iChr);
-      const iRod = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.13, 1.2, 8), new THREE.MeshStandardMaterial({ color: 0x10b981, emissive: 0x059669, emissiveIntensity: 0.6 }));
-      iRod.rotation.z = Math.PI / 2; iRod.position.x = -0.5;
-      iChr.add(iRod);
-      iChr.add(new THREE.Mesh(new THREE.SphereGeometry(0.18, 10, 10), new THREE.MeshBasicMaterial({ color: 0xfacc15 })));
-      addAnchor(iChr, 'টেলোসেন্ট্রিক (I-আকার)', 'Telocentric (I)', 'I-Chr', '#10b981');
-      return;
-    }
-
-    // =========================================================================
-    // SLIDE 8: টেলোফেজ ও সাইটোকাইনেসিস — কোষ দুভাগে বিভক্ত হচ্ছে (LIVE SPLIT)
-    // Cell plate grows outward in plant cell; cleavage furrow deepens in animal
-    // =========================================================================
-    if (slideId === 8) {
-      // Outer cell shape — elongated like a dividing cell
-      const outerCell = new THREE.Mesh(
-        new THREE.SphereGeometry(2.8, 48, 48),
-        new THREE.MeshPhysicalMaterial({ color: 0x064e3b, transparent: true, opacity: 0.20, roughness: 0.1 })
-      );
-      outerCell.scale.x = 1.5;
-      group.add(outerCell);
-      refs.teloCellOuter = outerCell;
-
-      // Cell plate (Phragmoplast) that grows outward from center
-      const plate = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.1, 0.1, 0.12, 32), // starts small, grows
-        new THREE.MeshStandardMaterial({ color: 0xfacc15, emissive: 0xca8a04, emissiveIntensity: 0.8 })
-      );
-      plate.rotation.z = Math.PI / 2;
-      group.add(plate);
-      refs.cellPlate = plate;
-      addAnchor(plate, 'কোষপ্লেট বৃদ্ধি পাচ্ছে (ফ্র্যাগমোপ্লাস্ট)', 'Cell Plate Growing (Phragmoplast)', 'Cell Plate', '#facc15');
-
-      // Golgi vesicles moving toward plate center
-      refs.vesicles = [];
-      for (let i = 0; i < 12; i++) {
-        const angle = (i / 12) * Math.PI * 2;
-        const r = 1.2 + Math.random() * 0.6;
-        const ves = new THREE.Mesh(
-          new THREE.SphereGeometry(0.1, 8, 8),
-          new THREE.MeshStandardMaterial({ color: 0xfbbf24, emissive: 0xf59e0b, emissiveIntensity: 0.8 })
-        );
-        ves.position.set(Math.cos(angle) * r, Math.sin(angle) * 0.5, Math.sin(angle) * r * 0.4);
-        group.add(ves);
-        refs.vesicles.push({ mesh: ves, angle, startR: r });
-      }
-
-      // Left daughter nucleus — forming
-      const nucLeft = new THREE.Mesh(
-        new THREE.SphereGeometry(1.1, 24, 24),
-        new THREE.MeshPhysicalMaterial({ color: 0x10b981, transparent: true, opacity: 0.50, roughness: 0.2 })
-      );
-      nucLeft.position.set(-2.0, 0, 0);
-      group.add(nucLeft);
-      refs.teloNucLeft = nucLeft;
-      addAnchor(nucLeft, 'অপত্য নিউক্লিয়াস ১ — পুনর্গঠিত', 'Daughter Nucleus 1 — Reforming', 'D-Nucleus 1', '#10b981');
-
-      // Right daughter nucleus
-      const nucRight = new THREE.Mesh(
-        new THREE.SphereGeometry(1.1, 24, 24),
-        new THREE.MeshPhysicalMaterial({ color: 0x10b981, transparent: true, opacity: 0.50, roughness: 0.2 })
-      );
-      nucRight.position.set(2.0, 0, 0);
-      group.add(nucRight);
-      refs.teloNucRight = nucRight;
-      addAnchor(nucRight, 'অপত্য নিউক্লিয়াস ২ — পুনর্গঠিত', 'Daughter Nucleus 2 — Reforming', 'D-Nucleus 2', '#10b981');
-      return;
-    }
-
-    // =========================================================================
-    // SLIDE 9: মাইটোসিসের গুরুত্ব — টিস্যু কোষ বৃদ্ধির জীবন্ত দৃশ্য
-    // Hexagonal tissue cells pulse and new cells appear, simulating growth
-    // =========================================================================
-    if (slideId === 9) {
-      const tissueGroup = new THREE.Group();
-      group.add(tissueGroup);
-      refs.tissueGroup = tissueGroup;
-      refs.tissueCells = [];
-
-      for (let x = -2; x <= 2; x++) {
-        for (let y = -1.4; y <= 1.4; y += 0.88) {
-          const offsetX = Math.abs(Math.round(y * 10)) % 2 === 0 ? 0.5 : 0;
-          const cellMesh = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.44, 0.44, 0.25, 6),
-            new THREE.MeshStandardMaterial({ color: 0x10b981, metalness: 0.3, roughness: 0.4, emissive: 0x059669, emissiveIntensity: 0.35 })
-          );
-          cellMesh.rotation.x = Math.PI / 2;
-          cellMesh.position.set(x * 1.06 + offsetX, y, 0);
-          tissueGroup.add(cellMesh);
-          refs.tissueCells.push({ mesh: cellMesh, phase: Math.random() * Math.PI * 2 });
-        }
-      }
-      addAnchor(tissueGroup, 'টিস্যু কোষপুঞ্জ — বৃদ্ধি ও ক্ষতপূরণে মাইটোসিস', 'Tissue Cells Growing via Mitosis', 'Tissue Growth', '#10b981');
-      return;
-    }
-
-    // =========================================================================
-    // SLIDE 10: ক্যান্সার — অনিয়ন্ত্রিত কোষ বিভাজন (LIVE CHAOTIC PROLIFERATION)
-    // Tumor cells multiply chaotically; metastatic cell drifts away
-    // =========================================================================
-    if (slideId === 10) {
-      const tumorGroup = new THREE.Group();
-      group.add(tumorGroup);
-      refs.tumorCluster = tumorGroup;
-      refs.tumorSpheres = [];
-
-      const sphereColors = [0xef4444, 0xdc2626, 0xb91c1c, 0xf43f5e, 0x991b1b];
-      for (let i = 0; i < 30; i++) {
-        const rad = 0.28 + Math.random() * 0.22;
-        const sphere = new THREE.Mesh(
-          new THREE.SphereGeometry(rad, 16, 16),
-          new THREE.MeshStandardMaterial({ color: sphereColors[i % sphereColors.length], roughness: 0.4, emissive: 0x7f1d1d, emissiveIntensity: 0.7 })
-        );
-        const theta = Math.random() * Math.PI * 2;
-        const phi = Math.acos(2 * Math.random() - 1);
-        const dist = Math.random() * 1.7;
-        sphere.position.set(dist * Math.sin(phi) * Math.cos(theta), dist * Math.sin(phi) * Math.sin(theta), dist * Math.cos(phi));
-        tumorGroup.add(sphere);
-        refs.tumorSpheres.push({ mesh: sphere, baseScale: rad / 0.35, phase: Math.random() * Math.PI * 2 });
-      }
-      addAnchor(tumorGroup, 'ম্যালিগন্যান্ট টিউমার: অনিয়ন্ত্রিত মাইটোসিস', 'Malignant Tumor: Uncontrolled Mitosis', 'Cancer Mass', '#ef4444');
-
-      // Metastatic cancer cell drifting away in orbit
-      const metaCell = new THREE.Mesh(
-        new THREE.SphereGeometry(0.32, 16, 16),
-        new THREE.MeshStandardMaterial({ color: 0xf59e0b, emissive: 0xd97706, emissiveIntensity: 0.9 })
-      );
-      group.add(metaCell);
-      refs.metaCell = metaCell;
-      refs.metaCellAngle = 0;
-      addAnchor(metaCell, 'মেটাস্ট্যাসিস — রক্তে ছড়িয়ে পড়া ক্যান্সার কোষ', 'Metastatic Cell Drifting Away', 'Metastasis', '#f59e0b');
-      return;
-    }
-
-    // =========================================================================
-    // SLIDE 11: সাইন্যাপসিস, কায়াজমা ও ক্রসিং ওভার — জিনের বিনিময় দৃশ্য
-    // Bivalent chromosomes breathe, chiasma glows, crossing over segments swap colors
-    // =========================================================================
-    if (slideId === 11) {
-      const crossGroup = new THREE.Group();
-      group.add(crossGroup);
-      refs.bivalentGroup = crossGroup;
-
-      // Maternal homolog (Red)
-      const matGroup = new THREE.Group();
-      matGroup.position.x = -0.6;
-      crossGroup.add(matGroup);
-
-      const matC1 = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.13, 3.0, 12), new THREE.MeshStandardMaterial({ color: 0xef4444, emissive: 0xb91c1c, emissiveIntensity: 0.5 }));
-      matC1.position.x = -0.28;
-      matGroup.add(matC1);
-
-      // Crossed chromatid — top half red, bottom half blue (recombinant)
-      const matC2top = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.13, 1.5, 12), new THREE.MeshStandardMaterial({ color: 0xef4444, emissive: 0xb91c1c, emissiveIntensity: 0.5 }));
-      matC2top.position.set(0.25, 0.75, 0);
-      matGroup.add(matC2top);
-
-      const matC2bot = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.13, 1.4, 12), new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x0284c7, emissiveIntensity: 0.8 }));
-      matC2bot.position.set(0.5, -0.9, 0);
-      matC2bot.rotation.z = -Math.PI / 10;
-      matGroup.add(matC2bot);
-      addAnchor(matGroup, 'মাতৃ হোমোলোগ — ক্রসিং ওভারের পর', 'Maternal Homolog (Post Crossing Over)', 'Maternal', '#ef4444');
-
-      // Paternal homolog (Blue)
-      const patGroup = new THREE.Group();
-      patGroup.position.x = 0.6;
-      crossGroup.add(patGroup);
-
-      const patC2 = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.13, 3.0, 12), new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x0284c7, emissiveIntensity: 0.5 }));
-      patC2.position.x = 0.28;
-      patGroup.add(patC2);
-
-      const patC1top = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.13, 1.5, 12), new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x0284c7, emissiveIntensity: 0.5 }));
-      patC1top.position.set(-0.25, 0.75, 0);
-      patGroup.add(patC1top);
-
-      const patC1bot = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.13, 1.4, 12), new THREE.MeshStandardMaterial({ color: 0xef4444, emissive: 0xb91c1c, emissiveIntensity: 0.8 }));
-      patC1bot.position.set(-0.5, -0.9, 0);
-      patC1bot.rotation.z = Math.PI / 10;
-      patGroup.add(patC1bot);
-      addAnchor(patGroup, 'পিতৃ হোমোলোগ — ক্রসিং ওভারের পর', 'Paternal Homolog (Post Crossing Over)', 'Paternal', '#38bdf8');
-
-      // Glowing chiasma ring
-      const chiasma = new THREE.Mesh(
-        new THREE.TorusGeometry(0.32, 0.07, 14, 32),
-        new THREE.MeshStandardMaterial({ color: 0xfacc15, emissive: 0xfbbf24, emissiveIntensity: 1.2 })
-      );
-      chiasma.position.set(0, -0.18, 0);
-      crossGroup.add(chiasma);
-      refs.chiasmaRing = chiasma;
-      addAnchor(chiasma, 'কায়াজমা (X) — জিনীয় বৈচিত্র্যের উৎস', 'Chiasma (X) — Genetic Variation Source', 'Chiasma X', '#facc15');
-
-      // 4 recombinant gametes appearing below
-      const gameteGroup = new THREE.Group();
-      gameteGroup.position.set(0, -2.8, 0);
-      group.add(gameteGroup);
-      refs.gameteGroup = gameteGroup;
-      const gColors = [0xef4444, 0x38bdf8, 0x9333ea, 0xf59e0b];
-      const gPosArr = [{ x: -1.5, y: 0 }, { x: -0.5, y: 0 }, { x: 0.5, y: 0 }, { x: 1.5, y: 0 }];
-      refs.gametes = [];
-      gPosArr.forEach((gp, gi) => {
-        const gm = new THREE.Mesh(
-          new THREE.SphereGeometry(0.38, 16, 16),
-          new THREE.MeshStandardMaterial({ color: gColors[gi], emissive: gColors[gi], emissiveIntensity: 0.5 })
-        );
-        gm.position.set(gp.x, gp.y, 0);
-        gameteGroup.add(gm);
-        refs.gametes.push({ mesh: gm, phase: gi * Math.PI * 0.5 });
-      });
-      addAnchor(gameteGroup, '৪টি পুনর্মিশ্র হ্যাপ্লয়েড গ্যামেট (n)', '4 Recombinant Haploid Gametes (n)', 'Gametes (n)', '#f59e0b');
-      return;
-    }
-
-    // =========================================================================
-    // SLIDE 12: মাইটোসিস vs মিয়োসিস তুলনামূলক দৃশ্য — দুটি পাশাপাশি সিকোয়েন্স
-    // Left: 1 mother → 2 identical daughters (Mitosis); Right: 1 mother → 4 gametes (Meiosis)
-    // =========================================================================
-    if (slideId === 12) {
-      // LEFT: Mitosis — 2 identical daughter cells (green, same size)
-      const mitGroup = new THREE.Group();
-      mitGroup.position.set(-2.2, 0, 0);
-      group.add(mitGroup);
-      refs.mitCompGroup = mitGroup;
-
-      const mMother = new THREE.Mesh(new THREE.SphereGeometry(0.9, 20, 20), new THREE.MeshStandardMaterial({ color: 0x10b981, emissive: 0x059669, emissiveIntensity: 0.5 }));
-      mMother.position.y = 2.0;
-      mitGroup.add(mMother);
-      refs.mMother = mMother;
-
-      const cM1 = new THREE.Mesh(new THREE.SphereGeometry(0.82, 20, 20), new THREE.MeshStandardMaterial({ color: 0x10b981, emissive: 0x059669, emissiveIntensity: 0.5 }));
-      cM1.position.set(-0.9, 0.6, 0);
-      mitGroup.add(cM1);
-      refs.cM1 = cM1;
-
-      const cM2 = new THREE.Mesh(new THREE.SphereGeometry(0.82, 20, 20), new THREE.MeshStandardMaterial({ color: 0x10b981, emissive: 0x059669, emissiveIntensity: 0.5 }));
-      cM2.position.set(0.9, 0.6, 0);
-      mitGroup.add(cM2);
-      refs.cM2 = cM2;
-      addAnchor(mitGroup, 'মাইটোসিস → ২টি সমগুণ দেহকোষ (2n)', 'Mitosis → 2 Identical Diploid (2n)', 'Mitosis (2n)', '#10b981');
-
-      // Dividing line
-      const divLine = new THREE.Mesh(new THREE.BoxGeometry(0.04, 6, 0.04), new THREE.MeshBasicMaterial({ color: 0x475569 }));
-      group.add(divLine);
-
-      // RIGHT: Meiosis — 4 diverse haploid gametes (different colors, smaller)
-      const meiGroup = new THREE.Group();
-      meiGroup.position.set(2.2, 0, 0);
-      group.add(meiGroup);
-      refs.meiCompGroup = meiGroup;
-
-      const meiMother = new THREE.Mesh(new THREE.SphereGeometry(0.9, 20, 20), new THREE.MeshStandardMaterial({ color: 0xec4899, emissive: 0xbe185d, emissiveIntensity: 0.5 }));
-      meiMother.position.y = 2.0;
-      meiGroup.add(meiMother);
-      refs.meiMother = meiMother;
-
-      const gameteColors12 = [0xef4444, 0x38bdf8, 0xa855f7, 0xf59e0b];
-      refs.meiGametes = [];
-      [{ x: -1.0, y: 0.6 }, { x: -0.3, y: 0.3 }, { x: 0.3, y: 0.3 }, { x: 1.0, y: 0.6 }].forEach((gp, gi) => {
-        const gm = new THREE.Mesh(new THREE.SphereGeometry(0.55, 16, 16), new THREE.MeshStandardMaterial({ color: gameteColors12[gi], emissive: gameteColors12[gi], emissiveIntensity: 0.45 }));
-        gm.position.set(gp.x, gp.y, 0);
-        meiGroup.add(gm);
-        refs.meiGametes.push({ mesh: gm, phase: gi * 1.57 });
-      });
-      addAnchor(meiGroup, 'মিয়োসিস → ৪টি বৈচিত্র্যময় গ্যামেট (n)', 'Meiosis → 4 Diverse Haploid Gametes (n)', 'Meiosis (n)', '#ec4899');
-      return;
-    }
+    return;
   }
+
+  // 2. Bacterium (Monera)
+  if (type === 'bacterium') {
+    const bacGroup = new THREE.Group();
+    group.add(bacGroup);
+    refs.bioMainMesh = bacGroup;
+
+    // Capsule Body
+    const capGeo = new THREE.CapsuleGeometry(1.2, 2.4, 16, 32);
+    const capMesh = new THREE.Mesh(capGeo, emeraldMat);
+    capMesh.rotation.z = Math.PI / 2;
+    bacGroup.add(capMesh);
+
+    // Inner Nucleoid ring
+    const nucRing = new THREE.Mesh(new THREE.TorusGeometry(0.6, 0.12, 16, 32), purpleMat);
+    nucRing.position.set(0, 0, 0);
+    bacGroup.add(nucRing);
+
+    // Flagellum tail
+    const curve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(-2.2, 0, 0),
+      new THREE.Vector3(-2.8, 0.4, 0.2),
+      new THREE.Vector3(-3.4, -0.4, -0.2),
+      new THREE.Vector3(-4.0, 0.3, 0.1),
+      new THREE.Vector3(-4.6, 0, 0)
+    ]);
+    const flagMesh = new THREE.Mesh(new THREE.TubeGeometry(curve, 32, 0.08, 8, false), amberMat);
+    bacGroup.add(flagMesh);
+    refs.flagMesh = flagMesh;
+
+    // Surface Pili
+    for (let i = 0; i < 14; i++) {
+      const ang = (i / 14) * Math.PI * 2;
+      const pil = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.6, 6), amberMat);
+      pil.position.set((Math.random() - 0.5) * 2.0, Math.cos(ang) * 1.3, Math.sin(ang) * 1.3);
+      pil.rotation.x = ang;
+      bacGroup.add(pil);
+    }
+
+    if (meta.labels && meta.labels.length > 0) {
+      const a1 = new THREE.Object3D(); a1.position.set(0, 1.4, 0); group.add(a1);
+      addAnchor(a1, meta.labels[0]?.bn || 'ক্যাপসুল ও প্রাচীর', meta.labels[0]?.en || 'Cell Wall', 'CW', '#10b981');
+      const a2 = new THREE.Object3D(); a2.position.set(-3.2, 0.5, 0); group.add(a2);
+      addAnchor(a2, 'ফ্ল্যাজেলাম (চলন অঙ্গ)', 'Flagellum', 'FLG', '#f59e0b');
+    }
+    return;
+  }
+
+  // 3. Human Heart
+  if (type === 'heart') {
+    const heartGroup = new THREE.Group();
+    group.add(heartGroup);
+    refs.bioMainMesh = heartGroup;
+
+    // Ventricles (Cone/Sphere hybrid)
+    const ventMesh = new THREE.Mesh(new THREE.ConeGeometry(1.6, 2.6, 32), redMat);
+    ventMesh.rotation.x = Math.PI;
+    ventMesh.position.y = -0.5;
+    heartGroup.add(ventMesh);
+
+    // Atria
+    const leftAtrium = new THREE.Mesh(new THREE.SphereGeometry(0.9, 24, 24), darkRedMat);
+    leftAtrium.position.set(-0.8, 0.8, 0.2);
+    heartGroup.add(leftAtrium);
+
+    const rightAtrium = new THREE.Mesh(new THREE.SphereGeometry(0.9, 24, 24), darkRedMat);
+    rightAtrium.position.set(0.8, 0.8, 0.2);
+    heartGroup.add(rightAtrium);
+
+    // Aortic Arch (Torus segment)
+    const aorta = new THREE.Mesh(new THREE.TorusGeometry(0.7, 0.28, 16, 32, Math.PI * 0.9), redMat);
+    aorta.position.set(0, 1.4, 0);
+    aorta.rotation.y = Math.PI / 4;
+    heartGroup.add(aorta);
+
+    // Vena Cava pipe (Blue)
+    const venaCava = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 2.8, 16), blueMat);
+    venaCava.position.set(1.4, 0.6, -0.3);
+    heartGroup.add(venaCava);
+
+    // Pulmonary Artery (Cyan pipe)
+    const pulArt = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 1.8, 16), cyanMat);
+    pulArt.position.set(-0.4, 1.2, 0.5);
+    pulArt.rotation.z = -Math.PI / 4;
+    heartGroup.add(pulArt);
+
+    if (meta.labels && meta.labels.length > 0) {
+      const a1 = new THREE.Object3D(); a1.position.set(0, -0.8, 1.2); group.add(a1);
+      addAnchor(a1, 'নিলয় (Ventricles)', 'Ventricles', 'VENT', '#ef4444');
+      const a2 = new THREE.Object3D(); a2.position.set(0, 2.1, 0); group.add(a2);
+      addAnchor(a2, 'মহাধমনী (Aorta)', 'Aortic Arch', 'AO', '#dc2626');
+      const a3 = new THREE.Object3D(); a3.position.set(1.4, 1.4, 0); group.add(a3);
+      addAnchor(a3, 'উর্ধ্ব মহাশিরা', 'Vena Cava', 'SVC', '#0284c7');
+    }
+    return;
+  }
+
+  // 4. Human Lungs & Respiratory Tract
+  if (type === 'lungs') {
+    const lungsGroup = new THREE.Group();
+    group.add(lungsGroup);
+    refs.bioMainMesh = lungsGroup;
+
+    // Trachea
+    const trachea = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 2.2, 24), boneMat);
+    trachea.position.set(0, 1.5, 0);
+    lungsGroup.add(trachea);
+
+    // Cartilage C-Rings
+    for (let r = 0; r < 6; r++) {
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(0.38, 0.06, 12, 24, Math.PI * 1.5), blueMat);
+      ring.position.set(0, 0.7 + r * 0.26, 0);
+      ring.rotation.x = Math.PI / 2;
+      lungsGroup.add(ring);
+    }
+
+    // Right Lung (3 lobes)
+    const rightLung = new THREE.Mesh(new THREE.CapsuleGeometry(1.2, 2.0, 16, 24), redMat);
+    rightLung.position.set(-1.4, -0.4, 0);
+    rightLung.rotation.z = 0.15;
+    lungsGroup.add(rightLung);
+
+    // Left Lung (2 lobes with cardiac notch)
+    const leftLung = new THREE.Mesh(new THREE.CapsuleGeometry(1.0, 1.9, 16, 24), redMat);
+    leftLung.position.set(1.4, -0.4, 0);
+    leftLung.rotation.z = -0.15;
+    lungsGroup.add(leftLung);
+
+    // Diaphragm dome
+    const diaMesh = new THREE.Mesh(new THREE.ConeGeometry(2.8, 0.8, 32, 1, true), amberMat);
+    diaMesh.position.set(0, -1.8, 0);
+    lungsGroup.add(diaMesh);
+
+    if (meta.labels && meta.labels.length > 0) {
+      const a1 = new THREE.Object3D(); a1.position.set(0, 2.1, 0); group.add(a1);
+      addAnchor(a1, 'শ্বাসনালী (Trachea)', 'Trachea', 'TR', '#38bdf8');
+      const a2 = new THREE.Object3D(); a2.position.set(-1.5, -0.2, 1.2); group.add(a2);
+      addAnchor(a2, 'ডান ফুসফুস (৩ লোব)', 'Right Lung', 'RL', '#f43f5e');
+      const a3 = new THREE.Object3D(); a3.position.set(0, -1.8, 1.5); group.add(a3);
+      addAnchor(a3, 'মধ্যচ্ছদা (Diaphragm)', 'Diaphragm', 'DIA', '#f59e0b');
+    }
+    return;
+  }
+
+  // 5. Kidney & Excretory
+  if (type === 'kidney') {
+    const kidGroup = new THREE.Group();
+    group.add(kidGroup);
+    refs.bioMainMesh = kidGroup;
+
+    // Kidney bean shape (Ellipsoid with curved indention)
+    const kidGeo = new THREE.SphereGeometry(1.6, 32, 32);
+    kidGeo.scale(1.2, 1.6, 0.8);
+    const kidMesh = new THREE.Mesh(kidGeo, darkRedMat);
+    kidGroup.add(kidMesh);
+
+    // Renal Artery (Red)
+    const rArt = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 1.8, 16), redMat);
+    rArt.position.set(1.2, 0.2, 0);
+    rArt.rotation.z = Math.PI / 2;
+    kidGroup.add(rArt);
+
+    // Renal Vein (Blue)
+    const rVein = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, 1.8, 16), blueMat);
+    rVein.position.set(1.2, -0.2, 0.3);
+    rVein.rotation.z = Math.PI / 2;
+    kidGroup.add(rVein);
+
+    // Ureter (Yellow)
+    const ureter = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 2.4, 16), yellowMat);
+    ureter.position.set(0.6, -1.6, 0);
+    ureter.rotation.z = -0.3;
+    kidGroup.add(ureter);
+
+    if (meta.labels && meta.labels.length > 0) {
+      const a1 = new THREE.Object3D(); a1.position.set(-0.8, 0.4, 1.0); group.add(a1);
+      addAnchor(a1, 'বৃক্ক কর্টেক্স (Cortex)', 'Renal Cortex', 'CTX', '#991b1b');
+      const a2 = new THREE.Object3D(); a2.position.set(1.6, 0.2, 0); group.add(a2);
+      addAnchor(a2, 'রেনাল ধমনী ও শিরা', 'Renal Vessels', 'VAS', '#0284c7');
+      const a3 = new THREE.Object3D(); a3.position.set(0.6, -1.8, 0.5); group.add(a3);
+      addAnchor(a3, 'ইউরেটার (মূত্রনালী)', 'Ureter', 'UR', '#facc15');
+    }
+    return;
+  }
+
+  // 6. Nephron
+  if (type === 'nephron') {
+    const nephGroup = new THREE.Group();
+    group.add(nephGroup);
+    refs.bioMainMesh = nephGroup;
+
+    // Bowman's Capsule (Cup)
+    const cupMesh = new THREE.Mesh(new THREE.SphereGeometry(0.9, 24, 24, 0, Math.PI * 2, 0, Math.PI * 0.6), yellowMat);
+    cupMesh.position.set(-1.8, 1.2, 0);
+    cupMesh.rotation.x = Math.PI;
+    nephGroup.add(cupMesh);
+
+    // Glomerulus knot
+    const glom = new THREE.Mesh(new THREE.SphereGeometry(0.55, 16, 16), redMat);
+    glom.position.set(-1.8, 1.2, 0);
+    nephGroup.add(glom);
+
+    // PCT Tubule
+    const pct = new THREE.Mesh(new THREE.TorusGeometry(0.7, 0.14, 12, 32, Math.PI * 1.4), cyanMat);
+    pct.position.set(-0.8, 0.8, 0);
+    nephGroup.add(pct);
+
+    // Henle's Loop (U-shape)
+    const henleCurve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(-0.2, 0.6, 0),
+      new THREE.Vector3(-0.2, -1.8, 0),
+      new THREE.Vector3(0.4, -2.2, 0),
+      new THREE.Vector3(1.0, -1.8, 0),
+      new THREE.Vector3(1.0, 0.6, 0)
+    ]);
+    const henleMesh = new THREE.Mesh(new THREE.TubeGeometry(henleCurve, 32, 0.12, 8, false), purpleMat);
+    nephGroup.add(henleMesh);
+
+    // Collecting Duct (Green column)
+    const duct = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 4.4, 16), emeraldMat);
+    duct.position.set(2.0, 0, 0);
+    nephGroup.add(duct);
+
+    if (meta.labels && meta.labels.length > 0) {
+      const a1 = new THREE.Object3D(); a1.position.set(-1.8, 1.8, 0); group.add(a1);
+      addAnchor(a1, 'বোম্যান্স ক্যাপসুল ও গ্লোমেরুলাস', 'Bowmans Capsule', 'BC', '#facc15');
+      const a2 = new THREE.Object3D(); a2.position.set(0.4, -2.4, 0); group.add(a2);
+      addAnchor(a2, 'হেনলির লুপ (Loop of Henle)', 'Loop of Henle', 'LH', '#8b5cf6');
+      const a3 = new THREE.Object3D(); a3.position.set(2.0, 1.6, 0); group.add(a3);
+      addAnchor(a3, 'সংগ্রাহী নালী (Collecting Duct)', 'Collecting Duct', 'CD', '#10b981');
+    }
+    return;
+  }
+
+  // 7. Neuron
+  if (type === 'neuron') {
+    const neuGroup = new THREE.Group();
+    group.add(neuGroup);
+    refs.bioMainMesh = neuGroup;
+
+    // Soma (Cell body)
+    const soma = new THREE.Mesh(new THREE.IcosahedronGeometry(0.9, 2), cyanMat);
+    soma.position.set(-2.0, 0, 0);
+    neuGroup.add(soma);
+
+    // Nucleus inside soma
+    const nuc = new THREE.Mesh(new THREE.SphereGeometry(0.4, 16, 16), purpleMat);
+    nuc.position.set(-2.0, 0, 0);
+    neuGroup.add(nuc);
+
+    // Dendrites (Spikes from soma)
+    for (let d = 0; d < 6; d++) {
+      const ang = (d / 6) * Math.PI * 2;
+      const dend = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.12, 1.2, 8), blueMat);
+      dend.position.set(-2.0 + Math.cos(ang) * 1.1, Math.sin(ang) * 1.1, 0);
+      dend.rotation.z = ang - Math.PI / 2;
+      neuGroup.add(dend);
+    }
+
+    // Long Axon Shaft
+    const axon = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 4.4, 16), amberMat);
+    axon.position.set(0.6, 0, 0);
+    axon.rotation.z = Math.PI / 2;
+    neuGroup.add(axon);
+
+    // Myelin Sheath Segments
+    for (let m = 0; m < 4; m++) {
+      const sheath = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 0.75, 16), blueMat);
+      sheath.position.set(-0.8 + m * 0.95, 0, 0);
+      sheath.rotation.z = Math.PI / 2;
+      neuGroup.add(sheath);
+    }
+
+    // Synaptic Terminals
+    const syn1 = new THREE.Mesh(new THREE.SphereGeometry(0.18, 12, 12), redMat);
+    syn1.position.set(3.0, 0.5, 0);
+    neuGroup.add(syn1);
+    const syn2 = new THREE.Mesh(new THREE.SphereGeometry(0.18, 12, 12), redMat);
+    syn2.position.set(3.0, -0.5, 0);
+    neuGroup.add(syn2);
+
+    if (meta.labels && meta.labels.length > 0) {
+      const a1 = new THREE.Object3D(); a1.position.set(-2.0, 1.4, 0); group.add(a1);
+      addAnchor(a1, 'কোষদেহ ও ডেনড্রাইট', 'Soma & Dendrites', 'SM', '#06b6d4');
+      const a2 = new THREE.Object3D(); a2.position.set(0.6, 0.6, 0); group.add(a2);
+      addAnchor(a2, 'মায়েলিন সিথযুক্ত অ্যাক্সন', 'Myelinated Axon', 'AX', '#0284c7');
+      const a3 = new THREE.Object3D(); a3.position.set(3.0, 0.8, 0); group.add(a3);
+      addAnchor(a3, 'সাইন্যাপস প্রান্ত', 'Synapse Terminal', 'SYN', '#ef4444');
+    }
+    return;
+  }
+
+  // 8. Human Brain
+  if (type === 'brain') {
+    const brainGroup = new THREE.Group();
+    group.add(brainGroup);
+    refs.bioMainMesh = brainGroup;
+
+    // Cerebral Hemispheres
+    const leftHem = new THREE.Mesh(new THREE.SphereGeometry(1.4, 32, 32), redMat);
+    leftHem.scale.set(0.9, 1.2, 1.3);
+    leftHem.position.set(-0.7, 0.4, 0);
+    brainGroup.add(leftHem);
+
+    const rightHem = new THREE.Mesh(new THREE.SphereGeometry(1.4, 32, 32), redMat);
+    rightHem.scale.set(0.9, 1.2, 1.3);
+    rightHem.position.set(0.7, 0.4, 0);
+    brainGroup.add(rightHem);
+
+    // Cerebellum
+    const cerebellum = new THREE.Mesh(new THREE.SphereGeometry(0.9, 24, 24), amberMat);
+    cerebellum.position.set(0, -0.8, -0.8);
+    cerebellum.scale.set(1.4, 0.8, 0.9);
+    brainGroup.add(cerebellum);
+
+    // Brainstem / Medulla
+    const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.28, 1.8, 16), boneMat);
+    stem.position.set(0, -1.4, 0);
+    brainGroup.add(stem);
+
+    if (meta.labels && meta.labels.length > 0) {
+      const a1 = new THREE.Object3D(); a1.position.set(0, 1.6, 0.5); group.add(a1);
+      addAnchor(a1, 'গুরুমস্তিষ্ক (Cerebrum)', 'Cerebrum Cortex', 'CRB', '#f43f5e');
+      const a2 = new THREE.Object3D(); a2.position.set(0, -0.8, -1.4); group.add(a2);
+      addAnchor(a2, 'লঘুমস্তিষ্ক (Cerebellum)', 'Cerebellum', 'CBL', '#f59e0b');
+      const a3 = new THREE.Object3D(); a3.position.set(0, -1.8, 0.5); group.add(a3);
+      addAnchor(a3, 'মেডুলা অবলংগাটা', 'Medulla Oblongata', 'MED', '#e2e8f0');
+    }
+    return;
+  }
+
+  // 9. Flower (Reproduction)
+  if (type === 'flower') {
+    const flowerGroup = new THREE.Group();
+    group.add(flowerGroup);
+    refs.bioMainMesh = flowerGroup;
+
+    // Stem & Receptacle
+    const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 2.8, 16), darkGreenMat);
+    stem.position.set(0, -1.5, 0);
+    flowerGroup.add(stem);
+
+    const recept = new THREE.Mesh(new THREE.SphereGeometry(0.65, 16, 16), emeraldMat);
+    recept.position.set(0, -0.2, 0);
+    flowerGroup.add(recept);
+
+    // 5 Petals
+    const petalMat = new THREE.MeshStandardMaterial({ color: 0xec4899, roughness: 0.3, side: THREE.DoubleSide });
+    for (let p = 0; p < 5; p++) {
+      const ang = (p / 5) * Math.PI * 2;
+      const pet = new THREE.Mesh(new THREE.SphereGeometry(0.8, 16, 16), petalMat);
+      pet.scale.set(0.6, 1.4, 0.15);
+      pet.position.set(Math.cos(ang) * 1.1, 0.4, Math.sin(ang) * 1.1);
+      pet.rotation.y = -ang;
+      pet.rotation.x = 0.5;
+      flowerGroup.add(pet);
+    }
+
+    // Pistil (Center Carpel)
+    const pistil = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.25, 1.4, 16), yellowMat);
+    pistil.position.set(0, 0.5, 0);
+    flowerGroup.add(pistil);
+    const stigma = new THREE.Mesh(new THREE.SphereGeometry(0.2, 12, 12), amberMat);
+    stigma.position.set(0, 1.2, 0);
+    flowerGroup.add(stigma);
+
+    // Stamens (Filaments & Anthers)
+    for (let s = 0; s < 6; s++) {
+      const sAng = (s / 6) * Math.PI * 2;
+      const fil = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.0, 8), boneMat);
+      fil.position.set(Math.cos(sAng) * 0.45, 0.4, Math.sin(sAng) * 0.45);
+      fil.rotation.x = (Math.random() - 0.5) * 0.3;
+      flowerGroup.add(fil);
+      const anther = new THREE.Mesh(new THREE.CapsuleGeometry(0.08, 0.2, 8, 8), goldMat);
+      anther.position.set(Math.cos(sAng) * 0.45, 0.9, Math.sin(sAng) * 0.45);
+      flowerGroup.add(anther);
+    }
+
+    if (meta.labels && meta.labels.length > 0) {
+      const a1 = new THREE.Object3D(); a1.position.set(1.4, 0.8, 0); group.add(a1);
+      addAnchor(a1, 'দলমণ্ডল (Petals)', 'Petals', 'PET', '#ec4899');
+      const a2 = new THREE.Object3D(); a2.position.set(0, 1.4, 0); group.add(a2);
+      addAnchor(a2, 'গর্ভমুণ্ড ও গর্ভাশয়', 'Carpel (Pistil)', 'PIS', '#facc15');
+      const a3 = new THREE.Object3D(); a3.position.set(0.5, 1.0, 0); group.add(a3);
+      addAnchor(a3, 'পুংস্তবক (Anther)', 'Stamen Anther', 'STA', '#f59e0b');
+    }
+    return;
+  }
+
+  // 10. Plant Cell
+  if (type === 'plant_cell') {
+    const cellGroup = new THREE.Group();
+    group.add(cellGroup);
+    refs.bioMainMesh = cellGroup;
+
+    // Green Cell Wall cutaway
+    const wall = new THREE.Mesh(new THREE.BoxGeometry(3.6, 2.8, 2.2), emeraldMat);
+    cellGroup.add(wall);
+
+    // Plasma Membrane interior
+    const mem = new THREE.Mesh(new THREE.BoxGeometry(3.3, 2.5, 2.0), glassMat);
+    cellGroup.add(mem);
+
+    // Large Vacuole
+    const vac = new THREE.Mesh(new THREE.SphereGeometry(0.9, 24, 24), blueMat);
+    vac.scale.set(1.4, 0.9, 0.8);
+    vac.position.set(0.6, 0.1, 0);
+    cellGroup.add(vac);
+
+    // Nucleus
+    const nuc = new THREE.Mesh(new THREE.SphereGeometry(0.55, 20, 20), purpleMat);
+    nuc.position.set(-1.0, 0.4, 0);
+    cellGroup.add(nuc);
+
+    // Chloroplasts (Green discs)
+    for (let c = 0; c < 4; c++) {
+      const cp = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.15, 16), darkGreenMat);
+      cp.position.set(-1.0 + (c % 2) * 1.5, -0.6 + Math.floor(c / 2) * 0.4, 0.5);
+      cp.rotation.x = Math.PI / 4;
+      cellGroup.add(cp);
+    }
+
+    if (meta.labels && meta.labels.length > 0) {
+      const a1 = new THREE.Object3D(); a1.position.set(0, 1.6, 0); group.add(a1);
+      addAnchor(a1, 'সেলুলোজ প্রাচীর', 'Cell Wall', 'CW', '#10b981');
+      const a2 = new THREE.Object3D(); a2.position.set(0.6, 0.2, 0.8); group.add(a2);
+      addAnchor(a2, 'কোষগহ্বর (Vacuole)', 'Central Vacuole', 'VAC', '#0284c7');
+      const a3 = new THREE.Object3D(); a3.position.set(-1.0, 0.5, 0.7); group.add(a3);
+      addAnchor(a3, 'নিউক্লিয়াস', 'Nucleus', 'NUC', '#8b5cf6');
+    }
+    return;
+  }
+
+  // 11. Mitochondria
+  if (type === 'mitochondria') {
+    const mitoGroup = new THREE.Group();
+    group.add(mitoGroup);
+    refs.bioMainMesh = mitoGroup;
+
+    // Outer Membrane Capsule
+    const outer = new THREE.Mesh(new THREE.CapsuleGeometry(1.2, 2.6, 16, 24), redMat);
+    outer.rotation.z = Math.PI / 2;
+    mitoGroup.add(outer);
+
+    // Inner Cristae Shelves
+    for (let f = 0; f < 7; f++) {
+      const crista = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.6, 1.6), darkRedMat);
+      crista.position.set(-1.2 + f * 0.4, 0, 0);
+      mitoGroup.add(crista);
+    }
+
+    if (meta.labels && meta.labels.length > 0) {
+      const a1 = new THREE.Object3D(); a1.position.set(0, 1.5, 0); group.add(a1);
+      addAnchor(a1, 'বহিঃঝিল্লি', 'Outer Membrane', 'OM', '#ef4444');
+      const a2 = new THREE.Object3D(); a2.position.set(0, 0, 1.2); group.add(a2);
+      addAnchor(a2, 'ক্রিস্টি ভাঁজ (Cristae)', 'Cristae Fold', 'CRIS', '#991b1b');
+    }
+    return;
+  }
+
+  // 12. Chloroplast
+  if (type === 'chloroplast') {
+    const cpGroup = new THREE.Group();
+    group.add(cpGroup);
+    refs.bioMainMesh = cpGroup;
+
+    // Envelope
+    const env = new THREE.Mesh(new THREE.SphereGeometry(1.8, 32, 24), darkGreenMat);
+    env.scale.set(1.4, 0.9, 0.9);
+    cpGroup.add(env);
+
+    // Grana Discs
+    for (let g = 0; g < 4; g++) {
+      const gx = -1.2 + g * 0.8;
+      for (let d = 0; d < 5; d++) {
+        const disc = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.08, 16), emeraldMat);
+        disc.position.set(gx, -0.4 + d * 0.16, 0.2);
+        cpGroup.add(disc);
+      }
+    }
+
+    if (meta.labels && meta.labels.length > 0) {
+      const a1 = new THREE.Object3D(); a1.position.set(0, 1.2, 0); group.add(a1);
+      addAnchor(a1, 'দ্বিস্তর ঝিল্লি', 'Double Envelope', 'ENV', '#065f46');
+      const a2 = new THREE.Object3D(); a2.position.set(0, -0.2, 1.1); group.add(a2);
+      addAnchor(a2, 'গ্রানা থাইলাকয়েড', 'Grana Thylakoids', 'GRN', '#10b981');
+    }
+    return;
+  }
+
+  // 13. Mitosis / Chromosomes
+  if (type === 'mitosis') {
+    const mitoGroup = new THREE.Group();
+    group.add(mitoGroup);
+    refs.bioMainMesh = mitoGroup;
+
+    // Two centrosomes at poles
+    const c1 = new THREE.Mesh(new THREE.SphereGeometry(0.3, 16, 16), yellowMat);
+    c1.position.set(0, 2.0, 0);
+    mitoGroup.add(c1);
+    const c2 = new THREE.Mesh(new THREE.SphereGeometry(0.3, 16, 16), yellowMat);
+    c2.position.set(0, -2.0, 0);
+    mitoGroup.add(c2);
+
+    // Spindle Fibers (Lines)
+    for (let f = 0; f < 8; f++) {
+      const ang = (f / 8) * Math.PI * 2;
+      const spinGeo = new THREE.CylinderGeometry(0.02, 0.02, 4.0, 6);
+      const spinMesh = new THREE.Mesh(spinGeo, blueMat);
+      spinMesh.position.set(Math.cos(ang) * 0.8, 0, Math.sin(ang) * 0.8);
+      mitoGroup.add(spinMesh);
+    }
+
+    // 4 X-shaped Chromosomes at Metaphase Plate
+    for (let chr = 0; chr < 4; chr++) {
+      const cAng = (chr / 4) * Math.PI * 2;
+      const arm1 = new THREE.Mesh(new THREE.CapsuleGeometry(0.08, 0.8, 8, 8), redMat);
+      arm1.position.set(Math.cos(cAng) * 0.9, 0, Math.sin(cAng) * 0.9);
+      arm1.rotation.z = Math.PI / 4;
+      mitoGroup.add(arm1);
+      const arm2 = new THREE.Mesh(new THREE.CapsuleGeometry(0.08, 0.8, 8, 8), redMat);
+      arm2.position.set(Math.cos(cAng) * 0.9, 0, Math.sin(cAng) * 0.9);
+      arm2.rotation.z = -Math.PI / 4;
+      mitoGroup.add(arm2);
+    }
+
+    if (meta.labels && meta.labels.length > 0) {
+      const a1 = new THREE.Object3D(); a1.position.set(0, 2.2, 0); group.add(a1);
+      addAnchor(a1, 'মেরু ও সেন্ট্রোজোম', 'Spindle Pole', 'POL', '#facc15');
+      const a2 = new THREE.Object3D(); a2.position.set(1.2, 0, 0); group.add(a2);
+      addAnchor(a2, 'মেটাফেজ ক্রোমোজোম', 'Chromosomes', 'CHR', '#ef4444');
+    }
+    return;
+  }
+
+  // 14. Blood Vessel & Flowing Cells
+  if (type === 'blood_vessel') {
+    const vesGroup = new THREE.Group();
+    group.add(vesGroup);
+    refs.bioMainMesh = vesGroup;
+
+    // Cylindrical vessel lumen
+    const vesGeo = new THREE.CylinderGeometry(1.6, 1.6, 4.8, 24, 1, true);
+    const vesMesh = new THREE.Mesh(vesGeo, glassMat);
+    vesMesh.rotation.z = Math.PI / 2;
+    vesGroup.add(vesMesh);
+
+    // RBC Discs
+    for (let r = 0; r < 8; r++) {
+      const rbc = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 0.12, 16), redMat);
+      rbc.position.set((Math.random() - 0.5) * 3.6, (Math.random() - 0.5) * 1.6, (Math.random() - 0.5) * 1.6);
+      rbc.rotation.x = Math.random() * Math.PI;
+      vesGroup.add(rbc);
+    }
+
+    // WBC Sphere
+    const wbc = new THREE.Mesh(new THREE.SphereGeometry(0.5, 16, 16), boneMat);
+    wbc.position.set(0, 0, 0);
+    vesGroup.add(wbc);
+
+    if (meta.labels && meta.labels.length > 0) {
+      const a1 = new THREE.Object3D(); a1.position.set(-1.0, 0.5, 0); group.add(a1);
+      addAnchor(a1, 'লোহিত রক্তকণিকা (RBC)', 'Erythrocyte', 'RBC', '#ef4444');
+      const a2 = new THREE.Object3D(); a2.position.set(0, 0, 0.6); group.add(a2);
+      addAnchor(a2, 'শ্বেত রক্তকণিকা (WBC)', 'Leukocyte', 'WBC', '#f8fafc');
+    }
+    return;
+  }
+
+  // 15. Stomata
+  if (type === 'stomata') {
+    const stomGroup = new THREE.Group();
+    group.add(stomGroup);
+    refs.bioMainMesh = stomGroup;
+
+    // Pair of curved bean guard cells
+    const guard1 = new THREE.Mesh(new THREE.TorusGeometry(1.2, 0.4, 16, 32, Math.PI * 0.9), emeraldMat);
+    guard1.rotation.z = Math.PI / 2;
+    guard1.position.x = -0.4;
+    stomGroup.add(guard1);
+
+    const guard2 = new THREE.Mesh(new THREE.TorusGeometry(1.2, 0.4, 16, 32, Math.PI * 0.9), emeraldMat);
+    guard2.rotation.z = -Math.PI / 2;
+    guard2.position.x = 0.4;
+    stomGroup.add(guard2);
+
+    // Stomatal aperture in center
+    const pore = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.1, 16), darkGreenMat);
+    stomGroup.add(pore);
+
+    if (meta.labels && meta.labels.length > 0) {
+      const a1 = new THREE.Object3D(); a1.position.set(-1.4, 0, 0); group.add(a1);
+      addAnchor(a1, 'রক্ষীকোষ (Guard Cell)', 'Guard Cell', 'GC', '#10b981');
+      const a2 = new THREE.Object3D(); a2.position.set(0, 0, 0.5); group.add(a2);
+      addAnchor(a2, 'পত্ররন্ধ্র ছিদ্র (Stoma Pore)', 'Stoma Aperture', 'POR', '#064e3b');
+    }
+    return;
+  }
+
+  // 16. Skeleton & Synovial Joint
+  if (type === 'skeleton') {
+    const skelGroup = new THREE.Group();
+    group.add(skelGroup);
+    refs.bioMainMesh = skelGroup;
+
+    // Upper Bone
+    const b1 = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 2.0, 16), boneMat);
+    b1.position.set(0, 1.2, 0);
+    skelGroup.add(b1);
+    const head1 = new THREE.Mesh(new THREE.SphereGeometry(0.55, 16, 16), cyanMat);
+    head1.position.set(0, 0.2, 0);
+    skelGroup.add(head1);
+
+    // Lower Bone
+    const b2 = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 2.0, 16), boneMat);
+    b2.position.set(0, -1.2, 0);
+    skelGroup.add(b2);
+    const head2 = new THREE.Mesh(new THREE.SphereGeometry(0.55, 16, 16), cyanMat);
+    head2.position.set(0, -0.2, 0);
+    skelGroup.add(head2);
+
+    // Synovial Capsule Sleeve
+    const sleeve = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.7, 0.8, 16, 1, true), glassMat);
+    skelGroup.add(sleeve);
+
+    if (meta.labels && meta.labels.length > 0) {
+      const a1 = new THREE.Object3D(); a1.position.set(0, 1.4, 0.5); group.add(a1);
+      addAnchor(a1, 'অস্থি (Bone Shaft)', 'Compact Bone', 'BN', '#f8fafc');
+      const a2 = new THREE.Object3D(); a2.position.set(0, 0, 0.8); group.add(a2);
+      addAnchor(a2, 'সাইনোভিয়াল সন্ধি ও তরুণাস্থি', 'Synovial Joint', 'JNT', '#06b6d4');
+    }
+    return;
+  }
+
+  // 17. Digestive (Stomach & Liver)
+  if (type === 'digestive') {
+    const digGroup = new THREE.Group();
+    group.add(digGroup);
+    refs.bioMainMesh = digGroup;
+
+    // J-shaped stomach (Torus curve)
+    const stomach = new THREE.Mesh(new THREE.TorusGeometry(1.1, 0.45, 16, 32, Math.PI * 1.2), redMat);
+    stomach.position.set(-0.5, 0, 0);
+    stomach.rotation.z = -Math.PI / 3;
+    digGroup.add(stomach);
+
+    // Liver (Wedge on right)
+    const liverGeo = new THREE.ConeGeometry(1.5, 2.0, 16);
+    liverGeo.scale(1.2, 0.8, 0.6);
+    const liver = new THREE.Mesh(liverGeo, darkRedMat);
+    liver.position.set(1.2, 0.6, 0);
+    liver.rotation.z = Math.PI / 4;
+    digGroup.add(liver);
+
+    // Gall bladder (green sac)
+    const gb = new THREE.Mesh(new THREE.SphereGeometry(0.3, 12, 12), emeraldMat);
+    gb.position.set(1.0, 0.1, 0.4);
+    digGroup.add(gb);
+
+    if (meta.labels && meta.labels.length > 0) {
+      const a1 = new THREE.Object3D(); a1.position.set(-0.6, 0.5, 0.6); group.add(a1);
+      addAnchor(a1, 'পাকস্থলী (Stomach)', 'Stomach', 'STM', '#ef4444');
+      const a2 = new THREE.Object3D(); a2.position.set(1.4, 0.8, 0.6); group.add(a2);
+      addAnchor(a2, 'যকৃত ও পিত্তথলি', 'Liver & Gall Bladder', 'LIV', '#991b1b');
+    }
+    return;
+  }
+
+  // 18. Tooth
+  if (type === 'tooth') {
+    const toothGroup = new THREE.Group();
+    group.add(toothGroup);
+    refs.bioMainMesh = toothGroup;
+
+    // Enamel Crown (White box with rounded top)
+    const crown = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1.2, 1.4), boneMat);
+    crown.position.set(0, 0.6, 0);
+    toothGroup.add(crown);
+
+    // Dentin core
+    const dentin = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.8, 1.0), yellowMat);
+    dentin.position.set(0, 0.5, 0);
+    toothGroup.add(dentin);
+
+    // Two Roots
+    const root1 = new THREE.Mesh(new THREE.ConeGeometry(0.35, 1.8, 16), boneMat);
+    root1.position.set(-0.45, -0.8, 0);
+    toothGroup.add(root1);
+    const root2 = new THREE.Mesh(new THREE.ConeGeometry(0.35, 1.8, 16), boneMat);
+    root2.position.set(0.45, -0.8, 0);
+    toothGroup.add(root2);
+
+    if (meta.labels && meta.labels.length > 0) {
+      const a1 = new THREE.Object3D(); a1.position.set(0, 1.2, 0); group.add(a1);
+      addAnchor(a1, 'এনামেল মুকুট (Crown)', 'Enamel Crown', 'ENM', '#f8fafc');
+      const a2 = new THREE.Object3D(); a2.position.set(0, -1.2, 0.6); group.add(a2);
+      addAnchor(a2, 'দন্তমূল (Roots)', 'Tooth Root', 'RT', '#cbd5e1');
+    }
+    return;
+  }
+
+  // 19. Ecosystem Energy Pyramid
+  if (type === 'ecosystem') {
+    const ecoGroup = new THREE.Group();
+    group.add(ecoGroup);
+    refs.bioMainMesh = ecoGroup;
+
+    // 4 Stepped Tiers
+    const t1 = new THREE.Mesh(new THREE.CylinderGeometry(2.4, 2.4, 0.4, 4), emeraldMat);
+    t1.position.set(0, -1.2, 0);
+    t1.rotation.y = Math.PI / 4;
+    ecoGroup.add(t1);
+
+    const t2 = new THREE.Mesh(new THREE.CylinderGeometry(1.8, 1.8, 0.4, 4), cyanMat);
+    t2.position.set(0, -0.6, 0);
+    t2.rotation.y = Math.PI / 4;
+    ecoGroup.add(t2);
+
+    const t3 = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.2, 0.4, 4), amberMat);
+    t3.position.set(0, 0, 0);
+    t3.rotation.y = Math.PI / 4;
+    ecoGroup.add(t3);
+
+    const t4 = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.6, 0.4, 4), redMat);
+    t4.position.set(0, 0.6, 0);
+    t4.rotation.y = Math.PI / 4;
+    ecoGroup.add(t4);
+
+    if (meta.labels && meta.labels.length > 0) {
+      const a1 = new THREE.Object3D(); a1.position.set(0, -1.2, 2.0); group.add(a1);
+      addAnchor(a1, 'উৎপাদক স্তর (১০০০০ J)', 'Producers Base', 'PRD', '#10b981');
+      const a2 = new THREE.Object3D(); a2.position.set(0, 0.8, 0.8); group.add(a2);
+      addAnchor(a2, 'সর্বোচ্চ খাদক (১০ J)', 'Top Carnivore (10%)', 'TOP', '#ef4444');
+    }
+    return;
+  }
+
+  // 20. Biotechnology (Plasmid & Tube)
+  if (type === 'biotech') {
+    const bioGroup = new THREE.Group();
+    group.add(bioGroup);
+    refs.bioMainMesh = bioGroup;
+
+    // Circular Plasmid Ring
+    const plasmid = new THREE.Mesh(new THREE.TorusGeometry(1.4, 0.16, 16, 48), blueMat);
+    bioGroup.add(plasmid);
+
+    // Inserted Gene segment (Magenta arc)
+    const gene = new THREE.Mesh(new THREE.TorusGeometry(1.4, 0.22, 16, 16, Math.PI * 0.4), redMat);
+    gene.position.z = 0.02;
+    bioGroup.add(gene);
+
+    // Test Tube with plantlet shoot
+    const tube = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 2.4, 16), glassMat);
+    tube.position.set(2.4, 0, 0);
+    bioGroup.add(tube);
+    const plantlet = new THREE.Mesh(new THREE.ConeGeometry(0.2, 1.0, 8), emeraldMat);
+    plantlet.position.set(2.4, 0.2, 0);
+    bioGroup.add(plantlet);
+
+    if (meta.labels && meta.labels.length > 0) {
+      const a1 = new THREE.Object3D(); a1.position.set(0, 1.6, 0); group.add(a1);
+      addAnchor(a1, 'কাঙ্ক্ষিত রিকম্বিন্যান্ট জিন', 'Recombinant Gene', 'GEN', '#ef4444');
+      const a2 = new THREE.Object3D(); a2.position.set(0, -1.6, 0); group.add(a2);
+      addAnchor(a2, 'প্লাজমিড বাহক (Vector)', 'Plasmid Vector', 'PLM', '#0284c7');
+      const a3 = new THREE.Object3D(); a3.position.set(2.4, 1.4, 0); group.add(a3);
+      addAnchor(a3, 'টিস্যু কালচার টেস্টটিউব', 'Tissue Culture Tube', 'TC', '#10b981');
+    }
+    return;
+  }
+
+  // Fallback: Default to DNA
+  const centerMesh = new THREE.Mesh(new THREE.IcosahedronGeometry(1.4, 2), cyanMat);
+  group.add(centerMesh);
+  refs.bioMainMesh = centerMesh;
 }
 
-/**
- * FULLY ANIMATED Physics Update — called every frame for each biology slide.
- * All cell division processes are animated in real time.
- */
 export function updateBiology3DPhysics(
-  slideId: number,
+  slideOrModelId: number,
   time: number,
   refs: any,
-  chapter: number
+  chapter: number = 1
 ) {
-  if (chapter !== 3) return;
+  const normId = slideOrModelId > 20 ? ((slideOrModelId - 1) % 20) + 1 : Math.max(1, slideOrModelId);
+  const type = refs.bioType || getBiologyModelType(chapter, normId);
 
-  // =========================================================================
-  // SLIDE 1: Mother cell breathes; orbiting daughter/type orbs orbit around it
-  // =========================================================================
-  if (slideId === 1) {
-    if (refs.motherCell) {
-      const pulse = 1.0 + Math.sin(time * 1.8) * 0.06;
-      refs.motherCell.scale.setScalar(pulse);
+  if (refs.bioMainMesh) {
+    if (type === 'heart') {
+      // Realistic cardiac heartbeat rhythm
+      const beat = 1 + 0.08 * Math.sin(time * 6.0) + 0.03 * Math.sin(time * 12.0);
+      refs.bioMainMesh.scale.set(beat, beat * 0.95, beat);
+    } else if (type === 'lungs') {
+      // Respiratory expansion and contraction
+      const breathe = 1 + 0.06 * Math.sin(time * 2.5);
+      refs.bioMainMesh.scale.set(breathe, breathe, breathe);
+    } else if (type === 'dna') {
+      // Smooth continuous double helix rotation
+      refs.bioMainMesh.rotation.y = time * 0.6;
+    } else if (type === 'bacterium') {
+      // Flagellar undulation & swimming
+      refs.bioMainMesh.position.y = Math.sin(time * 2.0) * 0.15;
+      if (refs.flagMesh) {
+        refs.flagMesh.rotation.x = Math.sin(time * 8.0) * 0.2;
+      }
+    } else if (type === 'neuron') {
+      // Subtle electrical pulse
+      refs.bioMainMesh.rotation.y = Math.sin(time * 0.5) * 0.2;
+    } else if (type === 'flower') {
+      // Gentle bloom sway
+      refs.bioMainMesh.rotation.z = Math.sin(time * 1.5) * 0.06;
+      refs.bioMainMesh.rotation.y = time * 0.2;
+    } else if (type === 'biotech') {
+      refs.bioMainMesh.rotation.z = time * 0.4;
+    } else {
+      refs.bioMainMesh.rotation.y = time * 0.4;
     }
-    if (refs.motherNucleus) {
-      refs.motherNucleus.scale.setScalar(1.0 + Math.sin(time * 2.5) * 0.1);
-    }
-    if (refs.orbitOrbs) {
-      refs.orbitOrbs.forEach((orb: any) => {
-        const angle = time * orb.speed + orb.phase;
-        orb.mesh.position.set(
-          Math.cos(angle) * orb.r,
-          Math.sin(time * 0.4 + orb.phase) * 0.6,
-          Math.sin(angle) * orb.r * 0.5
-        );
-        orb.mesh.scale.setScalar(0.9 + Math.sin(time * 3 + orb.phase) * 0.12);
-      });
-    }
-  }
-
-  // =========================================================================
-  // SLIDE 2: Amitosis — cell lobes separate, bridge thins, furrow tightens
-  // =========================================================================
-  if (slideId === 2) {
-    // Animate lobes moving apart over a 6-second oscillation
-    const split = Math.abs(Math.sin(time * 0.55)) * 1.8 + 0.6;
-    if (refs.amitosisLeft) refs.amitosisLeft.position.x = -split;
-    if (refs.amitosisRight) refs.amitosisRight.position.x = split;
-
-    // Bridge shrinks as lobes separate
-    if (refs.amitosisBridge) {
-      const bridgeLen = Math.max(0.15, 2.0 - (split - 0.6) * 0.6);
-      const bridgeRad = Math.max(0.05, 0.85 - (split - 0.6) * 0.35);
-      refs.amitosisBridge.scale.set(bridgeRad / 0.8, bridgeLen / 1.0, bridgeRad / 0.8);
-      refs.amitosisBridge.material.opacity = Math.max(0.1, 0.45 - (split - 0.6) * 0.2);
-    }
-
-    // Furrow gets tighter (smaller ring) as split progresses
-    if (refs.amitosisFurrow) {
-      const furrowR = Math.max(0.15, 0.85 - (split - 0.6) * 0.35);
-      refs.amitosisFurrow.geometry.dispose();
-      // Simple scale to simulate tightening
-      const scaleF = Math.max(0.15, 1.0 - (split - 0.6) * 0.4);
-      refs.amitosisFurrow.scale.setScalar(scaleF);
-      refs.amitosisFurrow.position.x = 0; // stays at center
-    }
-
-    // Nuclei move apart with lobes
-    if (refs.amitosisNucL) refs.amitosisNucL.position.x = -(split * 0.6);
-    if (refs.amitosisNucR) refs.amitosisNucR.position.x = (split * 0.6);
-
-    // Plasmid rotates
-    if (refs.amitosisplasmid) {
-      refs.amitosisplasmid.position.set(-split, 0.9, 0);
-      refs.amitosisplasmid.rotation.z = time * 1.2;
-    }
-  }
-
-  // =========================================================================
-  // SLIDE 3: DNA helix rotates; unzipping wave travels upward
-  // =========================================================================
-  if (slideId === 3) {
-    if (refs.dnaHelix) {
-      refs.dnaHelix.rotation.y = time * 0.75;
-    }
-    // Nodes wave — simulate unzipping
-    if (refs.dnaNodes1 && refs.dnaNodes2) {
-      const total = refs.dnaNodes1.length;
-      refs.dnaNodes1.forEach((nd: any, i: number) => {
-        const wave = Math.sin(time * 2.5 - i * 0.25) * 0.25;
-        const angle = nd.baseAngle + time * 0.75;
-        nd.mesh.position.x = Math.cos(angle) * (1.0 + wave);
-        nd.mesh.position.z = Math.sin(angle) * (1.0 + wave);
-        nd.mesh.position.y = nd.baseY;
-      });
-      refs.dnaNodes2.forEach((nd: any, i: number) => {
-        const wave = Math.sin(time * 2.5 - i * 0.25) * 0.25;
-        const angle = nd.baseAngle + Math.PI + time * 0.75;
-        nd.mesh.position.x = Math.cos(angle) * (1.0 + wave);
-        nd.mesh.position.z = Math.sin(angle) * (1.0 + wave);
-        nd.mesh.position.y = nd.baseY;
-      });
-    }
-    // Daughter cells pulse
-    if (refs.dnaCell1) refs.dnaCell1.scale.setScalar(0.9 + Math.sin(time * 1.5) * 0.1);
-    if (refs.dnaCell2) refs.dnaCell2.scale.setScalar(0.9 + Math.sin(time * 1.5 + Math.PI) * 0.1);
-  }
-
-  // =========================================================================
-  // SLIDE 4: Prophase — chromosomes condense (thicken) and nuclear envelope fades
-  // =========================================================================
-  if (slideId === 4) {
-    // Nuclear envelope fades in and out (simulating dissolution)
-    if (refs.propNucEnv) {
-      refs.propNucEnv.material.opacity = 0.15 + Math.abs(Math.sin(time * 0.5)) * 0.22;
-    }
-    // Nucleolus fades away
-    if (refs.propNucleolus) {
-      refs.propNucleolus.material.opacity = Math.max(0.0, 0.8 - (time % 8) * 0.12);
-      refs.propNucleolus.scale.setScalar(Math.max(0.1, 1.0 - (time % 8) * 0.1));
-    }
-    // Chromosomes drift slowly and rotate — simulating thermal motion
-    if (refs.prophaseChromos) {
-      refs.prophaseChromos.rotation.z = Math.sin(time * 0.4) * 0.06;
-    }
-    if (refs.propChromoMeshes) {
-      refs.propChromoMeshes.forEach((chr: any, i: number) => {
-        // Slight individual drift
-        chr.group.position.y += Math.sin(time * 1.2 + i) * 0.003;
-        chr.group.rotation.z += Math.cos(time * 0.8 + i) * 0.004;
-        // Condensation: arms get slightly thicker scale over time cycle
-        const condensation = 1.0 + Math.abs(Math.sin(time * 0.6 + i)) * 0.18;
-        chr.arm1.scale.x = condensation;
-        chr.arm2.scale.x = condensation;
-      });
-    }
-  }
-
-  // =========================================================================
-  // SLIDE 5: Prometaphase — chromosomes swing toward equator
-  // =========================================================================
-  if (slideId === 5) {
-    // Spindle fibers shimmer
-    if (refs.spindleFibers) {
-      refs.spindleFibers.forEach((fiber: any, i: number) => {
-        fiber.material.opacity = 0.3 + Math.sin(time * 2 + i) * 0.2;
-      });
-    }
-    // Chromosomes dance toward center (oscillate X toward 0)
-    if (refs.prometaChromos) {
-      refs.prometaChromos.forEach((chr: any, i: number) => {
-        chr.group.position.x = chr.startX * (0.5 + Math.abs(Math.cos(time * 0.6 + i)) * 0.5);
-        chr.group.position.y = chr.startY * (0.5 + Math.abs(Math.sin(time * 0.5 + i * 1.3)) * 0.5);
-        chr.group.rotation.z = Math.sin(time + i) * 0.25;
-      });
-    }
-    if (refs.spindleChromosomes) {
-      refs.spindleChromosomes.rotation.y = Math.sin(time * 0.3) * 0.15;
-    }
-  }
-
-  // =========================================================================
-  // SLIDE 6: Metaphase — chromosomes gently oscillate in perfect equatorial line
-  // =========================================================================
-  if (slideId === 6) {
-    if (refs.metaPhaseGroup) {
-      refs.metaPhaseGroup.rotation.x = Math.sin(time * 0.4) * 0.08;
-    }
-    if (refs.metaChromos) {
-      refs.metaChromos.forEach((cg: any, i: number) => {
-        cg.position.z = Math.sin(time * 1.5 + i * 0.8) * 0.2;
-        cg.rotation.z = Math.sin(time * 0.8 + i) * 0.08;
-      });
-    }
-  }
-
-  // =========================================================================
-  // SLIDE 7: Anaphase — chromosomes migrate apart to poles in real time
-  // =========================================================================
-  if (slideId === 7) {
-    if (refs.anaphaseLeft && refs.anaphaseRight) {
-      // Use a cyclical animation: 0 → fully apart → back → repeat
-      const t = (time * 0.5) % (Math.PI * 2);
-      const sep = Math.abs(Math.sin(t)) * 1.6;
-      refs.anaphaseLeft.position.x = -(1.5 + sep);
-      refs.anaphaseRight.position.x = (1.5 + sep);
-      // Also slightly elongate cell boundary as chromosomes separate
-    }
-  }
-
-  // =========================================================================
-  // SLIDE 8: Telophase & Cytokinesis — cell plate grows outward; vesicles flow in
-  // =========================================================================
-  if (slideId === 8) {
-    // Cell plate grows (increase radius)
-    if (refs.cellPlate) {
-      const plateR = Math.min(2.2, 0.1 + Math.abs(Math.sin(time * 0.4)) * 2.2);
-      refs.cellPlate.scale.x = plateR / 0.1;
-      refs.cellPlate.scale.z = plateR / 0.1;
-    }
-    // Vesicles move inward toward center
-    if (refs.vesicles) {
-      refs.vesicles.forEach((v: any) => {
-        const frac = (Math.sin(time * 0.8 + v.angle) + 1) * 0.5;
-        const r = v.startR * (1.0 - frac * 0.75);
-        v.mesh.position.x = Math.cos(v.angle + time * 0.3) * r;
-        v.mesh.position.y = Math.sin(v.angle * 2) * 0.3;
-        v.mesh.position.z = Math.sin(v.angle + time * 0.3) * r * 0.4;
-      });
-    }
-    // Daughter nuclei pulse as they form
-    if (refs.teloNucLeft) refs.teloNucLeft.scale.setScalar(0.85 + Math.sin(time * 1.5) * 0.12);
-    if (refs.teloNucRight) refs.teloNucRight.scale.setScalar(0.85 + Math.sin(time * 1.5 + Math.PI) * 0.12);
-    // Cell outer elongates, then constricts
-    if (refs.teloCellOuter) {
-      refs.teloCellOuter.scale.x = 1.5 - Math.abs(Math.sin(time * 0.3)) * 0.4;
-    }
-  }
-
-  // =========================================================================
-  // SLIDE 9: Tissue growth — each hexagonal cell pulses independently
-  // =========================================================================
-  if (slideId === 9) {
-    if (refs.tissueCells) {
-      refs.tissueCells.forEach((cell: any) => {
-        const s = 0.92 + Math.sin(time * 1.8 + cell.phase) * 0.09;
-        cell.mesh.scale.setScalar(s);
-        cell.mesh.material.emissiveIntensity = 0.25 + Math.sin(time * 2 + cell.phase) * 0.15;
-      });
-    }
-    if (refs.tissueGroup) {
-      refs.tissueGroup.rotation.z = Math.sin(time * 0.2) * 0.04;
-    }
-  }
-
-  // =========================================================================
-  // SLIDE 10: Cancer — tumor cells pulse chaotically; metastatic cell orbits away
-  // =========================================================================
-  if (slideId === 10) {
-    if (refs.tumorCluster) {
-      refs.tumorCluster.rotation.y = time * 0.22;
-    }
-    if (refs.tumorSpheres) {
-      refs.tumorSpheres.forEach((ts: any) => {
-        ts.mesh.scale.setScalar(ts.baseScale * (0.88 + Math.sin(time * 4.5 + ts.phase) * 0.14));
-      });
-    }
-    // Metastatic cell spirals outward from tumor
-    if (refs.metaCell) {
-      refs.metaCellAngle = (refs.metaCellAngle || 0) + 0.015;
-      const r = 2.2 + Math.abs(Math.sin(time * 0.3)) * 1.2;
-      refs.metaCell.position.set(
-        Math.cos(refs.metaCellAngle) * r,
-        Math.sin(refs.metaCellAngle * 0.5) * 1.0,
-        Math.sin(refs.metaCellAngle) * r * 0.4
-      );
-      refs.metaCell.scale.setScalar(0.9 + Math.sin(time * 5) * 0.12);
-    }
-  }
-
-  // =========================================================================
-  // SLIDE 11: Chiasma glows and pulses; bivalent breathes; gametes pulse
-  // =========================================================================
-  if (slideId === 11) {
-    if (refs.bivalentGroup) {
-      refs.bivalentGroup.rotation.y = Math.sin(time * 0.5) * 0.18;
-    }
-    if (refs.chiasmaRing) {
-      refs.chiasmaRing.material.emissiveIntensity = 0.8 + Math.sin(time * 3.5) * 0.6;
-      refs.chiasmaRing.rotation.z = time * 0.8;
-    }
-    if (refs.gametes) {
-      refs.gametes.forEach((g: any) => {
-        g.mesh.scale.setScalar(0.88 + Math.sin(time * 2 + g.phase) * 0.14);
-      });
-    }
-    if (refs.gameteGroup) {
-      refs.gameteGroup.position.y = -2.8 + Math.sin(time * 0.6) * 0.15;
-    }
-  }
-
-  // =========================================================================
-  // SLIDE 12: Mitosis vs Meiosis — both mother cells pulse; daughters orbit gently
-  // =========================================================================
-  if (slideId === 12) {
-    if (refs.mMother) refs.mMother.scale.setScalar(0.9 + Math.sin(time * 1.5) * 0.1);
-    if (refs.cM1) refs.cM1.scale.setScalar(0.88 + Math.sin(time * 1.8) * 0.1);
-    if (refs.cM2) refs.cM2.scale.setScalar(0.88 + Math.sin(time * 1.8 + Math.PI) * 0.1);
-    if (refs.meiMother) refs.meiMother.scale.setScalar(0.9 + Math.sin(time * 1.5 + 1) * 0.1);
-    if (refs.meiGametes) {
-      refs.meiGametes.forEach((g: any) => {
-        g.mesh.scale.setScalar(0.85 + Math.sin(time * 2.2 + g.phase) * 0.13);
-      });
-    }
-    if (refs.mitCompGroup) refs.mitCompGroup.rotation.y = Math.sin(time * 0.3) * 0.08;
-    if (refs.meiCompGroup) refs.meiCompGroup.rotation.y = Math.sin(time * 0.3 + Math.PI) * 0.08;
-  }
-
-  // Biology Chapter 2 real-time physics & motion
-  if (refs.biologyChapter === 2) {
-    if (refs.cytoMesh) refs.cytoMesh.scale.setScalar(0.98 + Math.sin(time * 1.5) * 0.03);
-    if (refs.vacMesh) refs.vacMesh.scale.setScalar(0.95 + Math.cos(time * 2.0) * 0.05);
-    if (refs.atpGroup) refs.atpGroup.rotation.y = time * 0.5;
-    if (refs.granaGroup) refs.granaGroup.rotation.y = time * 0.2;
-    if (refs.vesicleGroup) refs.vesicleGroup.position.x = 0.5 + Math.sin(time * 2) * 0.3;
-    if (refs.synMesh) refs.synMesh.scale.setScalar(0.9 + Math.sin(time * 4) * 0.15);
-    if (refs.bloodGroup) refs.bloodGroup.rotation.y = time * 0.3;
   }
 }

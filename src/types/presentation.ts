@@ -2,8 +2,9 @@ export interface DiagramAnnotation {
   labelBn: string;
   labelEn: string;
   detailBn: string;
-  detailEn: string;
+  detailEn?: string;
   symbol?: string;
+  partId?: string;
   badgeType?: 'electron' | 'proton' | 'neutron' | 'nucleus' | 'orbit' | 'radiation' | 'gold' | 'solid' | 'liquid' | 'gas' | 'temperature' | 'diffusion' | 'sublimation' | 'hazard' | 'safety' | 'quantum' | 'periodic' | 'trend' | 'metal' | 'nonmetal' | 'halogen' | 'noble' | 'bond' | 'cation' | 'anion' | 'radical' | 'polar' | 'spindle' | 'cell' | 'chromosome' | 'gene' | 'force' | 'energy' | 'pressure' | 'fluid' | 'work' | 'power' | (string & {});
   position?: { x: number; y: number }; // percentage position for pin on image
 }
@@ -14,7 +15,7 @@ export interface SlideImage {
   titleBn: string;
   titleEn: string;
   captionBn: string;
-  captionEn: string;
+  captionEn?: string;
   type?: 'photo' | 'diagram' | 'chart';
   customDiagramType?: 'notation' | 'aufbauLadder' | 'crCuStability' | 'massCalcPie' | 'periodicMini' | 'subatomicChart' | 'rutherfordVectors' | 'bohrOrbits' | 'kineticStates' | 'diffusionTube' | 'heatingCurve' | 'sublimationSetup' | 'hazardSymbols' | 'scientificMethod' | 'quantumNumbersTable' | 'hundRule' | 'molecularMassCalc' | 'periodicTrends' | 'periodGroupFinder' | 'mendeleevVsModern' | 'specialGroupsChart' | 'ionicBondFormation' | 'covalentSharing' | 'metallicElectronSea' | 'waterPolarityHydration' | 'octetVsDuet' | 'energyConservation' | 'workAngleVectors' | 'hydraulicPressSvg' | 'archimedesBeaker' | 'manometerPressure' | 'barometerSvg' | 'mitosisStages' | 'meiosisStages' | 'crossingOverSvg' | 'chromosomeShapes' | 'plantVsAnimalCellSvg' | (string & {});
 }
@@ -22,7 +23,7 @@ export interface SlideImage {
 export interface Slide {
   id: number;
   subject?: 'chemistry' | 'physics' | 'biology';
-  chapter?: 1 | 2 | 3 | 4 | 5;
+  chapter?: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | number;
   title: string;
   subtitle: string;
   category: string;
@@ -31,6 +32,7 @@ export interface Slide {
   secondaryImage?: string;
   secondaryCaption?: string;
   gallery?: SlideImage[]; // 2 to 3 images / diagrams for each slide
+  customDiagramType?: string;
   diagramAnnotations?: DiagramAnnotation[];
   keyPoints: {
     heading: string;
@@ -48,8 +50,13 @@ export interface Slide {
     title: string;
     content: string;
   };
-  speakerNotes: string;
-  recommendedInteractiveTab?: 'simulator' | 'aufbau' | 'isotope' | 'kinetic' | 'diffusion' | 'heating' | 'safety' | 'ptable' | 'positionFinder' | 'trends' | 'bondingLab' | 'formulaBuilder' | 'compoundProps' | 'workEnergyLab' | 'pressureLab' | 'cellDivisionLab' | 'cellExplorerLab';
+  speakerNotes?: string;
+  formulas?: (string | { nameBn: string; nameEn: string; formula: string; meaningBn: string; })[];
+  recommendedInteractiveTab?: 'simulator' | 'molecularViewer3D' | 'aufbau' | 'isotope' | 'kinetic' | 'diffusion' | 'heating' | 'safety' | 'ptable' | 'positionFinder' | 'trends' | 'bondingLab' | 'formulaBuilder' | 'compoundProps' | 'workEnergyLab' | 'pressureLab' | 'cellDivisionLab' | 'cellExplorerLab' | 'cellMembraneLab' | 'plantVsAnimalLab' | 'cellTissueLab' | (string & {});
+  realLifeRelevance?: string[];
+  realWorldApplications?: string[];
+  examTips?: string[];
+  didYouKnow?: string;
   rawPptx?: RawPptxSlide;
 }
 
@@ -126,5 +133,11 @@ export interface QuizQuestion {
   options: string[];
   correctIndex: number;
   explanation: string;
-  topic: string;
+  topic?: string;
+}
+
+export interface ChapterProgressInfo {
+  viewedCount: number;
+  totalSlides: number;
+  percentage: number;
 }

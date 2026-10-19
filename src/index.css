@@ -34,7 +34,7 @@
     background: #ffffff !important;
     color: #0f172a !important;
   }
-  .no-print {
+  header, nav, .no-print, aside, [role="navigation"], button {
     display: none !important;
   }
   .print-slide {
