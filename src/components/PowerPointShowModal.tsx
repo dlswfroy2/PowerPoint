@@ -29,6 +29,8 @@ interface PowerPointShowModalProps {
   setCurrentSlideIndex: React.Dispatch<React.SetStateAction<number>>;
   subjectName?: string;
   chapterNumber?: number;
+  activeSubject?: 'chemistry' | 'physics' | 'biology';
+  onSelectChapter?: (chapter: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14) => void;
   onUpdateSlide?: (updatedSlide: Slide, slideIndex: number) => void;
   onResetSlide?: (slideIndex: number) => void;
   isSlideEdited?: (slideIndex: number) => boolean;
@@ -43,6 +45,45 @@ interface PowerPointShowModalProps {
  * - Laser pointer & Live Annotations Pen
  * - Works identically for standard slides & uploaded .pptx files
  */
+const PPTX_CHAPTER_OPTIONS: Record<string, { id: number; label: string }[]> = {
+  chemistry: [
+    { id: 1, label: 'অধ্যায় ১: রসায়নের ধারণা' },
+    { id: 2, label: 'অধ্যায় ২: পদার্থের অবস্থা' },
+    { id: 3, label: 'অধ্যায় ৩: পদার্থের গঠন' },
+    { id: 4, label: 'অধ্যায় ৪: পর্যায় সারণি' },
+    { id: 5, label: 'অধ্যায় ৫: রাসায়নিক বন্ধন' },
+    { id: 6, label: 'অধ্যায় ৬: মোলের ধারণা ও গণনা' },
+    { id: 7, label: 'অধ্যায় ৭: রাসায়নিক বিক্রিয়া' },
+    { id: 8, label: 'অধ্যায় ৮: রসায়ন ও শক্তি' },
+    { id: 9, label: 'অধ্যায় ৯: এসিড-ক্ষার সমতা' },
+    { id: 10, label: 'অধ্যায় ১০: খনিজ সম্পদ: ধাতু-অধাতু' },
+    { id: 11, label: 'অধ্যায় ১১: খনিজ সম্পদ: জীবাশ্ম' },
+    { id: 12, label: 'অধ্যায় ১২: আমাদের জীবনে রসায়ন' },
+  ],
+  physics: [
+    { id: 4, label: 'অধ্যায় ৪: কাজ, ক্ষমতা ও শক্তি' },
+    { id: 5, label: 'অধ্যায় ৫: পদার্থের অবস্থা ও চাপ' },
+    { id: 6, label: 'অধ্যায় ৬: বস্তুর উপর তাপের প্রভাব' },
+    { id: 7, label: 'অধ্যায় ৭: তরঙ্গ ও শব্দ' },
+  ],
+  biology: [
+    { id: 1, label: 'অধ্যায় ১: জীবন পাঠ' },
+    { id: 2, label: 'অধ্যায় ২: জীবকোষ ও টিস্যু' },
+    { id: 3, label: 'অধ্যায় ৩: কোষ বিভাজন' },
+    { id: 4, label: 'অধ্যায় ৪: জীবনীশক্তি' },
+    { id: 5, label: 'অধ্যায় ৫: খাদ্য, পুষ্টি এবং পরিপাক' },
+    { id: 6, label: 'অধ্যায় ৬: জীবে পরিবহন' },
+    { id: 7, label: 'অধ্যায় ৭: গ্যাসীয় বিনিময়' },
+    { id: 8, label: 'অধ্যায় ৮: রেচন প্রক্রিয়া' },
+    { id: 9, label: 'অধ্যায় ৯: দৃঢ়তা প্রদান ও চলন' },
+    { id: 10, label: 'অধ্যায় ১০: সমন্বয়' },
+    { id: 11, label: 'অধ্যায় ১১: জীবের প্রজনন' },
+    { id: 12, label: 'অধ্যায় ১২: জীবের বংশগতি ও বিবর্তন' },
+    { id: 13, label: 'অধ্যায় ১৩: জীবের পরিবেশ' },
+    { id: 14, label: 'অধ্যায় ১৪: জীবপ্রযুক্তি' },
+  ],
+};
+
 export const PowerPointShowModal: React.FC<PowerPointShowModalProps> = ({
   isOpen,
   onClose,
@@ -50,7 +91,9 @@ export const PowerPointShowModal: React.FC<PowerPointShowModalProps> = ({
   currentSlideIndex,
   setCurrentSlideIndex,
   subjectName = 'বিজ্ঞান',
-  chapterNumber = 1
+  chapterNumber = 1,
+  activeSubject = 'chemistry',
+  onSelectChapter
 }) => {
   const currentSlide = slides[currentSlideIndex];
   
@@ -378,13 +421,32 @@ export const PowerPointShowModal: React.FC<PowerPointShowModalProps> = ({
 
       {/* Fixed Top Header Row (Never clipped, always visible at the very top) */}
       <div className="shrink-0 w-full border-b border-slate-800 bg-slate-950/95 backdrop-blur-md px-4 md:px-8 py-3 flex items-center justify-between z-20">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <span className="px-2.5 py-1 text-xs font-bold rounded-md bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
             {currentSlide.category}
           </span>
-          <span className="text-xs text-slate-400 font-medium">
-            {subjectName} · {currentSlide.chapter ? `অধ্যায় ${currentSlide.chapter}` : ''}
+          <span className="text-xs text-slate-400 font-medium hidden sm:inline">
+            {subjectName}
           </span>
+
+          {/* Chapter Selector inside Fullscreen Slide Show */}
+          {onSelectChapter && (
+            <div className="flex items-center gap-1.5 bg-slate-900/90 border border-slate-700/80 hover:border-cyan-400 rounded-lg px-2 py-1 text-xs shadow-sm transition">
+              <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 shrink-0">অধ্যায়:</span>
+              <select
+                value={chapterNumber}
+                onChange={(e) => onSelectChapter(Number(e.target.value) as any)}
+                className="bg-transparent text-white font-bold text-xs outline-none cursor-pointer max-w-[140px] sm:max-w-[200px] truncate"
+                title="সরাসরি অন্য অধ্যায়ে যান"
+              >
+                {(PPTX_CHAPTER_OPTIONS[activeSubject || 'chemistry'] || []).map((c) => (
+                  <option key={c.id} value={c.id} className="bg-slate-900 text-white font-medium">
+                    {c.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
 
         <div className="flex items-center gap-3">

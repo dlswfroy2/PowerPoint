@@ -646,6 +646,8 @@ export default function App() {
         setCurrentSlideIndex={setCurrentSlideIndex}
         subjectName={subjectLabelsMap[activeSubject] || 'বিজ্ঞান'}
         chapterNumber={activeChapter}
+        activeSubject={activeSubject}
+        onSelectChapter={handleChapterChange}
         onUpdateSlide={handleUpdateSlide}
         onResetSlide={handleResetSlide}
         isSlideEdited={isSlideEdited}

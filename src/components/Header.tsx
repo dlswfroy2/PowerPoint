@@ -41,6 +41,8 @@ import {
   Trophy,
   HelpCircle,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   X,
   Apple,
   Orbit
@@ -232,6 +234,28 @@ export const Header: React.FC<HeaderProps> = ({
     };
   }, [isToolsMenuOpen]);
 
+  // Chapter Prev / Next Navigation Handlers
+  const currentChapterList = CHAPTER_OPTIONS[activeSubject] || [];
+  const currentChapterIdx = currentChapterList.findIndex(c => c.id === activeChapter);
+  const handlePrevChapter = () => {
+    if (currentChapterIdx > 0) {
+      setActiveChapter(currentChapterList[currentChapterIdx - 1].id);
+      setActiveTab('slides');
+    } else if (currentChapterList.length > 0) {
+      setActiveChapter(currentChapterList[currentChapterList.length - 1].id);
+      setActiveTab('slides');
+    }
+  };
+  const handleNextChapter = () => {
+    if (currentChapterIdx < currentChapterList.length - 1) {
+      setActiveChapter(currentChapterList[currentChapterIdx + 1].id);
+      setActiveTab('slides');
+    } else if (currentChapterList.length > 0) {
+      setActiveChapter(currentChapterList[0].id);
+      setActiveTab('slides');
+    }
+  };
+
   // Theme styling based on active subject
   const subjectTheme = 
     activeSubject === 'biology' 
@@ -267,7 +291,7 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="relative mx-auto flex items-center justify-between gap-1.5 sm:gap-4 px-2.5 sm:px-5 py-2 bg-[#0c1730] border-b border-blue-900/60">
         
         {/* Left: Logo & Subject / Chapter Switcher */}
-        <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0 flex-1 sm:flex-initial">
+        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
           {/* Logo Section inside clean rounded white pill */}
           <div className="flex items-center justify-center rounded-xl bg-white px-1.5 sm:px-2 py-1 shadow-sm border border-slate-200 shrink-0 h-9 sm:h-10">
             <img 
@@ -344,12 +368,23 @@ export const Header: React.FC<HeaderProps> = ({
             {/* ডিভাইডার / সেপারেটর */}
             <span className="text-slate-600 font-light select-none hidden xs:inline">/</span>
 
-            {/* পার্ট ২: অধ্যায়ের নাম (Chapter Selector Part) */}
-            <div className="relative flex items-center bg-slate-900/90 border border-slate-700/80 hover:border-cyan-400 rounded-xl px-2 py-1 shadow-sm transition min-w-0 flex-1 sm:flex-initial">
-              <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-slate-400 mr-1.5 hidden xs:inline flex items-center gap-1 shrink-0">
+            {/* পার্ট ২: অধ্যায়ের নাম ও সরাসরি নেভিগেশন বোতাম (Always Visible Chapter Selector) */}
+            <div className="relative flex items-center bg-slate-900/90 border border-slate-700/80 hover:border-cyan-400 rounded-xl px-1.5 sm:px-2 py-1 shadow-sm transition shrink-0 min-w-[175px] sm:min-w-[215px] md:min-w-[250px]">
+              <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-slate-400 mr-1 hidden xs:inline flex items-center gap-1 shrink-0">
                 <span className="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
                 অধ্যায়:
               </span>
+
+              {/* Prev Chapter Arrow Button */}
+              <button
+                type="button"
+                onClick={handlePrevChapter}
+                className="p-1 hover:bg-slate-800 text-slate-400 hover:text-white rounded transition shrink-0"
+                title="পূর্ববর্তী অধ্যায়"
+              >
+                <ChevronLeft className="h-3.5 w-3.5" />
+              </button>
+
               <select
                 value={activeChapter}
                 onChange={(e) => {
@@ -357,7 +392,7 @@ export const Header: React.FC<HeaderProps> = ({
                   setActiveChapter(nextChapter);
                   setActiveTab('slides');
                 }}
-                className="bg-transparent text-white font-bold text-xs sm:text-sm outline-none cursor-pointer transition w-full max-w-[130px] xs:max-w-[170px] sm:max-w-[220px] md:max-w-[270px] truncate"
+                className="bg-transparent text-white font-bold text-xs sm:text-sm outline-none cursor-pointer transition min-w-[110px] sm:min-w-[150px] md:min-w-[180px] max-w-[260px] truncate"
                 title="অধ্যায় নির্বাচন করুন"
               >
                 {(CHAPTER_OPTIONS[activeSubject] || []).map((c) => (
@@ -366,6 +401,16 @@ export const Header: React.FC<HeaderProps> = ({
                   </option>
                 ))}
               </select>
+
+              {/* Next Chapter Arrow Button */}
+              <button
+                type="button"
+                onClick={handleNextChapter}
+                className="p-1 hover:bg-slate-800 text-slate-400 hover:text-white rounded transition shrink-0"
+                title="পরবর্তী অধ্যায়"
+              >
+                <ChevronRight className="h-3.5 w-3.5" />
+              </button>
             </div>
 
             {/* Chapter Slide Progress Badge in Header */}
@@ -438,118 +483,33 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           )}
 
-          {/* Desktop Only Extra Tools (Visible on lg: and up) */}
-          <div className="hidden lg:flex items-center gap-1 sm:gap-1.5">
-            {/* Board CQ Bank Button */}
+          {/* Quick Tools for 2xl: Extra Wide Screens */}
+          <div className="hidden 2xl:flex items-center gap-1 sm:gap-1.5">
             {openBoardCQModal && (
               <button
                 onClick={openBoardCQModal}
                 title="বোর্ড সৃজনশীল প্রশ্ন (CQ) ব্যাংক ও ৪ ধাপের পূর্ণাঙ্গ মডেল উত্তর"
-                className="flex items-center gap-1.5 rounded-lg border border-indigo-500/40 bg-indigo-950/40 px-2 sm:px-2.5 py-1.5 text-xs font-semibold text-indigo-300 transition hover:border-indigo-400 hover:bg-indigo-900/60 hover:text-white shrink-0 whitespace-nowrap"
+                className="flex items-center gap-1.5 rounded-lg border border-indigo-500/40 bg-indigo-950/40 px-2.5 py-1.5 text-xs font-semibold text-indigo-300 transition hover:border-indigo-400 hover:bg-indigo-900/60 hover:text-white shrink-0 whitespace-nowrap"
               >
                 <Award className="h-3.5 w-3.5 text-indigo-400" />
-                <span className="hidden xl:inline">বোর্ড CQ</span>
+                <span>বোর্ড CQ</span>
               </button>
             )}
 
-            {/* Timed Mock Exam Button */}
             {openTimedExamModal && (
               <button
                 onClick={openTimedExamModal}
                 title="টাইমারসহ লাইভ মক টেস্ট ও স্বয়ংক্রিয় মূল্যায়ন"
-                className="flex items-center gap-1.5 rounded-lg border border-emerald-500/40 bg-emerald-950/40 px-2 sm:px-2.5 py-1.5 text-xs font-semibold text-emerald-300 transition hover:border-emerald-400 hover:bg-emerald-900/60 hover:text-white shrink-0 whitespace-nowrap"
+                className="flex items-center gap-1.5 rounded-lg border border-emerald-500/40 bg-emerald-950/40 px-2.5 py-1.5 text-xs font-semibold text-emerald-300 transition hover:border-emerald-400 hover:bg-emerald-900/60 hover:text-white shrink-0 whitespace-nowrap"
               >
                 <Clock className="h-3.5 w-3.5 text-emerald-400" />
-                <span className="hidden xl:inline">মক টেস্ট</span>
-              </button>
-            )}
-
-            {/* Flashcards Button */}
-            {openFlashcardsModal && (
-              <button
-                onClick={openFlashcardsModal}
-                title="স্মার্ট রিভিশন ফ্ল্যাশকার্ড ও গুরুত্বপূর্ণ নোটস"
-                className="flex items-center gap-1.5 rounded-lg border border-amber-500/40 bg-amber-950/40 px-2 sm:px-2.5 py-1.5 text-xs font-semibold text-amber-300 transition hover:border-amber-400 hover:bg-amber-900/60 hover:text-white shrink-0 whitespace-nowrap"
-              >
-                <Sparkles className="h-3.5 w-3.5 text-amber-400" />
-                <span className="hidden xl:inline">ফ্ল্যাশকার্ড</span>
-              </button>
-            )}
-
-            {/* Student Notes Button */}
-            {openStudentNotesModal && (
-              <button
-                onClick={openStudentNotesModal}
-                title="শিক্ষার্থীর ব্যক্তিগত নোটবুক ও রিভিশন পয়েন্ট"
-                className="flex items-center gap-1.5 rounded-lg border border-cyan-500/40 bg-cyan-950/40 px-2 sm:px-2.5 py-1.5 text-xs font-semibold text-cyan-300 transition hover:border-cyan-400 hover:bg-cyan-900/60 hover:text-white shrink-0 whitespace-nowrap"
-              >
-                <FileText className="h-3.5 w-3.5 text-cyan-400" />
-                <span className="hidden xl:inline">নোটস</span>
-              </button>
-            )}
-
-            {/* Handout Print */}
-            <button
-              onClick={openPrintView}
-              title="ক্লাস হ্যান্ডআউট প্রিন্ট বা PDF সংরক্ষণ"
-              className="flex items-center gap-1 rounded-lg border border-slate-700 bg-slate-900/90 px-2 sm:px-2.5 py-1.5 text-xs font-medium text-slate-200 transition hover:border-slate-600 hover:bg-slate-800 hover:text-white shrink-0 whitespace-nowrap"
-            >
-              <BookOpen className="h-3.5 w-3.5 text-amber-400" />
-              <span className="hidden xl:inline">হ্যান্ডআউট</span>
-            </button>
-
-            {/* Presenter View */}
-            {activeTab === 'slides' && (
-              <button
-                onClick={openPresenterModal}
-                title="প্রেজেন্টার মোড ও শিক্ষক স্পিকার নোটস"
-                className="flex items-center gap-1 rounded-lg border border-slate-700 bg-slate-900/90 px-2 sm:px-2.5 py-1.5 text-xs font-medium text-slate-200 transition hover:border-slate-600 hover:bg-slate-800 hover:text-white shrink-0 whitespace-nowrap"
-              >
-                <FileText className="h-3.5 w-3.5 text-cyan-400" />
-                <span className="hidden xl:inline">প্রেজেন্টার</span>
-              </button>
-            )}
-
-            {/* PPTX Export */}
-            {onExportPptx && (
-              <button
-                onClick={onExportPptx}
-                disabled={isExportingPptx}
-                title="মাইক্রোসফট পাওয়ারপয়েন্ট (.pptx) ফাইল ডাউনলোড করুন"
-                className="flex items-center gap-1.5 rounded-lg border border-orange-500/40 bg-orange-500/10 px-2 sm:px-2.5 py-1.5 text-xs font-semibold text-orange-300 transition hover:border-orange-500/60 hover:bg-orange-500/20 hover:text-white disabled:opacity-50 shrink-0 whitespace-nowrap"
-              >
-                <Presentation className="h-3.5 w-3.5 text-orange-400" />
-                <span className="hidden 2xl:inline">{isExportingPptx ? 'তৈরি হচ্ছে...' : 'PPTX ডাউনলোড'}</span>
-              </button>
-            )}
-
-            {/* PPTX Upload */}
-            {onOpenPptxUpload && (
-              <button
-                onClick={onOpenPptxUpload}
-                title="সম্পাদিত পাওয়ারপয়েন্ট (.pptx) ফাইল আপলোড করুন"
-                className="flex items-center gap-1.5 rounded-lg border border-indigo-500/40 bg-indigo-500/10 px-2 sm:px-2.5 py-1.5 text-xs font-semibold text-indigo-300 transition hover:border-indigo-500/60 hover:bg-indigo-500/20 hover:text-white shrink-0 whitespace-nowrap"
-              >
-                <Upload className="h-3.5 w-3.5 text-indigo-400" />
-                <span className="hidden 2xl:inline">PPTX আপলোড</span>
-              </button>
-            )}
-
-            {/* Reset to Original */}
-            {isCustomSlidesActive && onResetCustomSlides && (
-              <button
-                onClick={onResetCustomSlides}
-                title="আসল স্লাইডে ফিরে যান"
-                className="flex items-center gap-1 rounded-lg border border-amber-500/40 bg-amber-500/10 px-2 py-1.5 text-xs font-semibold text-amber-300 transition hover:bg-amber-500/20 shrink-0 whitespace-nowrap"
-              >
-                <RotateCcw className="h-3.5 w-3.5" />
-                <span className="hidden 2xl:inline">আসল স্লাইড</span>
+                <span>মক টেস্ট</span>
               </button>
             )}
           </div>
 
-          {/* Mobile & Tablet Tools Dropdown (< lg:) */}
-          <div className="relative lg:hidden" ref={toolsMenuRef}>
+          {/* Unified Tools Dropdown Menu (Accessible on ALL screen sizes, preventing clutter) */}
+          <div className="relative" ref={toolsMenuRef}>
             <button
               onClick={() => setIsToolsMenuOpen(!isToolsMenuOpen)}
               title="সকল টুলস ও ফিচার মেনু"
